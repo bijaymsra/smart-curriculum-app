@@ -1,0 +1,14 @@
+# Node (Frontend)
+frontend/node_modules/
+frontend/.env
+frontend/build/
+frontend/.DS_Store
+
+# Java (Backend)
+backend/target/
+backend/.mvn/
+backend/*.jar
+backend/.DS_Store
+
+# General
+.DS_Store
