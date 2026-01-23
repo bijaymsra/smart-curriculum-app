@@ -349,7 +349,7 @@ export default function FacultyDashboard() {
                 <button
                   onClick={() => {
                     sessionStorage.clear();
-                    navigate("/faculty/login");
+                    navigate("/login");
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-colors"
                 >

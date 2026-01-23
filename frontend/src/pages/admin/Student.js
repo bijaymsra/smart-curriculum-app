@@ -713,13 +713,6 @@ export default function Student() {
                         >
                           <Eye size={18} className="text-slate-400 group-hover/btn:text-blue-400" />
                         </button>
-                        <button
-                          onClick={() => handleEditStudent(student.id || student.publicId)}
-                          className="p-2 hover:bg-emerald-500/20 rounded-lg transition-all group/btn"
-                          title="Edit Student"
-                        >
-                          <Edit2 size={18} className="text-slate-400 group-hover/btn:text-emerald-400" />
-                        </button>
                       </div>
                     </td>
                   </tr>

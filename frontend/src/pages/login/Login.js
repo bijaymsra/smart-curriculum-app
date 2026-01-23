@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Eye, EyeOff, Mail, Lock, Loader2, User, Building, 
   Shield, GraduationCap, Key, CheckCircle, AlertCircle,
-  Smartphone, Fingerprint, Sparkles, Cpu, ShieldCheck,
-  LogIn, ArrowRight, ChevronRight
+  Smartphone, Fingerprint
 } from "lucide-react";
 import logo from "../images/logo.png";
 
 export default function Login() {
-  const [userType, setUserType] = useState("admin");
+  const [userType, setUserType] = useState("admin"); // "admin", "superadmin", "faculty", "student"
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,85 +19,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [activeField, setActiveField] = useState("");
-  
-  const formRef = useRef(null);
 
-  // Particle animation
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '1';
-    document.body.appendChild(canvas);
-
-    let particles = [];
-    let animationId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 0.5;
-        this.speedX = Math.random() * 0.5 - 0.25;
-        this.speedY = Math.random() * 0.5 - 0.25;
-        this.color = `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, 0.1)`;
-      }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x > canvas.width) this.x = 0;
-        else if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        else if (this.y < 0) this.y = canvas.height;
-      }
-      draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    const init = () => {
-      particles = [];
-      for (let i = 0; i < 50; i++) {
-        particles.push(new Particle());
-      }
-    };
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
-      animationId = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener('resize', resize);
-    resize();
-    init();
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-      document.body.removeChild(canvas);
-    };
-  }, []);
-
-  // Load saved credentials
+  // Load saved credentials if "Remember Me" was checked
   useEffect(() => {
     const savedUserType = localStorage.getItem("attenza_userType");
     const savedEmail = localStorage.getItem("attenza_email");
@@ -113,12 +35,13 @@ export default function Login() {
     }
   }, []);
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    // Validation
+    // Validation based on user type
     let validationError = "";
     
     switch (userType) {
@@ -138,6 +61,8 @@ export default function Login() {
           validationError = "Registration number, password, and institution ID are required";
         }
         break;
+      default:
+        validationError = "Please select a valid user type";
     }
 
     if (validationError) {
@@ -148,11 +73,17 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Save credentials
+      // Save credentials if "Remember Me" is checked
       if (rememberMe) {
         localStorage.setItem("attenza_userType", userType);
-        if (userType === "admin") localStorage.setItem("attenza_email", email);
+        if (userType === "admin") {
+          localStorage.setItem("attenza_email", email);
+        }
         localStorage.setItem("attenza_rememberMe", "true");
+      } else {
+        localStorage.removeItem("attenza_userType");
+        localStorage.removeItem("attenza_email");
+        localStorage.removeItem("attenza_rememberMe");
       }
 
       let endpoint = "";
@@ -168,7 +99,7 @@ export default function Login() {
           requestBody = { username, password };
           break;
         case "faculty":
-          endpoint = "http://localhost:8080/api/faculty-auth/login";
+          endpoint = "http://localhost:8080/api/faculty/auth/login";
           requestBody = { institutionId, facultyId, password };
           break;
         case "student":
@@ -189,7 +120,7 @@ export default function Login() {
         throw new Error(data.message || `Login failed for ${userType}`);
       }
 
-      // Save session data
+      // Save session data based on user type
       switch (userType) {
         case "admin":
           sessionStorage.setItem("adminId", data.adminId);
@@ -199,8 +130,7 @@ export default function Login() {
           sessionStorage.setItem("adminStatus", data.status);
           sessionStorage.setItem("institutionId", data.institutionId);
           sessionStorage.setItem("userType", "admin");
-          setSuccess("Welcome back! Redirecting to Admin Dashboard...");
-          setTimeout(() => window.location.href = "/admin", 1500);
+          window.location.href = "/admin";
           break;
         
         case "superadmin":
@@ -209,8 +139,7 @@ export default function Login() {
           sessionStorage.setItem("superAdminName", data.fullName);
           sessionStorage.setItem("superAdminRole", data.role);
           sessionStorage.setItem("userType", "superadmin");
-          setSuccess("Welcome Super Admin! Redirecting...");
-          setTimeout(() => window.location.href = "/superadmin/dashboard", 1500);
+          window.location.href = "/superadmin/dashboard";
           break;
         
         case "faculty":
@@ -221,8 +150,7 @@ export default function Login() {
           sessionStorage.setItem("institutionName", data.institutionName);
           sessionStorage.setItem("institutionId", data.institutionId);
           sessionStorage.setItem("userType", "faculty");
-          setSuccess("Welcome Professor! Redirecting to Faculty Portal...");
-          setTimeout(() => window.location.href = "/faculty/dashboard", 1500);
+          window.location.href = "/faculty/dashboard";
           break;
         
         case "student":
@@ -234,10 +162,11 @@ export default function Login() {
           sessionStorage.setItem("institutionPublicId", data.institutionPublicId);
           sessionStorage.setItem("institutionId", data.institutionId);
           sessionStorage.setItem("userType", "student");
-          setSuccess("Welcome Student! Redirecting to Dashboard...");
-          setTimeout(() => window.location.href = "/student/dashboard", 1500);
+          window.location.href = "/student/dashboard";
           break;
       }
+
+      setSuccess(`Welcome back! Redirecting to ${userType} dashboard...`);
 
     } catch (err) {
       setError(err.message);
@@ -246,50 +175,18 @@ export default function Login() {
     }
   };
 
-  const getUserTypeConfig = (type) => {
+  // Get user type color scheme
+  const getUserTypeColor = (type) => {
     switch (type) {
-      case "admin": 
-        return {
-          gradient: "from-blue-600 via-indigo-600 to-purple-600",
-          color: "blue",
-          icon: Building,
-          title: "Institutional Admin",
-          desc: "Manage institution settings & analytics"
-        };
-      case "superadmin": 
-        return {
-          gradient: "from-rose-600 via-red-600 to-orange-600",
-          color: "red",
-          icon: Shield,
-          title: "System Super Admin",
-          desc: "Full system control & management"
-        };
-      case "faculty": 
-        return {
-          gradient: "from-indigo-600 via-purple-600 to-violet-600",
-          color: "indigo",
-          icon: GraduationCap,
-          title: "Faculty Member",
-          desc: "Access teaching materials & analytics"
-        };
-      case "student": 
-        return {
-          gradient: "from-emerald-600 via-green-600 to-teal-600",
-          color: "green",
-          icon: User,
-          title: "Student",
-          desc: "Access courses & attendance"
-        };
-      default: return {
-        gradient: "from-blue-600 to-purple-600",
-        color: "blue",
-        icon: Building
-      };
+      case "admin": return { bg: "from-blue-500 to-purple-500", text: "text-blue-400", border: "border-blue-500/30", bgLight: "bg-blue-500/20" };
+      case "superadmin": return { bg: "from-red-500 to-orange-500", text: "text-red-400", border: "border-red-500/30", bgLight: "bg-red-500/20" };
+      case "faculty": return { bg: "from-indigo-500 to-violet-500", text: "text-indigo-400", border: "border-indigo-500/30", bgLight: "bg-indigo-500/20" };
+      case "student": return { bg: "from-green-500 to-emerald-500", text: "text-green-400", border: "border-green-500/30", bgLight: "bg-green-500/20" };
+      default: return { bg: "from-blue-500 to-purple-500", text: "text-blue-400", border: "border-blue-500/30", bgLight: "bg-blue-500/20" };
     }
   };
 
-  const config = getUserTypeConfig(userType);
-
+  // Clear all form fields
   const clearForm = () => {
     setEmail("");
     setUsername("");
@@ -301,401 +198,391 @@ export default function Login() {
     setSuccess("");
   };
 
+  // Handle user type change
   const handleUserTypeChange = (type) => {
     clearForm();
     setUserType(type);
   };
 
-  // Field components for reusability
-  const InputField = ({ 
-    label, 
-    value, 
-    onChange, 
-    type = "text", 
-    placeholder, 
-    icon: Icon, 
-    fieldKey,
-    autoCapitalize = false 
-  }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-        <span>{label}</span>
-        {activeField === fieldKey && (
-          <span className="inline-flex items-center gap-1 text-xs text-blue-400">
-            <ChevronRight size={12} />
-            Active
-          </span>
-        )}
-      </label>
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur-sm group-focus-within:blur-md transition-all duration-300 opacity-0 group-focus-within:opacity-100"></div>
-        <div className="relative">
-          <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors z-10" size={20} />
-          <input
-            type={type}
-            value={value}
-            onChange={(e) => onChange(autoCapitalize ? e.target.value.toUpperCase() : e.target.value)}
-            onFocus={() => setActiveField(fieldKey)}
-            onBlur={() => setActiveField("")}
-            className="w-full pl-12 pr-4 py-4 bg-slate-900/60 backdrop-blur-sm border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 relative z-10"
-            placeholder={placeholder}
-          />
-        </div>
-      </div>
-    </div>
-  );
+  // Get current color scheme
+  const colors = getUserTypeColor(userType);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+      
+      {/* LEFT BRANDING SECTION */}
+      <div className="hidden lg:flex flex-col justify-between p-12 text-white relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
+        
+        <div className="relative z-10">
+          <a href="/" className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors mb-12 group">
+            <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+          </a>
 
-      {/* Main Container */}
-      <div className="relative w-full max-w-7xl mx-auto z-10">
-        <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Left Panel - Brand & Features */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-xl opacity-30"></div>
-                  <img src={logo} alt="Attenza" className="h-14 w-14 relative z-10" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
-                    Attenza
-                  </h1>
-                  <p className="text-slate-400 text-sm">Enterprise Campus Management</p>
-                </div>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 blur-lg opacity-50"></div>
+              <img src={logo} alt="Attenza" className="h-16 w-16 relative z-10" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Attenza
+              </h1>
+              <p className="text-slate-400 text-sm mt-1">Smart Campus Management</p>
+            </div>
+          </div>
+
+          <p className="text-slate-300 max-w-md text-lg mb-10">
+            Unified platform for attendance tracking, academic planning, and institutional analytics.
+          </p>
+
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-blue-400" />
               </div>
-              <a 
-                href="/" 
-                className="group flex items-center gap-2 text-slate-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-slate-800/50"
-              >
-                <ArrowRight className="w-4 h-4 rotate-180" />
-                <span className="text-sm font-medium">Back to Home</span>
-              </a>
+              <div>
+                <h3 className="font-semibold text-white">Multi-User Access</h3>
+                <p className="text-slate-400 text-sm">Seamless login for all institutional roles</p>
+              </div>
             </div>
 
-            {/* Hero Section */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700">
-                <Sparkles className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-slate-300">Industry-Grade Authentication System</span>
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <Shield className="w-6 h-6 text-green-400" />
               </div>
-              <h2 className="text-5xl font-bold text-white leading-tight">
-                Secure Access to Your <br />
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Institutional Portal
-                </span>
-              </h2>
-              <p className="text-xl text-slate-400 max-w-2xl">
-                Unified platform for administrators, faculty, and students with enterprise-level security and real-time analytics.
-              </p>
+              <div>
+                <h3 className="font-semibold text-white">Enterprise Security</h3>
+                <p className="text-slate-400 text-sm">Bank-level encryption & secure authentication</p>
+              </div>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-6 pt-8">
-              <div className="group p-6 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-blue-500/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="p-3 bg-blue-500/10 rounded-xl w-fit mb-4">
-                  <ShieldCheck className="w-6 h-6 text-blue-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Military-Grade Security</h3>
-                <p className="text-slate-400 text-sm">256-bit encryption, 2FA ready, SOC2 compliant infrastructure.</p>
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Smartphone className="w-6 h-6 text-purple-400" />
               </div>
-
-              <div className="group p-6 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="p-3 bg-purple-500/10 rounded-xl w-fit mb-4">
-                  <Cpu className="w-6 h-6 text-purple-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Real-time Analytics</h3>
-                <p className="text-slate-400 text-sm">Live dashboards, predictive insights, and automated reports.</p>
-              </div>
-
-              <div className="group p-6 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-green-500/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="p-3 bg-green-500/10 rounded-xl w-fit mb-4">
-                  <Smartphone className="w-6 h-6 text-green-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Cross-Platform</h3>
-                <p className="text-slate-400 text-sm">Access anywhere, any device with responsive design.</p>
+              <div>
+                <h3 className="font-semibold text-white">Real-time Analytics</h3>
+                <p className="text-slate-400 text-sm">Instant insights and detailed reports</p>
               </div>
             </div>
           </div>
 
-          {/* Right Panel - Login Card */}
-          <div className="lg:col-span-1">
-            <div className="relative">
-              {/* Glowing effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-lg opacity-20"></div>
-              
-              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-800/50 p-8 shadow-2xl">
-                {/* User Type Tabs */}
-                <div className="grid grid-cols-4 gap-2 mb-8 p-1 bg-slate-800/30 rounded-xl">
-                  {["admin", "superadmin", "faculty", "student"].map((type) => {
-                    const typeConfig = getUserTypeConfig(type);
-                    const Icon = typeConfig.icon;
-                    const isActive = userType === type;
-                    
-                    return (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => handleUserTypeChange(type)}
-                        className={`relative py-3 px-2 rounded-lg transition-all duration-300 ${
-                          isActive 
-                            ? `bg-gradient-to-b ${typeConfig.gradient} text-white shadow-lg`
-                            : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-                        }`}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <Icon className="w-5 h-5" />
-                          <span className="text-xs font-medium capitalize">{type}</span>
-                        </div>
-                        {isActive && (
-                          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Current User Type Info */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${config.gradient}`}>
-                      <config.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{config.title}</h3>
-                      <p className="text-sm text-slate-400">{config.desc}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                {error && (
-                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl animate-fadeIn">
-                    <div className="flex items-center gap-3">
-                      <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                      <p className="text-red-400 text-sm">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                {success && (
-                  <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl animate-fadeIn">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      <p className="text-green-400 text-sm">{success}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Login Form */}
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
-                  {/* Institution ID (for Faculty & Student) */}
-                  {(userType === "faculty" || userType === "student") && (
-                    <InputField
-                      label="Institution ID"
-                      value={institutionId}
-                      onChange={setInstitutionId}
-                      placeholder="INST-6B139E59"
-                      icon={Building}
-                      fieldKey="institutionId"
-                      autoCapitalize={true}
-                    />
-                  )}
-
-                  {/* Faculty ID (Only for Faculty) */}
-                  {userType === "faculty" && (
-                    <InputField
-                      label="Faculty ID"
-                      value={facultyId}
-                      onChange={setFacultyId}
-                      placeholder="FACA0E95"
-                      icon={Key}
-                      fieldKey="facultyId"
-                      autoCapitalize={true}
-                    />
-                  )}
-
-                  {/* Main Identifier Field */}
-                  {userType === "admin" && (
-                    <InputField
-                      label="Email Address"
-                      value={email}
-                      onChange={setEmail}
-                      type="email"
-                      placeholder="admin@institution.edu"
-                      icon={Mail}
-                      fieldKey="email"
-                    />
-                  )}
-
-                  {userType === "superadmin" && (
-                    <InputField
-                      label="Username"
-                      value={username}
-                      onChange={setUsername}
-                      placeholder="superadmin"
-                      icon={Shield}
-                      fieldKey="username"
-                    />
-                  )}
-
-                  {userType === "student" && (
-                    <InputField
-                      label="Registration Number"
-                      value={registrationNo}
-                      onChange={setRegistrationNo}
-                      placeholder="REG12345678"
-                      icon={User}
-                      fieldKey="registrationNo"
-                    />
-                  )}
-
-                  {/* Password Field */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300 flex items-center justify-between">
-                      <span>Password</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const message = userType === "admin" || userType === "superadmin" 
-                            ? "Contact system administrator for password reset"
-                            : "Contact your institutional IT department";
-                          alert(message);
-                        }}
-                        className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
-                      >
-                        Forgot Password?
-                      </button>
-                    </label>
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur-sm group-focus-within:blur-md transition-all duration-300 opacity-0 group-focus-within:opacity-100"></div>
-                      <div className="relative flex items-center">
-                        <Lock className="absolute left-4 text-slate-400 group-focus-within:text-blue-400 transition-colors z-10" size={20} />
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          onFocus={() => setActiveField("password")}
-                          onBlur={() => setActiveField("")}
-                          className="w-full pl-12 pr-12 py-4 bg-slate-900/60 backdrop-blur-sm border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 relative z-10"
-                          placeholder="Enter your password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 text-slate-400 hover:text-white transition-colors z-10"
-                        >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      </div>
-                    </div>
-                    {(userType === "faculty" || userType === "student") && (
-                      <p className="text-xs text-slate-500">
-                        Initial password sent to your institutional email
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Remember Me */}
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative">
-                        <input 
-                          type="checkbox" 
-                          checked={rememberMe}
-                          onChange={(e) => setRememberMe(e.target.checked)}
-                          className="sr-only"
-                        />
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                          rememberMe 
-                            ? `bg-gradient-to-br ${config.gradient} border-transparent`
-                            : "bg-slate-800/60 border-slate-600 group-hover:border-slate-500"
-                        }`}>
-                          {rememberMe && <CheckCircle className="w-3.5 h-3.5 text-white" />}
-                        </div>
-                      </div>
-                      <span className="text-sm text-slate-300 select-none">Remember this device</span>
-                    </label>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full relative overflow-hidden py-4 rounded-xl font-semibold transition-all duration-500 ${
-                      loading 
-                        ? "opacity-80 cursor-not-allowed" 
-                        : "hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]"
-                    } bg-gradient-to-r ${config.gradient} text-white`}
-                  >
-                    {loading ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Authenticating...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="relative z-10 flex items-center justify-center gap-3">
-                          <LogIn className="w-5 h-5" />
-                          <span>Sign In as {config.title}</span>
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                {/* Additional Info */}
-                <div className="mt-8 pt-6 border-t border-slate-800">
-                  <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
-                    <Fingerprint className="w-4 h-4" />
-                    <span>Secure SSL Connection • Encrypted Session</span>
-                  </div>
-                  <p className="text-center text-xs text-slate-600 mt-3">
-                    By signing in, you agree to our Terms of Service and Privacy Policy
-                  </p>
-                </div>
-              </div>
+          <div className="mt-12 pt-8 border-t border-slate-700/50">
+            <div className="flex items-center gap-4 text-sm text-slate-400">
+              <Fingerprint className="w-5 h-5" />
+              <span>Secure Login • Encrypted Connection • 24/7 Support</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="fixed bottom-6 left-0 right-0 text-center z-10">
-        <p className="text-sm text-slate-600">
-          © {new Date().getFullYear()} Attenza Systems. All Rights Reserved. v2.1.0
+        <p className="text-xs text-slate-500 relative z-10">
+          © {new Date().getFullYear()} Attenza. All rights reserved.
         </p>
       </div>
 
-      {/* Add custom animations */}
-      <style jsx>{`
-        @keyframes gradient {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+      {/* RIGHT LOGIN SECTION */}
+      <div className="flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Welcome to <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Attenza</span>
+            </h2>
+            <p className="text-slate-400">
+              Sign in to your institutional account
+            </p>
+          </div>
+
+          {/* User Type Selection */}
+          <div className="grid grid-cols-2 gap-3 mb-8">
+            <button
+              type="button"
+              onClick={() => handleUserTypeChange("admin")}
+              className={`p-3 rounded-xl transition-all duration-300 ${userType === "admin" 
+                ? "bg-blue-500/20 border border-blue-500/50 shadow-lg shadow-blue-500/10" 
+                : "bg-slate-700/30 hover:bg-slate-700/50 border border-slate-700"}`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Building className={`w-5 h-5 ${userType === "admin" ? "text-blue-400" : "text-slate-400"}`} />
+                <span className={`text-sm font-medium ${userType === "admin" ? "text-blue-300" : "text-slate-300"}`}>
+                  Admin
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleUserTypeChange("superadmin")}
+              className={`p-3 rounded-xl transition-all duration-300 ${userType === "superadmin" 
+                ? "bg-red-500/20 border border-red-500/50 shadow-lg shadow-red-500/10" 
+                : "bg-slate-700/30 hover:bg-slate-700/50 border border-slate-700"}`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Shield className={`w-5 h-5 ${userType === "superadmin" ? "text-red-400" : "text-slate-400"}`} />
+                <span className={`text-sm font-medium ${userType === "superadmin" ? "text-red-300" : "text-slate-300"}`}>
+                  Super Admin
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleUserTypeChange("faculty")}
+              className={`p-3 rounded-xl transition-all duration-300 ${userType === "faculty" 
+                ? "bg-indigo-500/20 border border-indigo-500/50 shadow-lg shadow-indigo-500/10" 
+                : "bg-slate-700/30 hover:bg-slate-700/50 border border-slate-700"}`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <GraduationCap className={`w-5 h-5 ${userType === "faculty" ? "text-indigo-400" : "text-slate-400"}`} />
+                <span className={`text-sm font-medium ${userType === "faculty" ? "text-indigo-300" : "text-slate-300"}`}>
+                  Faculty
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleUserTypeChange("student")}
+              className={`p-3 rounded-xl transition-all duration-300 ${userType === "student" 
+                ? "bg-green-500/20 border border-green-500/50 shadow-lg shadow-green-500/10" 
+                : "bg-slate-700/30 hover:bg-slate-700/50 border border-slate-700"}`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <User className={`w-5 h-5 ${userType === "student" ? "text-green-400" : "text-slate-400"}`} />
+                <span className={`text-sm font-medium ${userType === "student" ? "text-green-300" : "text-slate-300"}`}>
+                  Student
+                </span>
+              </div>
+            </button>
+          </div>
+
+          {/* Status Messages */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3 animate-fadeIn">
+              <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-start gap-3 animate-fadeIn">
+              <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+              <p className="text-green-400 text-sm">{success}</p>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Institution ID (for Faculty & Student) */}
+            {(userType === "faculty" || userType === "student") && (
+              <div>
+                <label className="text-sm text-slate-300 mb-2 block">
+                  Institution ID
+                </label>
+                <div className="relative group">
+                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400" size={18} />
+                  <input
+                    type="text"
+                    value={institutionId}
+                    onChange={(e) => setInstitutionId(e.target.value.toUpperCase())}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-700/50 text-white border border-slate-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    placeholder="INST-6B139E59"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-slate-500">
+                  Provided by your institution (e.g., INST-6B139E59)
+                </p>
+              </div>
+            )}
+
+            {/* Faculty ID (for Faculty only) */}
+            {userType === "faculty" && (
+              <div>
+                <label className="text-sm text-slate-300 mb-2 block">
+                  Faculty ID
+                </label>
+                <div className="relative group">
+                  <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-400" size={18} />
+                  <input
+                    type="text"
+                    value={facultyId}
+                    onChange={(e) => setFacultyId(e.target.value.toUpperCase())}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-700/50 text-white border border-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                    placeholder="FACA0E95"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-slate-500">
+                  Sent to your institutional email
+                </p>
+              </div>
+            )}
+
+            {/* Username / Email / Registration (NOT for Faculty) */}
+            {userType !== "faculty" && (
+              <div>
+                <label className="text-sm text-slate-300 mb-2 block">
+                  {userType === "admin"
+                    ? "Email Address"
+                    : userType === "superadmin"
+                    ? "Username"
+                    : "Registration Number"}
+                </label>
+
+                <div className="relative group">
+                  <input
+                    type={userType === "admin" ? "email" : "text"}
+                    value={
+                      userType === "admin"
+                        ? email
+                        : userType === "superadmin"
+                        ? username
+                        : registrationNo
+                    }
+                    onChange={(e) => {
+                      if (userType === "admin") setEmail(e.target.value);
+                      else if (userType === "superadmin") setUsername(e.target.value);
+                      else setRegistrationNo(e.target.value);
+                    }}
+                    placeholder={
+                      userType === "admin"
+                        ? "admin@institution.edu"
+                        : userType === "superadmin"
+                        ? "superadmin"
+                        : "REG123456"
+                    }
+                    className="w-full pl-4 pr-4 py-3 rounded-xl bg-slate-700/50 text-white border border-slate-600"
+                  />
+                </div>
+              </div>
+            )}
+
+
+
+            {/* Password Field */}
+            <div>
+              <label className="text-sm text-slate-300 mb-2 block">
+                Password
+              </label>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400" size={18} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 rounded-xl bg-slate-700/50 text-white border border-slate-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {(userType === "faculty" || userType === "student") && (
+                <p className="mt-2 text-xs text-slate-500">
+                  System-generated password sent to your email
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-3 text-slate-300 cursor-pointer group">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                    rememberMe 
+                      ? `${colors.bgLight} border-${colors.text.split('text-')[1]}`
+                      : "bg-slate-700/50 border-slate-600 group-hover:border-slate-500"
+                  }`}>
+                    {rememberMe && (
+                      <CheckCircle className="w-4 h-4 text-blue-400" />
+                    )}
+                  </div>
+                </div>
+                <span className="select-none">Remember me</span>
+              </label>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  const message = userType === "admin" || userType === "superadmin" 
+                    ? "Contact system administrator for password reset"
+                    : "Contact your institution administrator for password reset";
+                  alert(message);
+                }}
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full relative overflow-hidden py-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${
+                loading ? "opacity-80 cursor-not-allowed" : ""
+              } bg-gradient-to-r ${colors.bg} text-white`}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Authenticating...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    {userType === "admin" && <Building className="w-5 h-5" />}
+                    {userType === "superadmin" && <Shield className="w-5 h-5" />}
+                    {userType === "faculty" && <GraduationCap className="w-5 h-5" />}
+                    {userType === "student" && <User className="w-5 h-5" />}
+                    <span>Sign In as {userType.charAt(0).toUpperCase() + userType.slice(1)}</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity"></div>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Additional Info & Help */}
+          <div className="mt-8 pt-6 border-t border-slate-700/50">
+            <div className="text-center space-y-3">
+              <p className="text-slate-400 text-sm">
+                {userType === "admin" || userType === "superadmin" 
+                  ? "Need help accessing your account?"
+                  : "Having trouble logging in?"}{" "}
+                <button
+                  type="button"
+                  onClick={() => alert("Please contact your institutional IT support team for assistance.")}
+                  className={`${colors.text} hover:underline`}
+                >
+                  Contact Support
+                </button>
+              </p>
+              
+              <div className="text-xs text-slate-500 space-y-1">
+                <p>Your credentials are encrypted and secure</p>
+                <p>Session expires after 24 hours of inactivity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
