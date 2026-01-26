@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, 
-  Clock, TrendingUp, Plus, ChevronLeft, ChevronRight, ChevronsLeft, 
-  ChevronsRight, Download, Edit2, GraduationCap 
-} from 'lucide-react';
+import { Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, Clock, TrendingUp, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Edit2, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
+import API_BASE from "../../config/api";
 
 export default function Student() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,8 +71,8 @@ export default function Student() {
     console.log("Fetching students for admin:", admin.adminId);
 
     Promise.all([
-      fetch(`http://localhost:8080/api/admin/students?adminId=${admin.adminId}`),
-      fetch(`http://localhost:8080/api/admin/students/stats?adminId=${admin.adminId}`)
+      fetch(`${API_BASE}/api/admin/students?adminId=${admin.adminId}`),
+      fetch(`${API_BASE}/api/admin/students/stats?adminId=${admin.adminId}`)
     ])
     .then(async ([studentsRes, statsRes]) => {
       if (!studentsRes.ok) throw new Error(`Failed to fetch students: ${studentsRes.status}`);

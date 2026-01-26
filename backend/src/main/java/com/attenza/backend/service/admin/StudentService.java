@@ -13,6 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.attenza.backend.timetable.service.StudentGroupService;
+import com.attenza.backend.repository.faculty.DepartmentRepository;
+import com.attenza.backend.entity.Department;
+import com.attenza.backend.exception.BadRequestException;
+
+
+
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +37,9 @@ public class StudentService {
     private final IdGenerator idGenerator;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final StudentGroupService studentGroupService;
+    private final DepartmentRepository departmentRepository;
+
 
     /* ======================
        READ OPERATIONS
@@ -45,16 +55,16 @@ public class StudentService {
         }
 
         // Helper method to escape ALL special format characters
-private String escapeForFormat(String input) {
-    if (input == null) {
-        return "";
-    }
+        private String escapeForFormat(String input) {
+            if (input == null) {
+                return "";
+            }
     // Escape % first, then other format-related characters
-    return input
-        .replace("%", "%%")
-        .replace("\\n", "\\\\n")  // Escape newlines if present
-        .replace("\\t", "\\\\t"); // Escape tabs if present
-}
+        return input
+            .replace("%", "%%")
+            .replace("\\n", "\\\\n")  // Escape newlines if present
+            .replace("\\t", "\\\\t"); // Escape tabs if present
+        }
 
     public List<StudentResponse> getStudentsForAdmin(Long adminId) {
 
@@ -101,13 +111,13 @@ private String escapeForFormat(String input) {
     //     );
     // }
 
-public StudentStatsResponse getStats(Long adminId) {
-    AdminUser admin = adminUserRepository.findById(adminId)
-            .orElseThrow(() -> new RuntimeException("Admin not found"));
+    public StudentStatsResponse getStats(Long adminId) {
+        AdminUser admin = adminUserRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-    Long institutionId = admin.getInstitution().getId();
-    return getStudentStats(institutionId);
-}
+        Long institutionId = admin.getInstitution().getId();
+        return getStudentStats(institutionId);
+    }
 
 public StudentStatsResponse getStudentStats(Long institutionId) {
     // Total students
@@ -151,13 +161,62 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
             student.setPublicId(idGenerator.generatePublicStudentId(regNo));
             student.setInstitution(admin.getInstitution());
 
-            // ✅ IMPORTANT
+            
             student.setStatus(StudentStatus.PENDING);
             student.setAttendancePercentage(0);
 
             Student saved = studentRepository.save(student);
             return toResponse(saved);
         }
+
+
+        // @Transactional
+        // public StudentResponse createStudent(Student student, Long adminId) {
+
+        //     AdminUser admin = adminUserRepository.findById(adminId)
+        //             .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        //     // Generate IDs
+        //     String regNo = idGenerator.generateStudentRegistrationNo(
+        //             admin.getInstitution().getId()
+        //     );
+
+        //     student.setRegistrationNo(regNo);
+        //     student.setPublicId(idGenerator.generatePublicStudentId(regNo));
+        //     student.setInstitution(admin.getInstitution());
+
+        //     // Initial state
+        //     student.setStatus(StudentStatus.PENDING);
+        //     student.setAttendancePercentage(0);
+
+        //     // 🔹 Resolve Department (CRITICAL)
+        //     Department department = departmentRepository
+        //             .findByDepartmentCodeAndInstitution_Id(
+        //                     student.getDepartment(),
+        //                     admin.getInstitution().getId()
+        //             )
+        //             .orElseThrow(() ->
+        //                     new RuntimeException("Department not found: " + student.getDepartment())
+        //             );
+
+        //     // 🔹 AUTO: find or create student group
+        //     studentGroupService.findOrCreateGroupFromStudent(
+        //             admin.getInstitution(),
+        //             department,
+        //             student.getCourse(),
+        //             student.getBatch(),
+        //             student.getSemester(),
+        //             student.getSection()
+        //     );
+
+        //     // Save student
+        //     Student saved = studentRepository.save(student);
+        //     return toResponse(saved);
+        // }
+
+
+
+
 
 
     /* ======================
@@ -191,6 +250,29 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
 
             default -> throw new RuntimeException("Invalid status transition");
         }
+
+
+        // Create student group ONLY when student becomes ACTIVE
+        if (current != StudentStatus.ACTIVE && target == StudentStatus.ACTIVE) {
+
+            Department department = departmentRepository
+                .findByInstitutionIdAndDepartmentCode(
+                    student.getInstitution().getId(),
+                    student.getDepartment()
+                )
+                .orElseThrow(() -> new BadRequestException("Department not found"));
+
+            studentGroupService.findOrCreateGroupFromStudent(
+                student.getInstitution(),
+                department,
+                student.getCourse(),
+                student.getBatch(),
+                student.getSemester(),
+                student.getSection()
+            );
+        }
+
+
 
         student.setStatus(target);
         studentRepository.save(student);

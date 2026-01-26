@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Users,Briefcase, BookOpen, TrendingUp, Edit, Eye, Mail, Calendar, FileText, Shield, Activity, Save, Trash2, Upload, CreditCard, CheckCircle, Star, Target, CalendarDays, Clock3, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
+import API_BASE from "../../config/api";
+
 const facultyManagementApi = {
   // Get faculty by ID - Updated to match your working pattern
     getFacultyById: async (facultyId, institutionId) => {
@@ -11,7 +13,7 @@ const facultyManagementApi = {
       const id = isNaN(facultyId) ? facultyId : Number(facultyId);
       
       const response = await fetch(
-        `http://localhost:8080/api/admin/faculty/${id}?institutionId=${institutionId}`,
+        `${API_BASE}/api/admin/faculty/${id}?institutionId=${institutionId}`,
         {
           headers: {
             'Authorization': token ? `Bearer ${token}` : '',
@@ -31,7 +33,7 @@ const facultyManagementApi = {
   searchFaculty: async (institutionId, query) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`,
+      `${API_BASE}/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -45,7 +47,7 @@ const facultyManagementApi = {
   // Update performance - Use query parameters like faculty.js filter
   updatePerformance: async (facultyId, institutionId, performanceData) => {
     const token = localStorage.getItem('token');
-    let url = `http://localhost:8080/api/admin/faculty-management/${facultyId}/performance?institutionId=${institutionId}`;
+    let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/performance?institutionId=${institutionId}`;
     
     // Add all parameters
     const params = new URLSearchParams();
@@ -77,7 +79,7 @@ const facultyManagementApi = {
   // Update workload - Match pattern
   updateWorkload: async (facultyId, institutionId, workloadData) => {
     const token = localStorage.getItem('token');
-    let url = `http://localhost:8080/api/admin/faculty-management/${facultyId}/workload?institutionId=${institutionId}`;
+    let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/workload?institutionId=${institutionId}`;
     
     const params = new URLSearchParams();
     if (workloadData.weeklyWorkloadHours !== undefined) 
@@ -102,7 +104,7 @@ const facultyManagementApi = {
   // Update leaves - Match pattern
   updateLeaves: async (facultyId, institutionId, leavesData) => {
     const token = localStorage.getItem('token');
-    let url = `http://localhost:8080/api/admin/faculty-management/${facultyId}/leaves?institutionId=${institutionId}`;
+    let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/leaves?institutionId=${institutionId}`;
     
     const params = new URLSearchParams();
     if (leavesData.leavesTaken !== undefined) 
@@ -132,7 +134,7 @@ const facultyManagementApi = {
   getDocuments: async (facultyId) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty-management/${facultyId}/documents`,
+      `${API_BASE}/api/admin/faculty-management/${facultyId}/documents`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -147,7 +149,7 @@ const facultyManagementApi = {
   updatePermissions: async (facultyId, institutionId, permissions) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
+      `${API_BASE}/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
       {
         method: 'PUT',
         headers: {
@@ -171,7 +173,7 @@ const facultyManagementApi = {
   getPermissions: async (facultyId, institutionId) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
+      `${API_BASE}/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -186,7 +188,7 @@ const facultyManagementApi = {
   getRelatedFaculty: async (institutionId, department) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/filter?institutionId=${institutionId}&department=${department}`,
+      `${API_BASE}/api/admin/faculty/filter?institutionId=${institutionId}&department=${department}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -201,7 +203,7 @@ const facultyManagementApi = {
     // Update faculty status
   updateFacultyStatus: async (facultyId, institutionId, newStatus) => {
     const token = localStorage.getItem('token');
-    const url = `http://localhost:8080/api/admin/faculty/${facultyId}/status?status=${newStatus}&institutionId=${institutionId}`;
+    const url = `${API_BASE}/api/admin/faculty/${facultyId}/status?status=${newStatus}&institutionId=${institutionId}`;
     console.log('🔗 Status update URL:', url);
     
     const response = await fetch(url, {
@@ -267,7 +269,7 @@ const facultyManagementApi = {
     console.log('📝 Request body being sent:', requestBody);
     
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/${facultyId}?institutionId=${institutionId}`,
+      `${API_BASE}/api/admin/faculty/${facultyId}?institutionId=${institutionId}`,
       {
         method: 'PUT',
         headers: {
@@ -297,7 +299,7 @@ const facultyManagementApi = {
     const token = localStorage.getItem('token');
     
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/${facultyId}?institutionId=${institutionId}`,
+      `${API_BASE}/api/admin/faculty/${facultyId}?institutionId=${institutionId}`,
       {
         method: 'DELETE',
         headers: {
@@ -327,7 +329,7 @@ const facultyManagementApi = {
   deleteDocument: async (documentId) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty-management/documents/${documentId}`,
+      `${API_BASE}/api/admin/faculty-management/documents/${documentId}`,
       {
         method: 'DELETE',
         headers: {
@@ -1590,7 +1592,7 @@ const handleStatusChange = (newStatus) => {
                         <div className="flex items-center gap-1">
                           {doc.filePath && (
                             <a 
-                              href={`http://localhost:8080${doc.filePath}`}
+                              href={`${API_BASE}${doc.filePath}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"

@@ -1,435 +1,531 @@
-import React, { useState } from 'react';
-import { Users, Edit2, MapPin,Copy, Calendar, CheckCircle, AlertCircle, Plus, Clock, Search, Download, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from "react";
+import {Users, Edit2, Calendar, Plus, Clock, Search, Trash2, Loader2, TrendingUp, X, Building, User, BookOpen} from "lucide-react";
+import { useAdmin } from "../../context/AdminContext";
+import API_BASE from "../../config/api";
+import TimetableCreateModal from "./TimetableCreateModal";
 
-export default function Timetable(){
-const [view, setView] = useState('calendar'); // 'calendar', 'list', 'conflicts'
-  const [selectedDay, setSelectedDay] = useState('Monday');
-  const [filterType, setFilterType] = useState('all'); // 'all', 'faculty', 'room', 'course'
-  const [searchTerm, setSearchTerm] = useState('');
+/* =========================================================
+   ENHANCED ADMIN TIMETABLE MANAGEMENT
+   ========================================================= */
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const timeSlots = [
-    '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', 
-    '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+export default function Timetable() {
+  const { token } = useAdmin();
+
+  /* ---------------- MODAL STATE ---------------- */
+  const [openCreate, setOpenCreate] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+
+  /* ---------------- UI STATE ---------------- */
+  const [view, setView] = useState("calendar");
+  const [selectedDay, setSelectedDay] = useState("MONDAY");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  /* ---------------- DATA STATE ---------------- */
+  const [timetable, setTimetable] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const days = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
   ];
 
-  // Sample Timetable Data
-  const [schedule, setSchedule] = useState([
-    { id: 1, day: 'Monday', time: '9:00 AM - 10:30 AM', courseId: 'CS-101', section: 'A', faculty: 'Dr. Smith', room: 'Room 301', students: 25, color: 'blue' },
-    { id: 2, day: 'Monday', time: '11:00 AM - 12:30 PM', courseId: 'MATH-101', section: 'A', faculty: 'Prof. Williams', room: 'Room 205', students: 52, color: 'green' },
-    { id: 3, day: 'Monday', time: '2:00 PM - 3:30 PM', courseId: 'PHY-101', section: 'B', faculty: 'Dr. Brown', room: 'Lab 205', students: 41, color: 'purple' },
-    
-    { id: 4, day: 'Tuesday', time: '9:00 AM - 10:30 AM', courseId: 'CS-201', section: 'A', faculty: 'Dr. Johnson', room: 'Lab 101', students: 38, color: 'orange' },
-    { id: 5, day: 'Tuesday', time: '11:00 AM - 12:30 PM', courseId: 'CS-101', section: 'B', faculty: 'Dr. Smith', room: 'Room 302', students: 20, color: 'blue' },
-    { id: 6, day: 'Tuesday', time: '2:00 PM - 3:30 PM', courseId: 'MATH-101', section: 'B', faculty: 'Prof. Williams', room: 'Room 206', students: 48, color: 'green' },
-    
-    { id: 7, day: 'Wednesday', time: '9:00 AM - 10:30 AM', courseId: 'CS-101', section: 'A', faculty: 'Dr. Smith', room: 'Room 301', students: 25, color: 'blue' },
-    { id: 8, day: 'Wednesday', time: '10:00 AM - 11:30 AM', courseId: 'PHY-101', section: 'A', faculty: 'Dr. Brown', room: 'Lab 201', students: 35, color: 'purple' },
-    { id: 9, day: 'Wednesday', time: '2:00 PM - 3:30 PM', courseId: 'CHEM-101', section: 'A', faculty: 'Dr. Davis', room: 'Lab 301', students: 30, color: 'red' },
-    
-    { id: 10, day: 'Thursday', time: '9:00 AM - 10:30 AM', courseId: 'CS-201', section: 'A', faculty: 'Dr. Johnson', room: 'Lab 101', students: 38, color: 'orange' },
-    { id: 11, day: 'Thursday', time: '11:00 AM - 12:30 PM', courseId: 'MATH-101', section: 'A', faculty: 'Prof. Williams', room: 'Room 205', students: 52, color: 'green' },
-    
-    { id: 12, day: 'Friday', time: '9:00 AM - 10:30 AM', courseId: 'CS-101', section: 'A', faculty: 'Dr. Smith', room: 'Room 301', students: 25, color: 'blue' },
-    { id: 13, day: 'Friday', time: '11:00 AM - 12:30 PM', courseId: 'PHY-101', section: 'B', faculty: 'Dr. Brown', room: 'Lab 205', students: 41, color: 'purple' },
-  ]);
+  /* =========================================================
+     FETCH TIMETABLE WITH ANIMATION
+     ========================================================= */
 
-  // Detected Conflicts
-  const [conflicts, setConflicts] = useState([
-    { type: 'faculty', message: 'Dr. Smith has overlapping classes', details: 'CS-101 (Room 301) and CS-102 (Room 302) on Monday 9:00 AM', severity: 'high' },
-    { type: 'room', message: 'Room 301 double booked', details: 'CS-101 and MATH-201 scheduled simultaneously on Wednesday 2:00 PM', severity: 'high' },
-    { type: 'idle', message: 'Room 205 idle during peak hours', details: 'No classes scheduled between 10:00 AM - 2:00 PM on Tuesday', severity: 'medium' },
-    { type: 'workload', message: 'Dr. Johnson overloaded', details: '8 classes this week, 2 above average', severity: 'medium' }
-  ]);
+  useEffect(() => {
+    let mounted = true;
+    fetchTimetable(mounted);
+    return () => { mounted = false; };
+  }, []);
 
-  // Stats
-  const totalClasses = schedule.length;
-  const uniqueRooms = new Set(schedule.map(s => s.room)).size;
-  const uniqueFaculty = new Set(schedule.map(s => s.faculty)).size;
-  const utilizationRate = 68.5; // Sample calculation
+  const fetchTimetable = async (mounted = true) => {
+    try {
+      setLoading(true);
 
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: 'bg-blue-500/20 border-blue-500/30 text-blue-400',
-      green: 'bg-green-500/20 border-green-500/30 text-green-400',
-      purple: 'bg-purple-500/20 border-purple-500/30 text-purple-400',
-      orange: 'bg-orange-500/20 border-orange-500/30 text-orange-400',
-      red: 'bg-red-500/20 border-red-500/30 text-red-400'
-    };
-    return colors[color] || colors.blue;
-  };
+      const res = await fetch(`${API_BASE}/api/admin/timetable/entries`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  const getConflictColor = (severity) => {
-    return severity === 'high' ? 'border-red-500/30 bg-red-500/5' : 'border-yellow-500/30 bg-yellow-500/5';
-  };
+      const raw = await res.json();
 
-  const filteredSchedule = schedule.filter(item => {
-    if (view === 'calendar') {
-      return item.day === selectedDay;
+      const normalized = raw.map((e) => ({
+        timetableId: e.id,
+        day: e.timeSlot.dayOfWeek,
+        time: `${e.timeSlot.startTime} - ${e.timeSlot.endTime}`,
+        startTime: e.timeSlot.startTime,
+        endTime: e.timeSlot.endTime,
+        subjectCode: e.courseOffering.subject.subjectCode,
+        subjectName: e.courseOffering.subject.subjectName,
+        facultyId: e.faculty.id,
+        facultyName: e.faculty.fullName,
+        section: e.studentGroup.section,
+        roomCode: e.room.roomCode,
+        capacity: e.room.capacity,
+        courseOfferingId: e.courseOffering.id,
+        timeSlotId: e.timeSlot.id,
+        roomId: e.room.id,
+        studentGroupId: e.studentGroup.id,
+        color: getSubjectColor(e.courseOffering.subject.subjectCode)
+      }));
+
+      if (mounted) {
+        setTimetable(normalized);
+      }
+    } catch (err) {
+      console.error("Failed to load timetable", err);
+    } finally {
+      if (mounted) {
+        setTimeout(() => setLoading(false), 300);
+      }
     }
-    const matchesSearch = 
-      item.courseId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.faculty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.room.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  };
+
+  const getSubjectColor = (code) => {
+    const colors = [
+      "from-blue-500 to-cyan-400",
+      "from-purple-500 to-pink-500",
+      "from-emerald-500 to-teal-400",
+      "from-amber-500 to-orange-500",
+      "from-indigo-500 to-purple-400",
+      "from-rose-500 to-pink-400",
+    ];
+    const index = code.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[index % colors.length];
+  };
+
+  /* =========================================================
+     DERIVED DATA WITH VISUAL CALCULATIONS
+     ========================================================= */
+
+    const filteredTimetable = useMemo(() => {
+    return timetable.filter((item) => {
+      if (view === "calendar" && item.day !== selectedDay) return false;
+
+      if (!searchTerm) return true;
+
+      const q = searchTerm.toLowerCase();
+      return (
+        item.subjectCode.toLowerCase().includes(q) ||
+        item.subjectName.toLowerCase().includes(q) ||
+        item.facultyName.toLowerCase().includes(q) ||
+        item.roomCode.toLowerCase().includes(q)
+      );
+    });
+  }, [timetable, view, selectedDay, searchTerm]);
+
+
+  const stats = useMemo(() => {
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+    const todayClasses = timetable.filter(t => t.day === today).length;
+    const totalHours = timetable.reduce((acc, t) => {
+      const [start] = t.startTime.split(":");
+      const [end] = t.endTime.split(":");
+      return acc + (parseInt(end) - parseInt(start));
+    }, 0);
+
+    return {
+      totalClasses: timetable.length,
+      uniqueRooms: new Set(timetable.map((t) => t.roomCode)).size,
+      uniqueFaculty: new Set(timetable.map((t) => t.facultyId)).size,
+      todayClasses,
+      totalHours
+    };
+  }, [timetable]);
+
+
+  /* =========================================================
+     ENHANCED ACTIONS WITH FEEDBACK
+     ========================================================= */
+
+  const handleEdit = (item) => {
+    setEditingEntry(item);
+    setTimeout(() => setOpenCreate(true), 150);
+  };
+
+  const deleteEntry = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this class from the timetable?")) return;
+
+    try {
+      setDeletingId(id);
+      const res = await fetch(
+        `${API_BASE}/api/admin/timetable/entries/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      await fetchTimetable();
+    } catch (err) {
+      console.error(err);
+      alert("Unable to delete timetable entry");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+
+  /* =========================================================
+     LOADING & EMPTY STATES
+     ========================================================= */
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          <Loader2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500 animate-spin" size={24} />
+        </div>
+        <p className="text-slate-400 animate-pulse">Loading timetable...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm">Total Classes</p>
-              <h3 className="text-3xl font-bold text-white mt-2">{totalClasses}</h3>
-              <p className="text-slate-400 text-xs mt-1">This week</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-              <Calendar className="text-blue-400" size={24} />
-            </div>
-          </div>
-        </div>
+    <div className="space-y-8 animate-fadeIn">
 
-        <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm">Active Rooms</p>
-              <h3 className="text-3xl font-bold text-white mt-2">{uniqueRooms}</h3>
-              <p className="text-slate-400 text-xs mt-1">In use</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-              <MapPin className="text-purple-400" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm">Faculty Assigned</p>
-              <h3 className="text-3xl font-bold text-white mt-2">{uniqueFaculty}</h3>
-              <p className="text-slate-400 text-xs mt-1">Teaching this week</p>
-            </div>
-            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <Users className="text-green-400" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-sm">Utilization Rate</p>
-              <h3 className="text-3xl font-bold text-white mt-2">{utilizationRate}%</h3>
-              <p className="text-slate-400 text-xs mt-1">Room efficiency</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-              <Clock className="text-orange-400" size={24} />
-            </div>
-          </div>
-        </div>
+      {/* ================= ENHANCED STATS ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard 
+          label="Total Classes" 
+          value={stats.totalClasses} 
+          icon={<Calendar className="text-blue-400" />} 
+          trend={`${stats.todayClasses} today`}
+          color="blue"
+        />
+        <StatCard 
+          label="Active Rooms" 
+          value={stats.uniqueRooms} 
+          icon={<Building className="text-emerald-400" />} 
+          trend="Utilized"
+          color="emerald"
+        />
+        <StatCard 
+          label="Faculty Assigned" 
+          value={stats.uniqueFaculty} 
+          icon={<Users className="text-purple-400" />} 
+          trend="Active"
+          color="purple"
+        />
+        <StatCard 
+          label="Total Hours" 
+          value={stats.totalHours} 
+          icon={<Clock className="text-amber-400" />} 
+          trend="Weekly"
+          color="amber"
+        />
       </div>
 
-      {/* Conflict Alerts */}
-      {conflicts.length > 0 && view !== 'conflicts' && (
-        <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="text-red-400" size={20} />
-              <h3 className="text-lg font-semibold text-white">Scheduling Conflicts Detected</h3>
-            </div>
-            <button 
-              onClick={() => setView('conflicts')}
-              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition-colors"
-            >
-              View All ({conflicts.length})
-            </button>
+      {/* ================= SIMPLIFIED CONTROLS ================= */}
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800">
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 bg-slate-800 rounded-xl p-1">
+            <ToggleButton active={view === "calendar"} onClick={() => setView("calendar")} icon={<Calendar size={16} />}>
+              Calendar
+            </ToggleButton>
+            <ToggleButton active={view === "list"} onClick={() => setView("list")} icon={<BookOpen size={16} />}>
+              List
+            </ToggleButton>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {conflicts.slice(0, 2).map((conflict, idx) => (
-              <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-                <p className="text-white font-medium mb-1">{conflict.message}</p>
-                <p className="text-slate-400 text-xs">{conflict.details}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* View Toggle & Actions */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex gap-2 bg-slate-800/50 p-1.5 rounded-xl border border-slate-700/50">
-          <button
-            onClick={() => setView('calendar')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              view === 'calendar'
-                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Calendar View
-          </button>
-          <button
-            onClick={() => setView('list')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              view === 'list'
-                ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            List View
-          </button>
-          <button
-            onClick={() => setView('conflicts')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all relative ${
-              view === 'conflicts'
-                ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Conflicts
-            {conflicts.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                {conflicts.length}
-              </span>
-            )}
-          </button>
         </div>
 
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 text-white rounded-xl font-medium transition-all">
-            <Download size={20} />
-            Export
-          </button>
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-500/20">
-            <Plus size={20} />
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-400 transition-colors" size={20} />
+            <input
+              placeholder="Search subject, faculty, room..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 pr-4 py-2.5 w-72 bg-slate-800 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          <button
+            onClick={() => {
+              setEditingEntry(null);
+              setOpenCreate(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 group"
+          >
+            <Plus className="group-hover:rotate-90 transition-transform duration-300" size={20} />
             Add Class
           </button>
         </div>
       </div>
 
-      {/* Calendar View */}
-      {view === 'calendar' && (
-        <div className="space-y-4">
-          {/* Day Selector */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {days.map(day => (
+     
+
+      {/* ================= CALENDAR VIEW ================= */}
+      {view === "calendar" && (
+        <>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+            {days.map((day) => (
               <button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`px-6 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${
+                className={`px-6 py-3 rounded-xl font-medium min-w-[140px] transition-all duration-300 ${
                   selectedDay === day
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-700/50'
+                    ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25"
+                    : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
                 }`}
               >
-                {day}
+                {day.slice(0, 3)}
               </button>
             ))}
           </div>
 
-          {/* Calendar Grid */}
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-[120px_1fr] divide-x divide-slate-700/50">
-              {/* Time Column */}
-              <div className="bg-slate-800/50">
-                <div className="p-4 border-b border-slate-700/50 h-16 flex items-center">
-                  <span className="text-slate-400 text-sm font-medium">Time</span>
-                </div>
-                {timeSlots.map((time, idx) => (
-                  <div key={idx} className="p-4 border-b border-slate-700/50 h-24 flex items-center">
-                    <span className="text-slate-300 text-sm font-medium">{time}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+            {filteredTimetable.length > 0 ? filteredTimetable.map((item) => (
+              <TimetableCard
+                key={item.timetableId}
+                item={item}
+                hovered={hoveredCard === item.timetableId}
+                onHover={() => setHoveredCard(item.timetableId)}
+                onLeave={() => setHoveredCard(null)}
+                onEdit={() => handleEdit(item)}
+                onDelete={() => deleteEntry(item.timetableId)}
+                deleting={deletingId === item.timetableId}
+              />
+            )) : (
+              <div className="col-span-2 flex flex-col items-center justify-center py-16 text-center">
+                <Calendar className="text-slate-400 mb-4" size={48} />
+                <h3 className="text-xl font-semibold text-white mb-2">No classes found</h3>
 
-              {/* Schedule Column */}
-              <div>
-                <div className="p-4 border-b border-slate-700/50 h-16 flex items-center">
-                  <span className="text-white font-semibold">{selectedDay}</span>
-                </div>
-                <div className="relative">
-                  {timeSlots.map((time, idx) => (
-                    <div key={idx} className="border-b border-slate-700/50 h-24 p-2 hover:bg-slate-800/20 transition-colors">
-                      {filteredSchedule
-                        .filter(item => item.time.startsWith(time.split(' ')[0]))
-                        .map(item => (
-                          <div
-                            key={item.id}
-                            className={`border rounded-xl p-3 h-full ${getColorClasses(item.color)}`}
-                          >
-                            <div className="flex items-start justify-between mb-1">
-                              <div>
-                                <span className="font-mono text-sm font-bold">{item.courseId}</span>
-                                <span className="text-xs ml-2">Sec {item.section}</span>
-                              </div>
-                              <div className="flex gap-1">
-                                <button className="p-1 hover:bg-white/10 rounded">
-                                  <Edit2 size={12} />
-                                </button>
-                                <button className="p-1 hover:bg-white/10 rounded">
-                                  <Trash2 size={12} />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="text-xs space-y-1">
-                              <div className="flex items-center gap-1">
-                                <MapPin size={10} />
-                                <span>{item.room}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Users size={10} />
-                                <span>{item.faculty}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ))}
-                </div>
+                <p className="text-slate-400 max-w-md">
+                  {searchTerm
+                    ? "No classes match your search criteria. Try a different keyword."
+                    : "No classes scheduled for this day. Add your first class to get started."}
+                </p>
+
               </div>
-            </div>
+            )}
           </div>
-        </div>
+        </>
       )}
 
-      {/* List View */}
-      {view === 'list' && (
-        <div className="space-y-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search by course, faculty, or room..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50"
+      {/* ================= LIST VIEW ================= */}
+      {view === "list" && (
+        <div className="overflow-hidden rounded-2xl border border-slate-800">
+          <div className="grid grid-cols-12 gap-4 p-4 bg-slate-900/50 border-b border-slate-800 text-sm font-medium text-slate-400">
+            <div className="col-span-3">Subject & Faculty</div>
+            <div className="col-span-2">Time</div>
+            <div className="col-span-2">Room</div>
+            <div className="col-span-2">Group</div>
+            <div className="col-span-2">Day</div>
+            <div className="col-span-1 text-right">Actions</div>
+          </div>
+          
+          {filteredTimetable.length > 0 ? filteredTimetable.map((item) => (
+            <TimetableRow
+              key={item.timetableId}
+              item={item}
+              onEdit={() => handleEdit(item)}
+              onDelete={() => deleteEntry(item.timetableId)}
+              deleting={deletingId === item.timetableId}
             />
-          </div>
-
-          {/* Grouped by Day */}
-          {days.map(day => {
-            const dayClasses = filteredSchedule.filter(item => item.day === day);
-            if (dayClasses.length === 0) return null;
-
-            return (
-              <div key={day} className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden">
-                <div className="bg-slate-800/50 px-6 py-4 border-b border-slate-700/50">
-                  <h3 className="text-lg font-semibold text-white">{day}</h3>
-                  <p className="text-slate-400 text-sm">{dayClasses.length} classes scheduled</p>
-                </div>
-                <div className="divide-y divide-slate-700/50">
-                  {dayClasses.map(item => (
-                    <div key={item.id} className="p-6 hover:bg-slate-800/20 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className={`px-3 py-1 rounded-lg text-sm font-mono border ${getColorClasses(item.color)}`}>
-                              {item.courseId}
-                            </span>
-                            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs">
-                              Section {item.section}
-                            </span>
-                            <span className="text-slate-400 text-sm">{item.time}</span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div className="flex items-center gap-2 text-slate-300">
-                              <Users size={16} className="text-slate-500" />
-                              <span className="text-sm">{item.faculty}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-300">
-                              <MapPin size={16} className="text-slate-500" />
-                              <span className="text-sm">{item.room}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-300">
-                              <Users size={16} className="text-slate-500" />
-                              <span className="text-sm">{item.students} students</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
-                            <Copy size={18} className="text-slate-400" />
-                          </button>
-                          <button className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
-                            <Edit2 size={18} className="text-slate-400" />
-                          </button>
-                          <button className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
-                            <Trash2 size={18} className="text-slate-400 hover:text-red-400" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          )) : (
+            <div className="p-12 text-center">
+              <p className="text-slate-400">No timetable entries found</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Conflicts View */}
-      {view === 'conflicts' && (
-        <div className="space-y-4">
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Detected Conflicts & Optimization Opportunities</h3>
-            <div className="space-y-3">
-              {conflicts.map((conflict, idx) => (
-                <div key={idx} className={`border rounded-xl p-5 ${getConflictColor(conflict.severity)}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <AlertCircle className={conflict.severity === 'high' ? 'text-red-400' : 'text-yellow-400'} size={20} />
-                        <h4 className="text-white font-semibold">{conflict.message}</h4>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          conflict.severity === 'high' 
-                            ? 'bg-red-500/20 text-red-400' 
-                            : 'bg-yellow-500/20 text-yellow-400'
-                        }`}>
-                          {conflict.severity.toUpperCase()}
-                        </span>
-                      </div>
-                      <p className="text-slate-300 text-sm ml-8">{conflict.details}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg text-sm transition-colors">
-                        Auto-Fix
-                      </button>
-                      <button className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors">
-                        Ignore
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Optimization Suggestions */}
-          <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <CheckCircle className="text-green-400" size={20} />
-              <h3 className="text-lg font-semibold text-white">Optimization Suggestions</h3>
-            </div>
-            <div className="space-y-3">
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-                <p className="text-white font-medium mb-1">Room 301 can accommodate 3 more classes</p>
-                <p className="text-slate-400 text-sm">Available slots: Mon 11-12, Wed 3-4, Fri 2-3</p>
-              </div>
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-                <p className="text-white font-medium mb-1">Dr. Smith has 4 idle hours on Thursday</p>
-                <p className="text-slate-400 text-sm">Consider scheduling CS-102 or tutorial sessions</p>
-              </div>
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-                <p className="text-white font-medium mb-1">Lab 101 underutilized (45% capacity)</p>
-                <p className="text-slate-400 text-sm">Available for additional practical sessions</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= MODAL ================= */}
+      <TimetableCreateModal
+        open={openCreate}
+        editData={editingEntry}
+        onClose={() => {
+          setOpenCreate(false);
+          setTimeout(() => setEditingEntry(null), 300);
+        }}
+        onSuccess={fetchTimetable}
+      />
     </div>
   );
-};
+}
+
+/* =========================================================
+   ENHANCED REUSABLE COMPONENTS
+   ========================================================= */
+
+const StatCard = ({ label, value, icon, trend, color }) => (
+  <div className="group bg-slate-900/50 backdrop-blur-sm border border-slate-800 hover:border-slate-700 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]">
+    <div className="flex justify-between items-start">
+      <div>
+        <p className="text-slate-400 text-sm font-medium">{label}</p>
+        <h3 className="text-3xl font-bold text-white mt-2">{value}</h3>
+        {trend && (
+          <div className="flex items-center gap-1 mt-2">
+            <TrendingUp className={`text-${color}-400`} size={14} />
+            <span className={`text-${color}-400 text-sm`}>{trend}</span>
+          </div>
+        )}
+      </div>
+      <div className={`w-14 h-14 bg-gradient-to-br from-${color}-500/10 to-transparent rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+        <div className={`w-10 h-10 bg-${color}-500/20 rounded-lg flex items-center justify-center`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const ToggleButton = ({ active, onClick, icon, children }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-300 ${
+      active
+        ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25"
+        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+    }`}
+  >
+    {icon}
+    {children}
+  </button>
+);
+
+
+const TimetableCard = ({ item, hovered, onHover, onLeave, onEdit, onDelete, deleting }) => (
+  <div
+    className={`bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-5 transition-all duration-300 ${
+      hovered ? "shadow-xl shadow-blue-500/10 transform -translate-y-1" : "hover:border-slate-700"
+    } ${deleting ? "opacity-50 scale-95" : ""}`}
+    onMouseEnter={onHover}
+    onMouseLeave={onLeave}
+  >
+    <div className="flex justify-between items-start mb-4">
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className={`px-3 py-1 bg-gradient-to-r ${item.color} rounded-full text-sm font-semibold text-white`}>
+            {item.subjectCode}
+          </span>
+          <span className="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded">
+            Section {item.section}
+          </span>
+        </div>
+        <h3 className="text-lg font-semibold text-white mb-1">{item.subjectName}</h3>
+      </div>
+      <div className="flex gap-1">
+        <button
+          onClick={onEdit}
+          className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
+          title="Edit"
+        >
+          <Edit2 className="text-slate-400 group-hover:text-blue-400 transition-colors" size={18} />
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors group"
+          title="Delete"
+          disabled={deleting}
+        >
+          {deleting ? (
+            <Loader2 className="animate-spin text-red-400" size={18} />
+          ) : (
+            <Trash2 className="text-red-400 group-hover:text-red-300 transition-colors" size={18} />
+          )}
+        </button>
+      </div>
+    </div>
+
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-slate-400">
+        <Clock size={16} />
+        <span className="font-medium">{item.time}</span>
+        <span className="text-slate-600">•</span>
+        <span>{item.day}</span>
+      </div>
+      
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 text-slate-300">
+          <User size={16} className="text-purple-400" />
+          <span className="text-sm">{item.facultyName}</span>
+        </div>
+        <div className="flex items-center gap-2 text-slate-300">
+          <Building size={16} className="text-emerald-400" />
+          <span className="text-sm">Room {item.roomCode}</span>
+          {item.capacity && (
+            <span className="text-xs text-slate-500">(Cap: {item.capacity})</span>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TimetableRow = ({ item, onEdit, onDelete, deleting }) => (
+  <div className={`grid grid-cols-12 gap-4 p-4 items-center border-b border-slate-800/50 last:border-0 hover:bg-slate-900/30 transition-colors ${deleting ? "opacity-50" : ""}`}>
+    <div className="col-span-3">
+      <div className="flex items-center gap-3">
+        <div className={`w-3 h-10 bg-gradient-to-b ${item.color} rounded-full`}></div>
+        <div>
+          <p className="font-semibold text-white">{item.subjectCode}</p>
+          <p className="text-sm text-slate-400">{item.subjectName}</p>
+          <p className="text-xs text-purple-400 flex items-center gap-1 mt-1">
+            <User size={12} />
+            {item.facultyName}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div className="col-span-2">
+      <p className="text-white font-medium">{item.time}</p>
+    </div>
+    <div className="col-span-2">
+      <span className="inline-flex items-center gap-2 px-3 py-1 bg-slate-800 rounded-lg">
+        <Building size={14} className="text-emerald-400" />
+        {item.roomCode}
+      </span>
+    </div>
+    <div className="col-span-2">
+      <span className="text-slate-300">Section {item.section}</span>
+    </div>
+    <div className="col-span-2">
+      <span className="px-3 py-1 bg-slate-800 rounded-lg text-sm">{item.day}</span>
+    </div>
+    <div className="col-span-1 flex justify-end gap-2">
+      <button
+        onClick={onEdit}
+        className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+        title="Edit"
+      >
+        <Edit2 className="text-slate-400 hover:text-blue-400" size={18} />
+      </button>
+      <button
+        onClick={onDelete}
+        className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+        title="Delete"
+        disabled={deleting}
+      >
+        {deleting ? (
+          <Loader2 className="animate-spin text-red-400" size={18} />
+        ) : (
+          <Trash2 className="text-red-400 hover:text-red-300" size={18} />
+        )}
+      </button>
+    </div>
+  </div>
+);

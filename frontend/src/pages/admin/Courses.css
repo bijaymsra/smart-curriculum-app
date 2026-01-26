@@ -1,0 +1,101 @@
+/* Animation keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scoped animations */
+.courses-container .animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.courses-container .animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Line clamp utility - scoped */
+.courses-container .line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transitions - scoped to courses container */
+.courses-container * {
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+/* Scrollbar styling - only affects elements inside courses container */
+.courses-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.courses-container ::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 4px;
+}
+
+.courses-container ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
+}
+
+.courses-container ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Modal specific styles */
+.courses-modal-overlay {
+  overflow: hidden;
+}
+
+.courses-modal-overlay .backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Prevent body scroll when modal is open - scoped */
+body.courses-modal-open {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Modal scroll styling */
+.courses-modal-content {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.courses-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.courses-modal-content::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 3px;
+}
+
+.courses-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 3px;
+}

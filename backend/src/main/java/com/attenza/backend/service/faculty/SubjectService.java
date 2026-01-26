@@ -1,7 +1,9 @@
 package com.attenza.backend.service.faculty;
 
+import com.attenza.backend.entity.Department;
 import com.attenza.backend.entity.Subject;
 import com.attenza.backend.exception.BadRequestException;
+import com.attenza.backend.repository.faculty.DepartmentRepository;
 import com.attenza.backend.repository.faculty.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,36 +13,69 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SubjectService {
-    
+
     private final SubjectRepository subjectRepository;
-    
+    private final DepartmentRepository departmentRepository;
+
+    // ---------------- READ ----------------
+
     public List<Subject> getAllSubjects(Long institutionId) {
-        return subjectRepository.findByDepartmentInstitutionId(institutionId);
+        return subjectRepository.findByDepartment_Institution_Id(institutionId);
     }
-    
+
     public List<Subject> getSubjectsByDepartment(Long departmentId) {
-        return subjectRepository.findByDepartmentId(departmentId);
+        return subjectRepository.findByDepartment_Id(departmentId);
     }
-    
-    public Subject createSubject(String subjectCode, String subjectName, String description,
-                                 Integer credits, Integer semester, Long departmentId) {
-        // Check if subject code already exists
+
+    // to count courses
+    public long getTotalCourses(Long institutionId) {
+        return subjectRepository.countByDepartment_Institution_Id(institutionId);
+    }
+
+
+
+
+    // ---------------- CREATE ----------------
+
+    public Subject createSubject(
+            String subjectCode,
+            String subjectName,
+            String description,
+            Integer credits,
+            Integer semester,
+            Long departmentId
+    ) {
+
+        // 1️⃣ Subject code uniqueness check
         if (subjectRepository.findBySubjectCode(subjectCode).isPresent()) {
             throw new BadRequestException("Subject code already exists");
         }
-        
+
+        // 2️⃣ Fetch REAL department (important!)
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new BadRequestException("Department not found"));
+
+        // 3️⃣ Create subject
         Subject subject = new Subject();
         subject.setSubjectCode(subjectCode);
         subject.setSubjectName(subjectName);
         subject.setDescription(description);
         subject.setCredits(credits);
         subject.setSemester(semester);
-        
-        // Set department
-        com.attenza.backend.entity.Department department = new com.attenza.backend.entity.Department();
-        department.setId(departmentId);
         subject.setDepartment(department);
-        
+
         return subjectRepository.save(subject);
     }
+
+    // ---------------- DELETE ----------------
+
+    public void deleteSubject(Long subjectId) {
+
+        if (!subjectRepository.existsById(subjectId)) {
+            throw new BadRequestException("Subject not found");
+        }
+
+        subjectRepository.deleteById(subjectId);
+    }
+
 }

@@ -68,4 +68,14 @@ public final class IdGenerator {
     public String generatePublicStudentId(String regNo) {
         return "STU-" + regNo;
     }
+
+    // ================= ATTENDANCE =================
+    public static String generateAttendanceSessionId() {
+        return "ATT-" + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 8)
+                .toUpperCase();
+    }
+
 }

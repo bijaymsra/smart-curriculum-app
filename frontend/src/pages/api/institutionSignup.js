@@ -1,6 +1,8 @@
+import API_BASE from "../../config/api";
+
 export async function registerInstitution(payload) {
   const response = await fetch(
-    "http://localhost:8080/api/signup/institution",
+    `${API_BASE}/api/signup/institution`,
     {
       method: "POST",
       headers: {

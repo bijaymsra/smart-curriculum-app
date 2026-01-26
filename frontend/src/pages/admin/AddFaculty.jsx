@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap, Building, Award, Plus, X, Save, AlertCircle, Heart, ArrowLeft, BookOpen, Shield, Book, Users, Flag, University, PhoneCall, CheckCircle, ExternalLink, Eye, Lock, Send} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
+import API_BASE from "../../config/api";
 
 export default function AddFaculty() {
-  const API_BASE = 'http://localhost:8080/api/admin';
   const { admin, loading } = useAdmin();
   const institutionId = admin?.institutionId;
 
@@ -164,7 +164,7 @@ const buildFacultyPayload = () => ({
         const payload = buildFacultyPayload();
 
         const res = await fetch(
-          `${API_BASE}/faculty?institutionId=${institutionId}`,
+          `${API_BASE}/api/admin/faculty?institutionId=${institutionId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

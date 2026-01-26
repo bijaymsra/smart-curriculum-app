@@ -5,9 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
 @Table(name = "subjects")
+@JsonIgnoreProperties({
+    "hibernateLazyInitializer",
+    "handler",
+    "department"
+})
 @Getter
 @Setter
 public class Subject {
@@ -35,6 +42,11 @@ public class Subject {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Transient
+    public Long getDepartmentId() {
+        return department != null ? department.getId() : null;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -45,4 +57,5 @@ public class Subject {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
 }

@@ -13,9 +13,17 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "faculty")
+@JsonIgnoreProperties({
+    "hibernateLazyInitializer",
+    "handler",
+    "institution",
+    "department",
+    "subjects"
+})
 @Getter
 @Setter
 public class Faculty {

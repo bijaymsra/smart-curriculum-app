@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Eye, EyeOff, Mail, Lock, Loader2, User, Building, 
-  Shield, GraduationCap, Key, CheckCircle, AlertCircle,
-  Smartphone, Fingerprint
-} from "lucide-react";
+import { Eye, EyeOff, Lock, Loader2, User, Building, Shield, GraduationCap, Key, CheckCircle, AlertCircle, Smartphone, Fingerprint} from "lucide-react";
 import logo from "../images/logo.png";
+import API_BASE from "../../config/api";
+
+
 
 export default function Login() {
   const [userType, setUserType] = useState("admin"); // "admin", "superadmin", "faculty", "student"
@@ -91,19 +90,19 @@ export default function Login() {
 
       switch (userType) {
         case "admin":
-          endpoint = "http://localhost:8080/api/admin-auth/login";
+          endpoint = `${API_BASE}/api/admin-auth/login`
           requestBody = { email, password };
           break;
         case "superadmin":
-          endpoint = "http://localhost:8080/api/superadmin-auth/login";
+          endpoint = `${API_BASE}/api/superadmin-auth/login`;
           requestBody = { username, password };
           break;
         case "faculty":
-          endpoint = "http://localhost:8080/api/faculty/auth/login";
+          endpoint = `${API_BASE}/api/faculty/auth/login`;
           requestBody = { institutionId, facultyId, password };
           break;
         case "student":
-          endpoint = "http://localhost:8080/api/student/auth/login";
+          endpoint = `${API_BASE}/api/student/auth/login`;
           requestBody = { registrationNo, password, institutionId };
           break;
       }
@@ -150,7 +149,7 @@ export default function Login() {
           sessionStorage.setItem("institutionName", data.institutionName);
           sessionStorage.setItem("institutionId", data.institutionId);
           sessionStorage.setItem("userType", "faculty");
-          window.location.href = "/faculty/dashboard";
+          window.location.href = "/faculty";
           break;
         
         case "student":

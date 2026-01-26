@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, 
-  Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, 
-  Bell, Eye, LogOut, AlertCircle, Loader2, Key
-} from 'lucide-react';
+import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key} from 'lucide-react';
+import API_BASE from "../../config/api";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -71,7 +68,7 @@ export default function Settings() {
 
     try {
       const res = await fetch(
-        "http://localhost:8080/api/admin/security/change-password",
+        "${API_BASE}/api/admin/security/change-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,7 +146,7 @@ export default function Settings() {
       try {
         // 1️⃣ Load admin profile
         const profileRes = await fetch(
-          `http://localhost:8080/api/admin/me?adminId=${adminId}`
+          `${API_BASE}/api/admin/me?adminId=${adminId}`
         );
         if (!profileRes.ok) {
           throw new Error("Failed to load admin profile");
@@ -159,7 +156,7 @@ export default function Settings() {
 
         // 2️⃣ Load notification settings
         const notifRes = await fetch(
-          `http://localhost:8080/api/admin/notifications?adminId=${adminId}`
+          `${API_BASE}/api/admin/notifications?adminId=${adminId}`
         );
         if (notifRes.ok) {
           const notifData = await notifRes.json();
@@ -174,7 +171,7 @@ export default function Settings() {
 
         // 3️⃣ Load preference settings
         const prefRes = await fetch(
-          `http://localhost:8080/api/admin/preferences?adminId=${adminId}`
+          `${API_BASE}/api/admin/preferences?adminId=${adminId}`
         );
         if (prefRes.ok) {
           const prefData = await prefRes.json();
@@ -206,7 +203,7 @@ export default function Settings() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/admin/notifications?adminId=${adminId}`,
+        `${API_BASE}/api/admin/notifications?adminId=${adminId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -231,7 +228,7 @@ export default function Settings() {
 
     try {
       await fetch(
-        `http://localhost:8080/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
+        `${API_BASE}/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
         { method: "PUT" }
       );
     } catch (e) {

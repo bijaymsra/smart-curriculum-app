@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Users, Calendar, AlertCircle, Eye, BookOpen, Phone, MapPin, Ban, CheckCircle, Clock, Mail, User, Settings, ArrowLeft } from "lucide-react";
 import { useAdmin } from '../../context/AdminContext';
+import API_BASE from "../../config/api";
 
 export default function StudentManagement() {
   const { studentId } = useParams();
@@ -48,7 +49,7 @@ export default function StudentManagement() {
     setLoading(true);
     console.log("Fetching student with adminId:", admin.adminId);
 
-    fetch(`http://localhost:8080/api/admin/students/${studentId}?adminId=${admin.adminId}`)
+    fetch(`${API_BASE}/api/admin/students/${studentId}?adminId=${admin.adminId}`)
       .then(async (res) => {
         console.log("HTTP status:", res.status);
         const text = await res.text();
@@ -96,7 +97,7 @@ export default function StudentManagement() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/admin/students/${student.id}/status?adminId=${admin.adminId}`,
+        `${API_BASE}/api/admin/students/${student.id}/status?adminId=${admin.adminId}`,
         {
           method: "PATCH",
           headers: { 
@@ -339,10 +340,10 @@ export default function StudentManagement() {
       {/* Left column */}
       <div className="space-y-4">
         <div>
-          <p className="text-slate-400 text-sm mb-1.5">Course</p>
+          <p className="text-slate-400 text-sm mb-1.5">Program</p>
           <p className="text-white font-medium">
             {student.course ?? "N/A"}{" "}
-            {student.department ?? ""}
+            {/* {student.department ?? ""} */}
           </p>
         </div>
 
@@ -418,7 +419,7 @@ export default function StudentManagement() {
     {/* Academic Details */}
     <div className="grid grid-cols-2 gap-6">
       <div>
-        <p className="text-slate-400 text-sm mb-1.5">Course / Degree</p>
+        <p className="text-slate-400 text-sm mb-1.5">Program / Degree</p>
         <p className="text-white font-medium">
           {student.course ?? "N/A"}
         </p>

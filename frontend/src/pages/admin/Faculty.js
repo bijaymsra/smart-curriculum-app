@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, GraduationCap, TrendingUp, AlertCircle, Plus, Clock, Search, Filter, Download, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
+import API_BASE from "../../config/api";
 
 // API Service functions
 const facultyApi = {
@@ -9,7 +10,7 @@ const facultyApi = {
   getAllFaculty: async (institutionId, page = 0, size = 10, sortBy = 'createdAt', sortDir = 'desc') => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty?institutionId=${institutionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
+      `${API_BASE}/api/admin/faculty?institutionId=${institutionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -28,7 +29,7 @@ const facultyApi = {
   searchFaculty: async (institutionId, query) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`,
+      `${API_BASE}/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -43,7 +44,7 @@ const facultyApi = {
   getFacultyStats: async (institutionId) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
-      `http://localhost:8080/api/admin/faculty/stats?institutionId=${institutionId}`,
+      `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`,
       {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -58,7 +59,7 @@ const facultyApi = {
   filterFaculty: async (institutionId, filters) => {
     const { status, department, utilization, search } = filters;
     const token = localStorage.getItem('token');
-    let url = `http://localhost:8080/api/admin/faculty/filter?institutionId=${institutionId}`;
+    let url = `${API_BASE}/api/admin/faculty/filter?institutionId=${institutionId}`;
     
     if (status && status !== 'all') url += `&status=${status}`;
     if (department && department !== 'all') url += `&department=${department}`;
