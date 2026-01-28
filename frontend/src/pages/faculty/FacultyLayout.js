@@ -86,6 +86,7 @@ const navItems = [
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
                 {facultyData.fullName?.charAt(0) || "F"}
               </div>
+
               <div>
                 <p className="text-white font-medium truncate">{facultyData.fullName || "Faculty"}</p>
                 <p className="text-xs text-slate-400 truncate">{facultyData.department || "Department"}</p>
@@ -167,10 +168,6 @@ const navItems = [
             <div className="flex items-center gap-4">
               {/* Quick Actions */}
               <div className="flex items-center gap-2">
-                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors flex items-center gap-2">
-                  <FileText size={18} className="text-blue-400" />
-                  <span className="text-sm">Generate Report</span>
-                </button>
                 
                 <button className="p-3 relative bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">
                   <Bell size={20} className="text-slate-300" />

@@ -153,6 +153,8 @@ export default function Login() {
           break;
         
         case "student":
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("studentId", data.studentId);
           sessionStorage.setItem("studentId", data.studentId);
           sessionStorage.setItem("studentRegistrationNo", data.registrationNo);
           sessionStorage.setItem("studentName", data.fullName);
@@ -161,7 +163,7 @@ export default function Login() {
           sessionStorage.setItem("institutionPublicId", data.institutionPublicId);
           sessionStorage.setItem("institutionId", data.institutionId);
           sessionStorage.setItem("userType", "student");
-          window.location.href = "/student/dashboard";
+          window.location.href = "/student";
           break;
       }
 

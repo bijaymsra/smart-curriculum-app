@@ -21,7 +21,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminTimetable from "./pages/admin/Timetable";
 import AdminAnalytics from "./pages/admin/Analytics";
 
-import StudentDashboard from "./pages/student/StudentDashboard";
+// import StudentDashboard from "./pages/student/StudentDashboard";
 
 // Faculty Components
 import FacultyLayout from './pages/faculty/FacultyLayout';
@@ -31,6 +31,17 @@ import FacultyClasses from './pages/faculty/FacultyClasses';
 import FacultyStudents from './pages/faculty/FacultyStudents';
 import FacultyAnalytics from './pages/faculty/FacultyAnalytics';
 import FacultySettings from './pages/faculty/FacultySettings';
+
+
+// Student Components
+import StudentLayout from './pages/student/StudentLayout';
+import StudentDashboard from './pages/student/StudentDashboard';
+import StudentAttendance from './pages/student/StudentAttendance';
+import StudentSchedule from './pages/student/StudentSchedule';
+import StudentPlanner from './pages/student/StudentPlanner';
+import StudentTasks from './pages/student/StudentTasks';
+import StudentProfile from './pages/student/StudentProfile';
+
 
 export default function App() {
   return (
@@ -59,7 +70,7 @@ export default function App() {
       </Route>
 
       {/* ===== STUDENT LAYOUT DASHBOARD ===== */}
-      <Route path="/student/dashboard" element={<StudentDashboard />} />
+      {/* <Route path="/student/dashboard" element={<StudentDashboard />} /> */}
 
       {/* ===== FACULTY PORTAL ===== */}
       <Route path="/faculty" element={<FacultyLayout />}>
@@ -71,6 +82,18 @@ export default function App() {
         <Route path="analytics" element={<FacultyAnalytics />} />
         <Route path="settings" element={<FacultySettings />} />
       </Route>
+
+
+      {/* ===== STUDENT PORTAL ===== */}
+    <Route path="/student" element={<StudentLayout />}>
+      <Route index element={<StudentDashboard />} />
+      <Route path="dashboard" element={<StudentDashboard />} />
+      <Route path="attendance" element={<StudentAttendance />} />
+      <Route path="schedule" element={<StudentSchedule />} />
+      <Route path="planner" element={<StudentPlanner />} />
+      <Route path="tasks" element={<StudentTasks />} />
+      <Route path="profile" element={<StudentProfile />} />
+    </Route>
 
 
 

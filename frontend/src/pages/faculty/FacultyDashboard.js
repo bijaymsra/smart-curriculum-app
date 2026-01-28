@@ -164,39 +164,6 @@ const FacultyDashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Card */}
-      <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-lg rounded-2xl p-8 border border-slate-700/50">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="flex items-start gap-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-              <ClipboardCheck size={32} className="text-white" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Smart Attendance Dashboard</h2>
-              <p className="text-slate-300 max-w-2xl">
-                Hello <span className="font-semibold text-blue-400">Prof. {faculty.fullName?.split(' ')[0] || 'Professor'}</span>! 
-                Manage your classes and track attendance in real-time.
-              </p>
-            </div>
-          </div>
-          
-          {attendanceSession?.status === 'ACTIVE' && (
-            <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 rounded-xl p-4 min-w-[300px]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                  <Clock className="text-emerald-400" size={20} />
-                </div>
-                <div>
-                  <p className="font-semibold text-white">Attendance in Progress</p>
-                  <p className="text-sm text-slate-300">
-                    {formatTime(120)} remaining • {attendanceSession.className}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

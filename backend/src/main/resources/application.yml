@@ -38,3 +38,13 @@ spring:
           auth: true
           starttls:
             enable: true
+
+
+attendance:
+  qr:
+    secret: "A7xQpN9mZC8eFJ3K2R0dS1B4H6V5LWyT"
+    validity-seconds: 30
+
+
+# jwt:
+#   secret: "7f9a2b5c8e1d4f3a6b0c9d8e7f6a5b4c"

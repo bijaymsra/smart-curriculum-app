@@ -1,6 +1,6 @@
 package com.attenza.backend.attendance.entity;
 
-public enum AttendanceStatus {
+public enum AttendanceSubmissionStatus {
     SUBMITTED,
     FLAGGED,
     APPROVED,

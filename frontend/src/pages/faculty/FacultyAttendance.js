@@ -13,7 +13,6 @@ const FacultyAttendance = () => {
   const [countdown, setCountdown] = useState(120); // 2 minutes
   const [qrRefreshTimer, setQrRefreshTimer] = useState(30);
   const [attendanceList, setAttendanceList] = useState([]);
-  const [flaggedStudents, setFlaggedStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [sessionSummary, setSessionSummary] = useState(null);
@@ -21,6 +20,11 @@ const FacultyAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [todayClasses, setTodayClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(true);
+  const [randomCheckCooldown, setRandomCheckCooldown] = useState(null); // seconds
+  const randomTimerRef = useRef(null);
+
+
+
   
   // Refs for timers
   const countdownRef = useRef(null);
@@ -74,7 +78,7 @@ const fetchTodayClasses = async () => {
         courseName: e.subjectName,
         time: e.time,
         room: e.roomCode,
-        totalStudents: e.totalStudents, // ✅ FIXED
+        totalStudents: e.totalStudents, 
         attendanceRate: 100,
         status: "upcoming",
       }));
@@ -96,6 +100,10 @@ const fetchTodayClasses = async () => {
       startAttendance(location.state.class);
     }
 
+    // if (randomTimerRef.current) clearInterval(randomTimerRef.current);
+
+
+
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
       if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
@@ -115,6 +123,7 @@ const fetchTodayClasses = async () => {
     try {
       setSelectedClass(classData);
       setShowSessionModal(true);
+
 
       // Call backend API
       const res = await fetch(`${API_BASE}/api/attendance/session/start`, {
@@ -171,8 +180,6 @@ const fetchTodayClasses = async () => {
         });
       }, 1000);
 
-      // Simulate real-time submissions
-      simulateSubmissions();
 
     } catch (err) {
       console.error(err);
@@ -182,27 +189,93 @@ const fetchTodayClasses = async () => {
     }
   };
 
-  // Generate QR Code
-  const generateQRCode = (sessionId) => {
-    if (!sessionId) return;
-    const qrData = { sessionId, classId: selectedClass?.id, timestamp: Date.now() };
-    const mockQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(JSON.stringify(qrData))}`;
-    setQrCode(mockQrUrl);
-  };
+    const generateQRCode = async (sessionId) => {
+      if (!sessionId) return;
 
-  // Simulate student submissions
-  const simulateSubmissions = () => {
-    const updates = [
-      { id: 1, studentName: 'Rajesh Kumar', time: '10:01:12', status: 'SUBMITTED', photo: null },
-      { id: 2, studentName: 'Priya Sharma', time: '10:01:15', status: 'SUBMITTED', photo: null },
-      { id: 3, studentName: 'Amit Patel', time: '10:01:30', status: 'SUBMITTED', photo: null },
-    ];
-    setAttendanceList(updates);
-  };
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/attendance/session/${sessionId}/qr-token`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch QR token");
+
+        const token = await res.text();
+
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+          "attn:" + token
+        )}`;
+
+        setQrCode(qrUrl);
+
+      } catch (err) {
+        console.error("QR generation failed", err);
+      }
+    };
+
+  // real-time listener
+  useEffect(() => {
+  if (!attendanceSession?.id) return;
+
+  const eventSource = new EventSource(
+    `${API_BASE}/api/attendance/session/${attendanceSession.id}/stream`
+  );
+
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  const normalized = {
+  submissionId: data.id ?? data.submissionId, // ✅ KEY FIX
+  studentId: data.studentId,
+  studentName: data.studentName,
+  status: data.status,
+  time: data.submittedAt || data.time
+};
+
+
+setAttendanceList(prev => {
+  const idx = prev.findIndex(
+    s => String(s.submissionId) === String(normalized.submissionId)
+  );
+
+  if (idx !== -1) {
+    const copy = [...prev];
+    copy[idx] = { ...copy[idx], ...normalized };
+    return copy;
+  }
+
+  // ONLY add if truly new submission
+  return [...prev, normalized];
+});
+
+
+
+
+};
+
+
+
+  return () => eventSource.close();
+}, [attendanceSession?.id]);
+
 
   // End attendance session
   const endAttendanceSession = () => {
-    if (!attendanceSession || attendanceSession.status !== "ACTIVE") return;
+    if (!attendanceSession) return;
+
+if (attendanceSession.status === "COMPLETED") {
+  setShowSessionModal(false);
+  setShowSummaryModal(true);
+
+  return;
+}
+
+
+
 
     // Clear timers
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -217,7 +290,7 @@ const fetchTodayClasses = async () => {
       totalStudents,
       submittedCount: submitted,
       absentCount: totalStudents - submitted,
-      flaggedCount: flaggedStudents.length,
+      flaggedCount: attendanceList.filter(s => s.status === "FLAGGED").length,
       attendanceRate: totalStudents > 0 ? Math.round((submitted / totalStudents) * 100) : 0
     };
 
@@ -225,72 +298,112 @@ const fetchTodayClasses = async () => {
     setAttendanceSession(prev => prev ? { ...prev, status: "COMPLETED" } : null);
     setShowSessionModal(false);
     setShowSummaryModal(true);
+
+    // timer setting for 30 min
+if (randomTimerRef.current) clearInterval(randomTimerRef.current);
+
+const COOLDOWN_SECONDS = 8; // here for checking only -> later we can put 30 min
+setRandomCheckCooldown(COOLDOWN_SECONDS);
+
+randomTimerRef.current = setInterval(() => {
+  setRandomCheckCooldown(prev => {
+    if (prev <= 1) {
+      clearInterval(randomTimerRef.current);
+      return null; // cooldown finished
+    }
+    return prev - 1;
+  });
+}, 1000);
+
   };
 
-  // Flag a student
-  const handleFlagStudent = (studentId) => {
-    const student = attendanceList.find(s => s.id === studentId);
-    if (student && !flaggedStudents.includes(studentId)) {
-      setFlaggedStudents(prev => [...prev, studentId]);
-      setAttendanceList(prev => 
-        prev.map(s => s.id === studentId ? { ...s, status: 'FLAGGED' } : s)
-      );
-    }
-  };
 
-  // Handle flag action
-  const handleFlagAction = (studentId, action) => {
-    if (action === 'APPROVE') {
-      setAttendanceList(prev => 
-        prev.map(s => s.id === studentId ? { ...s, status: 'APPROVED' } : s)
-      );
-    } else {
-      setAttendanceList(prev => 
-        prev.map(s => s.id === studentId ? { ...s, status: 'REJECTED' } : s)
-      );
-    }
-    setFlaggedStudents(prev => prev.filter(id => id !== studentId));
-  };
 
   // Cancel attendance session
-  const cancelAttendance = () => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
-    
-    setAttendanceSession(null);
-    setAttendanceList([]);
-    setFlaggedStudents([]);
-    setShowSessionModal(false);
-    alert('Attendance session cancelled.');
+const cancelAttendance = () => {
+  if (countdownRef.current) clearInterval(countdownRef.current);
+  if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
+
+  setAttendanceSession(null);
+  setAttendanceList([]);
+  setShowSessionModal(false);
+  alert('Attendance session cancelled.');
+};
+
+
+useEffect(() => {
+  if (randomCheckCooldown === null) return;
+
+  // ⛔ prevent duplicate intervals
+  if (randomTimerRef.current) return;
+
+  randomTimerRef.current = setInterval(() => {
+    setRandomCheckCooldown(prev => {
+      if (prev <= 1) {
+        clearInterval(randomTimerRef.current);
+        randomTimerRef.current = null;
+        return null;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => {
+    if (randomTimerRef.current) {
+      clearInterval(randomTimerRef.current);
+      randomTimerRef.current = null;
+    }
   };
+}, [randomCheckCooldown]);
+
+
+
+
+
+
+
+
+
 
   // Submit final attendance
-  const submitAttendance = () => {
-    console.log('Submitting attendance:', { attendanceSession, attendanceList, flaggedStudents });
-    alert('Attendance submitted successfully!');
-    
-    setAttendanceSession(null);
-    setAttendanceList([]);
-    setFlaggedStudents([]);
-    setShowSummaryModal(false);
-    navigate('/faculty');
-  };
+const submitAttendance = () => {
+  // RESET TIMERS
+  if (countdownRef.current) clearInterval(countdownRef.current);
+  if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
 
-  // Export attendance data
-  const exportAttendance = () => {
-    const data = {
-      class: selectedClass,
-      session: attendanceSession,
-      attendance: attendanceList,
-      summary: sessionSummary
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `attendance-${selectedClass?.courseCode}-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-  };
+  countdownRef.current = null;
+  qrRefreshRef.current = null;
+
+  //  RESET STATE
+  setCountdown(120);
+  setQrRefreshTimer(30);
+setAttendanceSession({ status: "COMPLETED" });
+  setAttendanceList([]);
+  setSessionSummary(null);
+
+  setShowSummaryModal(false);
+  navigate('/faculty/attendance');
+};
+
+
+
+  const reviewSubmission = async (submissionId, action) => {
+  try {
+    await fetch(
+      `${API_BASE}/api/attendance/review/${submissionId}/${action}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        },
+      }
+    );
+    // DO NOT update state here — SSE will do it
+  } catch (err) {
+    console.error("Review failed", err);
+    alert("Unable to update attendance status");
+  }
+};
 
   return (
     <div className="space-y-8">
@@ -441,20 +554,28 @@ const fetchTodayClasses = async () => {
 
                 <button
                   onClick={() => startAttendance(classItem)}
-                  disabled={loading}
+                  disabled={loading || randomCheckCooldown !== null}
                   className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
                 >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" />
-                      <span>Starting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <PlayCircle size={20} />
-                      <span>Start Attendance Session</span>
-                    </>
-                  )}
+
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" />
+                    <span>Starting...</span>
+                  </>
+                ) : randomCheckCooldown !== null ? (
+                  <span className="text-slate-300">
+                    Presence Check Available In{" "}
+                    {Math.floor(randomCheckCooldown / 60)}:
+                    {(randomCheckCooldown % 60).toString().padStart(2, "0")}
+                  </span>
+                ) : (
+                  <>
+                    <PlayCircle size={20} />
+                    <span>Start Attendance Session</span>
+                  </>
+                )}
+
                 </button>
               </div>
             ))
@@ -574,16 +695,24 @@ const fetchTodayClasses = async () => {
                     <div className="h-[400px] overflow-y-auto space-y-3">
                       {attendanceList.length > 0 ? (
                         attendanceList.map((student) => (
-                          <div key={student.id} className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors">
+                          <div key={student.submissionId} className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold">
                                   {student.studentName.split(' ').map(n => n[0]).join('')}
                                 </div>
-                                <div>
-                                  <p className="text-white font-medium">{student.studentName}</p>
-                                  <p className="text-slate-400 text-sm">Submitted at {student.time}</p>
-                                </div>
+
+                                  <div>
+                                    <p className="text-white font-medium">{student.studentName}</p>
+
+                                    {student.status === "APPROVED" && (
+                                      <p className="text-slate-400 text-sm">
+                                        Submitted at {student.time}
+                                      </p>
+                                    )}
+                                  </div>
+
+
                               </div>
                               
                               <div className="flex items-center gap-3">
@@ -595,35 +724,57 @@ const fetchTodayClasses = async () => {
                                 }`}>
                                   {student.status}
                                 </span>
-                                
-                                {student.status === 'SUBMITTED' && (
-                                  <button
-                                    onClick={() => handleFlagStudent(student.id)}
-                                    className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm transition-colors flex items-center gap-1"
-                                  >
-                                    <Flag size={14} />
-                                    Flag
-                                  </button>
-                                )}
-                                
-                                {student.status === 'FLAGGED' && (
-                                  <div className="flex gap-2">
+                                  
+                                {student.status === 'APPROVED' && (
+                                  
+                                  <>
+                                <button onClick={() => reviewSubmission(student.submissionId, "flag")} className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm flex items-center gap-1">
+                                  <Flag size={14} />
+                                  Flag
+                                </button>
+
+
                                     <button
-                                      onClick={() => handleFlagAction(student.id, 'APPROVE')}
-                                      className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm transition-colors flex items-center gap-1"
+                                      onClick={() => reviewSubmission(student.submissionId, "approve")}
+                                      className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm flex items-center gap-1"
                                     >
                                       <ThumbsUp size={14} />
                                       Approve
                                     </button>
+
                                     <button
-                                      onClick={() => handleFlagAction(student.id, 'REJECT')}
-                                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition-colors flex items-center gap-1"
+                                      onClick={() => reviewSubmission(student.submissionId, "reject")}
+                                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm flex items-center gap-1"
+                                    >
+                                      <ThumbsDown size={14} />
+                                      Reject
+                                    </button>
+
+                                  </>
+ 
+                                )}
+
+                                                                                    
+                             {student.status === 'FLAGGED' && (
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => reviewSubmission(student.submissionId, "approve")}
+                                      className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm flex items-center gap-1"
+                                    >
+                                      <ThumbsUp size={14} />
+                                      Approve
+                                    </button>
+
+                                    <button
+                                      onClick={() => reviewSubmission(student.submissionId, "reject")}
+                                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm flex items-center gap-1"
                                     >
                                       <ThumbsDown size={14} />
                                       Reject
                                     </button>
                                   </div>
                                 )}
+
                               </div>
                             </div>
                           </div>
@@ -658,18 +809,25 @@ const fetchTodayClasses = async () => {
                   </div>
                   <div className="h-8 w-px bg-slate-700/50"></div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-400">{flaggedStudents.length}</div>
+                    <div className="text-2xl font-bold text-amber-400">{attendanceList.filter(s => s.status === "FLAGGED").length}</div>
                     <div className="text-xs text-slate-400">Flagged Entries</div>
                   </div>
                 </div>
                 
                 <button
                   onClick={endAttendanceSession}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-emerald-500/20 transition-all flex items-center gap-2"
+                  className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2
+                    ${
+                      attendanceSession?.status === "COMPLETED"
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/30"
+                        : "bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:shadow-lg hover:shadow-emerald-500/20"
+                    }
+                  `}
                 >
                   <CheckCircle size={20} />
                   End Session & Review
                 </button>
+
               </div>
             </div>
           </div>
@@ -709,30 +867,47 @@ const fetchTodayClasses = async () => {
                 <div className="mb-6">
                   <h4 className="text-white font-semibold mb-3">Flagged Students Requiring Review</h4>
                   <div className="space-y-2">
-                    {attendanceList.filter(s => s.status === 'FLAGGED').map((student) => (
-                      <div key={student.id} className="flex items-center justify-between bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                   
+                   
+                  {attendanceList
+                    .filter(s => s.status === "FLAGGED")
+                    .map((student) => (
+                      <div
+                        key={student.submissionId}
+                        className="flex items-center justify-between bg-amber-500/10 border border-amber-500/30 rounded-lg p-3"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center">
                             <Flag className="text-amber-400" size={16} />
                           </div>
-                          <span className="text-white font-medium">{student.studentName}</span>
+                          <span className="text-white font-medium">
+                            {student.studentName}
+                          </span>
                         </div>
+
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleFlagAction(student.id, 'APPROVE')}
+                            onClick={() =>
+                              reviewSubmission(student.submissionId, "approve")
+                            }
                             className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm transition-colors"
                           >
                             Approve
                           </button>
+
                           <button
-                            onClick={() => handleFlagAction(student.id, 'REJECT')}
+                            onClick={() =>
+                              reviewSubmission(student.submissionId, "reject")
+                            }
                             className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition-colors"
                           >
                             Reject
                           </button>
                         </div>
                       </div>
-                    ))}
+                  ))}
+
+
                   </div>
                 </div>
               )}
@@ -754,19 +929,22 @@ const fetchTodayClasses = async () => {
                   setShowSummaryModal(false);
                   setAttendanceSession(null);
                   setAttendanceList([]);
-                  setFlaggedStudents([]);
                 }}
                 className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
               >
                 Cancel
               </button>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setShowSummaryModal(false)}
-                  className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
-                >
-                  Review Again
-                </button>
+              <button
+                onClick={() => {
+                  setShowSummaryModal(false);
+                  setShowSessionModal(true); 
+                }}
+                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
+              >
+                Review Again
+              </button>
+
                 <button
                   onClick={submitAttendance}
                   className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all"
@@ -783,3 +961,5 @@ const fetchTodayClasses = async () => {
 };
 
 export default FacultyAttendance;
+
+

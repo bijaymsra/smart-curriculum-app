@@ -10,6 +10,7 @@ import com.attenza.backend.repository.admin.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.attenza.backend.security.JwtTokenService;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class StudentAuthService {
     private final StudentRepository studentRepository;
     private final InstitutionRepository institutionRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenService jwtService;
 
     public StudentLoginResponse login(StudentLoginRequest request) {
         
@@ -55,8 +57,12 @@ public class StudentAuthService {
         student.setLastActive(LocalDateTime.now());
         studentRepository.save(student);
 
+        // NEW STEP: Generate Token
+        String token = jwtService.generateToken(student);
+
         // 6. RETURN RESPONSE
         return new StudentLoginResponse(
+                token,
                 student.getId(),
                 student.getFullName(),
                 student.getRegistrationNo(),
@@ -64,6 +70,7 @@ public class StudentAuthService {
                 institution.getName(),
                 institution.getPublicId()
         );
+
     }
 
     private Institution findInstitution(String identifier) {
