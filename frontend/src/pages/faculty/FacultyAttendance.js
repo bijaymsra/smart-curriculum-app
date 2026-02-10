@@ -20,77 +20,78 @@ const FacultyAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [todayClasses, setTodayClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(true);
-  const [randomCheckCooldown, setRandomCheckCooldown] = useState(null); // seconds
-  const randomTimerRef = useRef(null);
+
 
 
 
   
-  // Refs for timers
+  // Refs for RQ Session Timer
   const countdownRef = useRef(null);
   const qrRefreshRef = useRef(null);
 
   // Check if session expired
   const isSessionExpired = attendanceSession?.status !== "ACTIVE" || countdown <= 0;
 
-  // Get faculty data
-  const faculty = {
-    id: sessionStorage.getItem("facultyId"),
-    facultyId: sessionStorage.getItem("facultyId"),
-    fullName: sessionStorage.getItem("facultyName"),
-  };
-
-  useEffect(() => {
-    fetchTodayClasses();
-  }, []);
 
 
+      // Get faculty data
+      const faculty = {
+        id: sessionStorage.getItem("facultyId"),
+        facultyId: sessionStorage.getItem("facultyId"),
+        fullName: sessionStorage.getItem("facultyName"),
+      };
 
-const fetchTodayClasses = async () => {
-  try {
-    setClassesLoading(true);
+      useEffect(() => {
+        fetchTodayClasses();
+      }, []);
 
-    const res = await fetch(
-      `${API_BASE}/api/admin/timetable/entries/ui`,
-      {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        },
+    const fetchTodayClasses = async () => {
+      try {
+        setClassesLoading(true);
+
+        const res = await fetch(
+          `${API_BASE}/api/admin/timetable/entries/ui`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch timetable");
+
+        const raw = await res.json();
+
+        const today = new Date()
+          .toLocaleString("en-US", { weekday: "long" })
+          .toUpperCase();
+
+        const normalized = raw
+          .filter(e =>
+            e.day?.toUpperCase() === today &&
+            String(e.facultyId) === String(faculty.facultyId)
+          )
+          .map(e => ({
+            id: e.timetableId,
+            courseCode: e.subjectCode,
+            courseName: e.subjectName,
+            time: e.time,
+            room: e.roomCode,
+            totalStudents: e.totalStudents, 
+            attendanceRate: 100,
+            status: "upcoming",
+          }));
+
+        setTodayClasses(normalized);
+      } catch (err) {
+        console.error("Error loading today's classes", err);
+      } finally {
+        setClassesLoading(false);
       }
-    );
+    };
 
-    if (!res.ok) throw new Error("Failed to fetch timetable");
 
-    const raw = await res.json();
-
-    const today = new Date()
-      .toLocaleString("en-US", { weekday: "long" })
-      .toUpperCase();
-
-    const normalized = raw
-      .filter(e =>
-        e.day?.toUpperCase() === today &&
-        String(e.facultyId) === String(faculty.facultyId)
-      )
-      .map(e => ({
-        id: e.timetableId,
-        courseCode: e.subjectCode,
-        courseName: e.subjectName,
-        time: e.time,
-        room: e.roomCode,
-        totalStudents: e.totalStudents, 
-        attendanceRate: 100,
-        status: "upcoming",
-      }));
-
-    setTodayClasses(normalized);
-  } catch (err) {
-    console.error("Error loading today's classes", err);
-  } finally {
-    setClassesLoading(false);
-  }
-};
-
+    
 
   // Check for class data passed from dashboard
   useEffect(() => {
@@ -100,7 +101,6 @@ const fetchTodayClasses = async () => {
       startAttendance(location.state.class);
     }
 
-    // if (randomTimerRef.current) clearInterval(randomTimerRef.current);
 
 
 
@@ -229,7 +229,7 @@ eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
 
   const normalized = {
-  submissionId: data.id ?? data.submissionId, // ✅ KEY FIX
+  submissionId: data.id ?? data.submissionId, 
   studentId: data.studentId,
   studentName: data.studentName,
   status: data.status,
@@ -300,20 +300,20 @@ if (attendanceSession.status === "COMPLETED") {
     setShowSummaryModal(true);
 
     // timer setting for 30 min
-if (randomTimerRef.current) clearInterval(randomTimerRef.current);
+// if (randomTimerRef.current) clearInterval(randomTimerRef.current);
 
-const COOLDOWN_SECONDS = 8; // here for checking only -> later we can put 30 min
-setRandomCheckCooldown(COOLDOWN_SECONDS);
+// const COOLDOWN_SECONDS = 8; // here for checking only -> later we can put 30 min
+// setRandomCheckCooldown(COOLDOWN_SECONDS);
 
-randomTimerRef.current = setInterval(() => {
-  setRandomCheckCooldown(prev => {
-    if (prev <= 1) {
-      clearInterval(randomTimerRef.current);
-      return null; // cooldown finished
-    }
-    return prev - 1;
-  });
-}, 1000);
+// randomTimerRef.current = setInterval(() => {
+//   setRandomCheckCooldown(prev => {
+//     if (prev <= 1) {
+//       clearInterval(randomTimerRef.current);
+//       return null; // cooldown finished
+//     }
+//     return prev - 1;
+//   });
+// }, 1000);
 
   };
 
@@ -331,30 +331,30 @@ const cancelAttendance = () => {
 };
 
 
-useEffect(() => {
-  if (randomCheckCooldown === null) return;
+// useEffect(() => {
+//   // if (randomCheckCooldown === null) return;
 
-  // ⛔ prevent duplicate intervals
-  if (randomTimerRef.current) return;
+//   // ⛔ prevent duplicate intervals
+//   // if (randomTimerRef.current) return;
 
-  randomTimerRef.current = setInterval(() => {
-    setRandomCheckCooldown(prev => {
-      if (prev <= 1) {
-        clearInterval(randomTimerRef.current);
-        randomTimerRef.current = null;
-        return null;
-      }
-      return prev - 1;
-    });
-  }, 1000);
+//   randomTimerRef.current = setInterval(() => {
+//     setRandomCheckCooldown(prev => {
+//       if (prev <= 1) {
+//         clearInterval(randomTimerRef.current);
+//         randomTimerRef.current = null;
+//         return null;
+//       }
+//       return prev - 1;
+//     });
+//   }, 1000);
 
-  return () => {
-    if (randomTimerRef.current) {
-      clearInterval(randomTimerRef.current);
-      randomTimerRef.current = null;
-    }
-  };
-}, [randomCheckCooldown]);
+//   return () => {
+//     if (randomTimerRef.current) {
+//       clearInterval(randomTimerRef.current);
+//       randomTimerRef.current = null;
+//     }
+//   };
+// }, [randomCheckCooldown]);
 
 
 
@@ -371,11 +371,11 @@ const submitAttendance = () => {
   if (countdownRef.current) clearInterval(countdownRef.current);
   if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
 
-  countdownRef.current = null;
+  // countdownRef.current = null;
   qrRefreshRef.current = null;
 
   //  RESET STATE
-  setCountdown(120);
+  // setCountdown(120);
   setQrRefreshTimer(30);
 setAttendanceSession({ status: "COMPLETED" });
   setAttendanceList([]);
@@ -407,81 +407,13 @@ setAttendanceSession({ status: "COMPLETED" });
 
   return (
     <div className="space-y-8">
-      {/* Header Card */}
-      <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-lg rounded-2xl p-8 border border-slate-700/50">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-         
-          <div className="flex items-start gap-6">
 
-        {/* Instructions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                step: 1,
-                title: "Start Session",
-                description: "Click 'Start Attendance' on your class. A 2-minute timer begins.",
-                icon: PlayCircle,
-                color: "from-blue-500 to-cyan-500"
-              },
-              {
-                step: 2,
-                title: "Display QR Code",
-                description: "Project the QR code. Students scan with their phones to submit attendance.",
-                icon: QrCode,
-                color: "from-purple-500 to-pink-500"
-              },
-              {
-                step: 3,
-                title: "Verify & Submit",
-                description: "Monitor submissions in real-time, flag suspicious entries, and finalize.",
-                icon: CheckCircle,
-                color: "from-emerald-500 to-green-500"
-              }
-            ].map((step, idx) => (
-              <div key={idx} className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-                <div className={`w-12 h-12 bg-gradient-to-r ${step.color} rounded-xl flex items-center justify-center mb-4`}>
-                  <step.icon className="text-white" size={24} />
-                </div>
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="text-sm font-semibold text-slate-400">STEP {step.step}</span>
-                </div>
-                <h5 className="text-white font-semibold text-lg mb-2">{step.title}</h5>
-                <p className="text-slate-400 text-sm">{step.description}</p>
-              </div>
-            ))}
-          </div>
 
-          </div>
-          
-          {attendanceSession?.status === 'ACTIVE' && (
-            <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 rounded-xl p-4 min-w-[300px]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                    <Timer className="text-emerald-400" size={20} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Session Active</p>
-                    <p className="text-sm text-slate-300">{formatTime(countdown)} remaining</p>
-                  </div>
-                </div>
-                <button
-                  onClick={endAttendanceSession}
-                  className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg font-medium transition-colors"
-                >
-                  End Session
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Classes Grid */}
+      {/* Starting page */}
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-2">Start Attendance Session</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">Today Attendance Session</h3>
             <p className="text-slate-400">Select a class to begin attendance. The QR code will be displayed for 2 minutes.</p>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-400">
@@ -536,46 +468,11 @@ setAttendanceSession({ status: "COMPLETED" });
                     </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Expected Attendance</span>
-                      <span className="text-emerald-400">
-                        {classItem.attendanceRate}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div
-                        className="h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-500"
-                        style={{ width: `${classItem.attendanceRate}%` }}
-                      />
-                    </div>
-                  </div>
                 </div>
 
-                <button
-                  onClick={() => startAttendance(classItem)}
-                  disabled={loading || randomCheckCooldown !== null}
-                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
-                >
-
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" />
-                    <span>Starting...</span>
-                  </>
-                ) : randomCheckCooldown !== null ? (
-                  <span className="text-slate-300">
-                    Presence Check Available In{" "}
-                    {Math.floor(randomCheckCooldown / 60)}:
-                    {(randomCheckCooldown % 60).toString().padStart(2, "0")}
-                  </span>
-                ) : (
-                  <>
-                    <PlayCircle size={20} />
-                    <span>Start Attendance Session</span>
-                  </>
-                )}
-
+                <button onClick={() => startAttendance(classItem)}
+                className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group">
+                <span>Start Attendance Session</span>
                 </button>
               </div>
             ))
@@ -583,6 +480,8 @@ setAttendanceSession({ status: "COMPLETED" });
         </div>
 
       </div>
+
+
 
 
       {/* ====================
@@ -673,7 +572,9 @@ setAttendanceSession({ status: "COMPLETED" });
                   </div>
                 </div>
 
-                {/* Real-time Submissions Panel */}
+
+
+                {/* Real-time Submissions Panel show */}
                 <div className="lg:col-span-2">
                   <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50 h-full">
                     <div className="flex items-center justify-between mb-6">
@@ -792,6 +693,8 @@ setAttendanceSession({ status: "COMPLETED" });
               </div>
             </div>
 
+
+
             {/* Modal Footer */}
             <div className="p-6 border-t border-slate-700/50 bg-slate-800/50">
               <div className="flex items-center justify-between">
@@ -834,7 +737,10 @@ setAttendanceSession({ status: "COMPLETED" });
         </div>
       )}
 
-      {/* Summary Modal */}
+
+
+
+      {/* Attendance Session Summary */}
       {showSummaryModal && sessionSummary && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
           <div className="bg-slate-800 rounded-2xl border border-slate-700/50 w-full max-w-2xl">
