@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 export default function AddStudent() {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const handleSubmit = async () => {
 
     try {
       // Use admin.adminId from context
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/students?adminId=${admin.adminId}`,
         {
           method: "POST",

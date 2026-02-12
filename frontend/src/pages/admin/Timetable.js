@@ -3,6 +3,7 @@ import {Users, Edit2, Calendar, Plus, Clock, Search, Trash2, Loader2, TrendingUp
 import { useAdmin } from "../../context/AdminContext";
 import API_BASE from "../../config/api";
 import TimetableCreateModal from "./TimetableCreateModal";
+import { authFetch } from "../../utils/authFetch";
 
 /* =========================================================
    ENHANCED ADMIN TIMETABLE MANAGEMENT
@@ -49,11 +50,7 @@ export default function Timetable() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API_BASE}/api/admin/timetable/entries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await authFetch(`${API_BASE}/api/admin/timetable/entries`);
 
       const raw = await res.json();
 
@@ -156,13 +153,10 @@ export default function Timetable() {
 
     try {
       setDeletingId(id);
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/timetable/entries/${id}`,
         {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          method: "DELETE"
         }
       );
 

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.attenza.backend.timetable.service.StudentGroupService;
 import com.attenza.backend.timetable.dto.TimetableResponse;
+import com.attenza.backend.attendance.repository.AttendanceSessionRepository;
 
 
 
@@ -25,6 +26,8 @@ public class TimetableService {
     private final TimeSlotRepository timeSlotRepository;
     private final RoomRepository roomRepository;
     private final StudentGroupService studentGroupService;
+    private final AttendanceSessionRepository attendanceSessionRepository;
+
 
 
     /* =========================
@@ -129,8 +132,7 @@ public class TimetableService {
         timetableRepository.deleteById(id);
     }
 
-
-    public List<TimetableResponse> getAllForUI() {
+public List<TimetableResponse> getAllForUI() {
 
     List<TimetableEntry> entries = timetableRepository.findAll();
 
@@ -141,55 +143,63 @@ public class TimetableService {
         res.setTimetableId(entry.getId());
 
         res.setSubjectCode(
-            entry.getCourseOffering().getSubject().getSubjectCode()
+                entry.getCourseOffering().getSubject().getSubjectCode()
         );
         res.setSubjectName(
-            entry.getCourseOffering().getSubject().getSubjectName()
+                entry.getCourseOffering().getSubject().getSubjectName()
         );
 
         res.setFacultyId(
-            entry.getFaculty().getFacultyId()
+                entry.getFaculty().getFacultyId()
         );
         res.setFacultyName(
-            entry.getFaculty().getFullName()
+                entry.getFaculty().getFullName()
         );
 
         res.setSection(
-            entry.getStudentGroup().getSection()
+                entry.getStudentGroup().getSection()
         );
         res.setSemester(
-            entry.getStudentGroup().getSemester()
+                entry.getStudentGroup().getSemester()
         );
         res.setBatch(
-            entry.getStudentGroup().getBatch()
+                entry.getStudentGroup().getBatch()
         );
 
         res.setDay(
-            entry.getTimeSlot()
-                .getDayOfWeek()
-                .name()
-                .substring(0,1)
-                + entry.getTimeSlot().getDayOfWeek().name().substring(1).toLowerCase()
+                entry.getTimeSlot()
+                        .getDayOfWeek()
+                        .name()
+                        .substring(0, 1)
+                        + entry.getTimeSlot().getDayOfWeek().name().substring(1).toLowerCase()
         );
 
         res.setTime(
-            entry.getTimeSlot().getStartTime() + " - " +
-            entry.getTimeSlot().getEndTime()
+                entry.getTimeSlot().getStartTime() + " - " +
+                        entry.getTimeSlot().getEndTime()
         );
 
         res.setRoomCode(
-            entry.getRoom().getRoomCode()
+                entry.getRoom().getRoomCode()
         );
-
 
         long count = studentGroupService.getStudentCount(
-            entry.getStudentGroup()
+                entry.getStudentGroup()
         );
         res.setTotalStudents((int) count);
+
+        // 🔥 NEW PART — Fetch latest attendance session
+        attendanceSessionRepository
+                .findTopByClassIdOrderByStartTimeDesc(entry.getId())
+                .ifPresent(session ->
+                        res.setAttendanceStatus(session.getStatus().name())
+                );
 
         return res;
 
     }).toList();
 }
+
+
 
 }

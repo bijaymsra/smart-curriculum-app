@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key} from 'lucide-react';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -67,7 +68,7 @@ export default function Settings() {
     setPasswordLoading(true);
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         "${API_BASE}/api/admin/security/change-password",
         {
           method: "POST",
@@ -145,7 +146,7 @@ export default function Settings() {
 
       try {
         // 1️⃣ Load admin profile
-        const profileRes = await fetch(
+        const profileRes = await authFetch(
           `${API_BASE}/api/admin/me?adminId=${adminId}`
         );
         if (!profileRes.ok) {
@@ -155,7 +156,7 @@ export default function Settings() {
         setAdminData(profileData);
 
         // 2️⃣ Load notification settings
-        const notifRes = await fetch(
+        const notifRes = await authFetch(
           `${API_BASE}/api/admin/notifications?adminId=${adminId}`
         );
         if (notifRes.ok) {
@@ -170,7 +171,7 @@ export default function Settings() {
         }
 
         // 3️⃣ Load preference settings
-        const prefRes = await fetch(
+        const prefRes = await authFetch(
           `${API_BASE}/api/admin/preferences?adminId=${adminId}`
         );
         if (prefRes.ok) {
@@ -202,7 +203,7 @@ export default function Settings() {
     setNotificationSettings(updatedSettings);
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/notifications?adminId=${adminId}`,
         {
           method: "PUT",
@@ -227,7 +228,7 @@ export default function Settings() {
     setDarkMode(!darkMode);
 
     try {
-      await fetch(
+      await authFetch(
         `${API_BASE}/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
         { method: "PUT" }
       );

@@ -74,7 +74,6 @@ public class AttendanceSessionService {
                 .startTime(now)
                 .expiryTime(now.plusMinutes(2))
                 .status(AttendanceSessionStatus.ACTIVE)
-                .phase(1)
                 .build();
 
         repository.save(session);
@@ -147,7 +146,7 @@ public class AttendanceSessionService {
                 throw new RuntimeException("Only ACTIVE sessions can be completed");
         }
 
-        session.setStatus(AttendanceSessionStatus.COMPLETED);
+        session.setStatus(AttendanceSessionStatus.FINALIZED);
         repository.save(session);
         }
 

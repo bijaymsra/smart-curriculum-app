@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Outlet, useLocation, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, ClipboardCheck, Calendar, Users2, TrendingUp, Settings as SettingsIcon, Menu, X, Bell, LogOut, FileText} from "lucide-react";
+import { BarChart3, ClipboardCheck, Calendar, Users2, TrendingUp, Settings as SettingsIcon, Menu, X, Bell, LogOut} from "lucide-react";
+import { authFetch } from "../../utils/authFetch";
 
 const FacultyLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -19,8 +20,6 @@ const FacultyLayout = () => {
 const navItems = [
   { label: "Dashboard", icon: BarChart3, path: "/faculty" },
   { label: "Take Attendance", icon: ClipboardCheck, path: "/faculty/attendance" },
-  { label: "My Classes", icon: Calendar, path: "/faculty/classes" },
-  { label: "Students", icon: Users2, path: "/faculty/students" },
   { label: "Analytics", icon: TrendingUp, path: "/faculty/analytics" },
   { label: "Settings", icon: SettingsIcon, path: "/faculty/settings" }, 
 ];
@@ -31,8 +30,6 @@ const navItems = [
     
     if (path === "/faculty" || path === "/faculty/dashboard") return "Dashboard";
     if (path.startsWith("/faculty/attendance")) return "Attendance Management";
-    if (path.startsWith("/faculty/classes")) return "Class Management";
-    if (path.startsWith("/faculty/students")) return "Student Management";
     if (path.startsWith("/faculty/analytics")) return "Analytics";
     if (path.startsWith("/faculty/settings")) return "Settings";
     
@@ -45,6 +42,18 @@ const navItems = [
     sessionStorage.clear();
     navigate("/login");
   };
+
+
+
+  useEffect(() => {
+  const token = sessionStorage.getItem("token");
+  const role = sessionStorage.getItem("role");
+
+  if (!token || role !== "FACULTY") {
+    navigate("/login");
+  }
+}, [navigate]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -82,17 +91,29 @@ const navItems = [
           
           {/* Faculty Profile */}
           {sidebarOpen && (
-            <div className="mt-6 flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {facultyData.fullName?.charAt(0) || "F"}
+            <div className="mt-6 flex items-start gap-4 px-2 group">
+              {/* Avatar Section */}
+              <div className="relative flex-shrink-0 mt-0.5">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-50 transition duration-300 blur-sm"></div>
+                <div className="relative w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700/50 shadow-2xl overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10" />
+                  <span className="relative z-10 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent font-bold text-lg">
+                    {facultyData.fullName?.charAt(0) || "F"}
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <p className="text-white font-medium truncate">{facultyData.fullName || "Faculty"}</p>
-                <p className="text-xs text-slate-400 truncate">{facultyData.department || "Department"}</p>
+              <div className="flex flex-col min-w-0 pr-2">
+                <p className="text-white font-semibold text-sm truncate tracking-wide mb-0.5">
+                  {facultyData.fullName || "Faculty"}
+                </p>
+                <p className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight line-clamp-2">
+                  {facultyData.department || "Department"}
+                </p>
               </div>
             </div>
           )}
+  
         </div>
 
         {/* Navigation */}
@@ -128,15 +149,11 @@ const navItems = [
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-300">Classes</span>
-                <span className="font-semibold text-blue-400">3</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Attendance</span>
-                <span className="font-semibold text-emerald-400">93%</span>
+                <span className="font-semibold text-blue-400">NA</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-300">Pending</span>
-                <span className="font-semibold text-amber-400">2</span>
+                <span className="font-semibold text-amber-400">NA</span>
               </div>
             </div>
           </div>

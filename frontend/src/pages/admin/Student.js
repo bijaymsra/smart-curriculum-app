@@ -3,6 +3,7 @@ import { Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, Clock
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 export default function Student() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,8 +72,8 @@ export default function Student() {
     console.log("Fetching students for admin:", admin.adminId);
 
     Promise.all([
-      fetch(`${API_BASE}/api/admin/students?adminId=${admin.adminId}`),
-      fetch(`${API_BASE}/api/admin/students/stats?adminId=${admin.adminId}`)
+      authFetch(`${API_BASE}/api/admin/students?adminId=${admin.adminId}`),
+      authFetch(`${API_BASE}/api/admin/students/stats?adminId=${admin.adminId}`)
     ])
     .then(async ([studentsRes, statsRes]) => {
       if (!studentsRes.ok) throw new Error(`Failed to fetch students: ${studentsRes.status}`);

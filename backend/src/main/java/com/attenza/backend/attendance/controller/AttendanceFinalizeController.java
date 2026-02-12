@@ -1,19 +1,13 @@
 package com.attenza.backend.attendance.controller;
 
+import com.attenza.backend.attendance.entity.AttendanceSessionStatus;
 import com.attenza.backend.attendance.service.AttendanceFinalizationService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * =========================================
- * ATTENDANCE FINALIZATION CONTROLLER
- * =========================================
- * Locks an attendance session permanently.
- * No QR scans, reviews, or changes allowed after this.
- */
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
@@ -21,12 +15,27 @@ public class AttendanceFinalizeController {
 
     private final AttendanceFinalizationService finalizeService;
 
-    /**
-     * FINALIZE attendance session
-     * Called when faculty clicks "Submit Attendance"
-     */
     @PostMapping("/session/{sessionId}/finalize")
-    public void finalizeSession(@PathVariable String sessionId) {
+    public ResponseEntity<FinalizeResponse> finalizeSession(
+            @PathVariable String sessionId
+    ) {
+
         finalizeService.finalizeSession(sessionId);
+
+        return ResponseEntity.ok(
+                new FinalizeResponse(
+                        "Attendance finalized successfully",
+                        sessionId,
+                        AttendanceSessionStatus.FINALIZED.name()
+                )
+        );
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class FinalizeResponse {
+        private String message;
+        private String sessionId;
+        private String status;
     }
 }

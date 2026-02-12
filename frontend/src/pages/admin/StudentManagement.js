@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Users, Calendar, AlertCircle, Eye, BookOpen, Phone, MapPin, Ban, CheckCircle, Clock, Mail, User, Settings, ArrowLeft } from "lucide-react";
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 export default function StudentManagement() {
   const { studentId } = useParams();
@@ -20,10 +21,8 @@ export default function StudentManagement() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [showPasswordPanel, setShowPasswordPanel] = useState(false);
-  const [tempPassword, setTempPassword] = useState("");
 
-  // ✅ Move hasChanges to top so it's defined before use
+
   const hasChanges = !!student && pendingStatus !== student.status;
 
   const getInitials = (name = "") =>
@@ -34,14 +33,14 @@ export default function StudentManagement() {
       ?.join("")
       ?.toUpperCase() || "NA";
 
-  // ✅ Redirect effect
+  // Redirect effect
   useEffect(() => {
     if (!adminLoading && !admin) {
       navigate('/login');
     }
   }, [adminLoading, admin, navigate]);
 
-  // ✅ Fetch student data
+  // Fetch student data
   useEffect(() => {
     // Don't fetch if still loading admin or no admin
     if (adminLoading || !admin || !admin.adminId) return;
@@ -49,7 +48,7 @@ export default function StudentManagement() {
     setLoading(true);
     console.log("Fetching student with adminId:", admin.adminId);
 
-    fetch(`${API_BASE}/api/admin/students/${studentId}?adminId=${admin.adminId}`)
+    authFetch(`${API_BASE}/api/admin/students/${studentId}?adminId=${admin.adminId}`)
       .then(async (res) => {
         console.log("HTTP status:", res.status);
         const text = await res.text();
@@ -72,7 +71,7 @@ export default function StudentManagement() {
       });
   }, [studentId, admin, adminLoading]); 
 
-  // ✅ Update pending values when student changes
+  //  Update pending values when student changes
   useEffect(() => {
     if (student) {
       setPendingStatus(student.status);
@@ -96,7 +95,7 @@ export default function StudentManagement() {
     };
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/students/${student.id}/status?adminId=${admin.adminId}`,
         {
           method: "PATCH",
@@ -138,8 +137,6 @@ export default function StudentManagement() {
     setPendingStatus(student.status);
     setPendingSection(student.section ?? "");
     setPendingSemester(student.semester ?? "");
-    setTempPassword("");
-    setShowPasswordPanel(false);
   };
 
   const getStatusConfig = (status = "ACTIVE") => {

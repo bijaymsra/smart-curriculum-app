@@ -1,9 +1,10 @@
 package com.attenza.backend.attendance.entity;
 
 public enum AttendanceSessionStatus {
-    ACTIVE,
-    COMPLETED,
-    CANCELLED,
-    EXPIRED,
-    FINALIZED
+
+    ACTIVE,       // session running
+    EXPIRED,      // auto expired by time
+    CANCELLED,    // faculty cancelled
+    FINALIZED     // faculty locked permanently
+
 }

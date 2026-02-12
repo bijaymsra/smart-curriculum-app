@@ -12,5 +12,5 @@ public class StudentAttendanceDTO {
     private String courseCode;
     private String courseName;
     private LocalDate date;
-    private String status; // PRESENT / ABSENT
+    private String status; 
 }

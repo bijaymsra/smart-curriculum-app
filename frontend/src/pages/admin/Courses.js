@@ -3,11 +3,11 @@ import {Users, BookOpen, Plus, X, Search, Trash2,Loader2, AlertCircle, CheckCirc
 import { useAdmin } from '../../context/AdminContext';
 import './Courses.css'; 
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 
 export default function Courses() {
   const { admin } = useAdmin();
-  const token = localStorage.getItem('token');
 
   /* =========================
      ENHANCED STATE MANAGEMENT
@@ -59,10 +59,9 @@ export default function Courses() {
   const fetchCourses = useCallback(async () => {
     setLoading(prev => ({ ...prev, courses: true }));
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/subjects?institutionId=${admin.institutionId}`,
         { 
-          headers: { Authorization: `Bearer ${token}` },
           signal: AbortSignal.timeout(10000)
         }
       );
@@ -95,15 +94,14 @@ export default function Courses() {
     } finally {
       setLoading(prev => ({ ...prev, courses: false }));
     }
-  }, [admin?.institutionId, token]);
+  }, [admin?.institutionId]);
 
   const fetchDepartments = useCallback(async () => {
     setLoading(prev => ({ ...prev, departments: true }));
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${API_BASE}/api/admin/departments?institutionId=${admin.institutionId}`,
         { 
-          headers: { Authorization: `Bearer ${token}` },
           signal: AbortSignal.timeout(10000)
         }
       );
@@ -126,7 +124,7 @@ export default function Courses() {
     } finally {
       setLoading(prev => ({ ...prev, departments: false }));
     }
-  }, [admin?.institutionId, token]);
+  }, [admin?.institutionId]);
 
   useEffect(() => {
     if (!admin?.institutionId) return;
@@ -206,10 +204,9 @@ export default function Courses() {
     setLoading(prev => ({ ...prev, courses: true }));
     
     try {
-      await fetch(`${API_BASE}/api/admin/subjects`, {
+      await authFetch(`${API_BASE}/api/admin/subjects`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
@@ -242,9 +239,8 @@ export default function Courses() {
     setDeletingId(id);
     
     try {
-      await fetch(`${API_BASE}/api/admin/subjects/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+      await authFetch(`${API_BASE}/api/admin/subjects/${id}`, {
+        method: 'DELETE'
       });
       
       setCourses(prev => {
@@ -284,10 +280,9 @@ export default function Courses() {
     setLoading(prev => ({ ...prev, departments: true }));
     
     try {
-      await fetch(`${API_BASE}/api/admin/departments`, {
+      await authFetch(`${API_BASE}/api/admin/departments`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
@@ -325,11 +320,10 @@ export default function Courses() {
     setDeletingId(id);
     
     try {
-      await fetch(
+      await authFetch(
         `${API_BASE}/api/admin/departments/${id}?institutionId=${admin.institutionId}`,
         {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          method: 'DELETE'
         }
       );
       

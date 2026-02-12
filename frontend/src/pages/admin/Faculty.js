@@ -3,18 +3,17 @@ import { Users, GraduationCap, TrendingUp, AlertCircle, Plus, Clock, Search, Fil
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 // API Service functions
 const facultyApi = {
   // Get all faculty (paginated)
   getAllFaculty: async (institutionId, page = 0, size = 10, sortBy = 'createdAt', sortDir = 'desc') => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
+    const response = await authFetch(
       `${API_BASE}/api/admin/faculty?institutionId=${institutionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
       {
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
     );
@@ -27,30 +26,16 @@ const facultyApi = {
 
   // Search faculty
   searchFaculty: async (institutionId, query) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        }
-      }
-    );
+    const response = await authFetch(
+      `${API_BASE}/api/admin/faculty/search?institutionId=${institutionId}&query=${encodeURIComponent(query)}`);
     if (!response.ok) throw new Error('Failed to search faculty');
     return response.json();
   },
 
   // Get faculty stats
   getFacultyStats: async (institutionId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`,
-      {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        }
-      }
-    );
+    const response = await authFetch(
+      `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`);
     if (!response.ok) throw new Error('Failed to fetch faculty stats');
     return response.json();
   },
@@ -58,7 +43,6 @@ const facultyApi = {
   // Filter faculty
   filterFaculty: async (institutionId, filters) => {
     const { status, department, utilization, search } = filters;
-    const token = localStorage.getItem('token');
     let url = `${API_BASE}/api/admin/faculty/filter?institutionId=${institutionId}`;
     
     if (status && status !== 'all') url += `&status=${status}`;
@@ -66,11 +50,7 @@ const facultyApi = {
     if (utilization && utilization !== 'all') url += `&utilization=${utilization}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-      }
-    });
+    const response = await authFetch(url);
     if (!response.ok) throw new Error('Failed to filter faculty');
     return response.json();
   }

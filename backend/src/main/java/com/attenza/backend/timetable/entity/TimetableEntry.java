@@ -93,20 +93,20 @@ public class TimetableEntry {
         this.updatedAt = LocalDateTime.now();
     }
 
-@Transient
-public Long getStudentGroupId() {
-    return studentGroup != null ? studentGroup.getId() : null;
-}
+    @Transient
+    public Long getStudentGroupId() {
+        return studentGroup != null ? studentGroup.getId() : null;
+    }
 
-@Transient
-public Long getFacultyId() {
-    return faculty != null ? faculty.getId() : null;
-}
+    @Transient
+    public Long getFacultyId() {
+        return faculty != null ? faculty.getId() : null;
+    }
 
-@Transient
-public Long getRoomId() {
-    return room != null ? room.getId() : null;
-}
+    @Transient
+    public Long getRoomId() {
+        return room != null ? room.getId() : null;
+    }
 
 
 

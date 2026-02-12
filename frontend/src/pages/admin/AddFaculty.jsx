@@ -3,6 +3,7 @@ import { User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap, Building
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 export default function AddFaculty() {
   const { admin, loading } = useAdmin();
@@ -163,7 +164,7 @@ const buildFacultyPayload = () => ({
 
         const payload = buildFacultyPayload();
 
-        const res = await fetch(
+        const res = await authFetch(
           `${API_BASE}/api/admin/faculty?institutionId=${institutionId}`,
           {
             method: "POST",

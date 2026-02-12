@@ -13,4 +13,5 @@ public class FacultyLoginResponse {
     private String department;
     private String institutionId;
     private String institutionName;
+    private String token;
 }

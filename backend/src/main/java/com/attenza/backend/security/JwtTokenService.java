@@ -22,26 +22,63 @@ public class JwtTokenService {
     public JwtTokenService(
             @Value("${attendance.qr.secret}") String secret
     ) {
-        // ✅ THIS guarantees 256-bit+ key
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    /* =====================================================
+       STUDENT TOKEN (Existing - unchanged behavior)
+    ===================================================== */
+
     public String generateToken(Student student) {
+        return generateToken(
+                String.valueOf(student.getId()),
+                "STUDENT"
+        );
+    }
+
+    /* =====================================================
+       GENERIC TOKEN (For Faculty, Admin, etc.)
+    ===================================================== */
+
+    public String generateToken(String subject, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(student.getId()))
+                .setSubject(subject)   // Can be studentId or facultyId
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Long extractStudentId(String token) {
+    /* =====================================================
+       Extract Subject (Generic)
+    ===================================================== */
+
+    public String extractSubject(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
 
-        return Long.parseLong(claims.getSubject());
+        return claims.getSubject();
+    }
+
+    public String extractRole(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("role", String.class);
+    }
+
+    /* =====================================================
+       Backward Compatible Method (Student only)
+    ===================================================== */
+
+    public Long extractStudentId(String token) {
+        return Long.parseLong(extractSubject(token));
     }
 }

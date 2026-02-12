@@ -3,6 +3,8 @@ package com.attenza.backend.attendance.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.*;
+
 
 import java.time.LocalDateTime;
 import com.attenza.backend.attendance.entity.AttendanceSubmissionStatus;
@@ -16,6 +18,9 @@ import com.attenza.backend.attendance.entity.AttendanceSubmissionStatus;
 )
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AttendanceSubmission {
 
     @Id
@@ -33,18 +38,6 @@ public class AttendanceSubmission {
 
     @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
-
-
-
-    /* =========================
-    PHASE TRACKING
-    ========================= */
-
-    @Column(name = "phase1_verified", nullable = false)
-    private boolean phase1Verified = false;
-
-    @Column(name = "phase2_verified", nullable = false)
-    private boolean phase2Verified = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

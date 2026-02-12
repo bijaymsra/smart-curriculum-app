@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, AlertCircle, CheckCircle, Loader2, Clock, Building, Users, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 /* =========================================================
    ENHANCED CREATE / EDIT TIMETABLE MODAL
@@ -65,13 +66,10 @@ useEffect(() => {
     setError("");
 
     const [groupsRes, coursesRes, slotsRes, roomsRes] = await Promise.all([
-      fetch(
-        `${API_BASE}/api/admin/timetable/student-groups?institutionId=${admin.institutionId}`,
-        auth()
-      ),
-      fetch(`${API_BASE}/api/admin/timetable/course-offerings`, auth()),
-      fetch(`${API_BASE}/api/admin/timetable/time-slots`, auth()),
-      fetch(`${API_BASE}/api/admin/timetable/rooms`, auth()),
+      authFetch(`${API_BASE}/api/admin/timetable/student-groups?institutionId=${admin.institutionId}`),
+      authFetch(`${API_BASE}/api/admin/timetable/course-offerings`),
+      authFetch(`${API_BASE}/api/admin/timetable/time-slots`),
+      authFetch(`${API_BASE}/api/admin/timetable/rooms`),
     ]);
 
     if (!groupsRes.ok || !coursesRes.ok || !slotsRes.ok || !roomsRes.ok) {
@@ -193,10 +191,9 @@ useEffect(() => {
 
       const method = editData ? "PUT" : "POST";
 
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(form),
@@ -501,11 +498,6 @@ const PreviewItem = ({ label, value }) => (
    UTILITIES
    ========================================================= */
 
-const auth = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
 
 const extractArray = (res) => {
   if (Array.isArray(res)) return res;

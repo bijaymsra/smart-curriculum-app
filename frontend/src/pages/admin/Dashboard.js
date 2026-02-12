@@ -3,18 +3,18 @@ import { Users, GraduationCap, BookOpen, Building2, Calendar, TrendingUp, AlertC
 import { useAdmin } from '../../context/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 // API Service functions
 const dashboardApi = {
   // Get student stats
   getStudentStats: async (institutionId) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(
+    const response = await authFetch(
       `${API_BASE}/api/admin/students/dashboard-stats?institutionId=${institutionId}`,
       {
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
     );
@@ -28,12 +28,11 @@ const dashboardApi = {
   // Get faculty stats
   getFacultyStats: async (institutionId) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(
+    const response = await authFetch(
       `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`,
       {
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
     );
@@ -47,12 +46,11 @@ const dashboardApi = {
   // Get total courses count (you'll need to implement this backend endpoint)
   getCourseStats: async (institutionId) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(
+    const response = await authFetch(
       `${API_BASE}/api/admin/subjects/stats?institutionId=${institutionId}`,
       {
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
     );

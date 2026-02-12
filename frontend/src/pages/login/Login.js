@@ -120,52 +120,66 @@ export default function Login() {
       }
 
       // Save session data based on user type
-      switch (userType) {
-        case "admin":
-          sessionStorage.setItem("adminId", data.adminId);
-          sessionStorage.setItem("adminEmail", data.email);
-          sessionStorage.setItem("adminName", data.fullName);
-          sessionStorage.setItem("institutionName", data.institutionName);
-          sessionStorage.setItem("adminStatus", data.status);
-          sessionStorage.setItem("institutionId", data.institutionId);
-          sessionStorage.setItem("userType", "admin");
-          window.location.href = "/admin";
-          break;
-        
-        case "superadmin":
-          sessionStorage.setItem("superAdminId", data.superAdminId);
-          sessionStorage.setItem("superAdminUsername", data.username);
-          sessionStorage.setItem("superAdminName", data.fullName);
-          sessionStorage.setItem("superAdminRole", data.role);
-          sessionStorage.setItem("userType", "superadmin");
-          window.location.href = "/superadmin/dashboard";
-          break;
-        
-        case "faculty":
-          sessionStorage.setItem("facultyId", data.facultyId);
-          sessionStorage.setItem("facultyEmail", data.email);
-          sessionStorage.setItem("facultyName", data.fullName);
-          sessionStorage.setItem("facultyDepartment", data.department);
-          sessionStorage.setItem("institutionName", data.institutionName);
-          sessionStorage.setItem("institutionId", data.institutionId);
-          sessionStorage.setItem("userType", "faculty");
-          window.location.href = "/faculty";
-          break;
-        
-        case "student":
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("studentId", data.studentId);
-          sessionStorage.setItem("studentId", data.studentId);
-          sessionStorage.setItem("studentRegistrationNo", data.registrationNo);
-          sessionStorage.setItem("studentName", data.fullName);
-          sessionStorage.setItem("studentStatus", data.status);
-          sessionStorage.setItem("institutionName", data.institutionName);
-          sessionStorage.setItem("institutionPublicId", data.institutionPublicId);
-          sessionStorage.setItem("institutionId", data.institutionId);
-          sessionStorage.setItem("userType", "student");
-          window.location.href = "/student";
-          break;
-      }
+    switch (userType) {
+
+      case "admin":
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("role", "ADMIN");      
+
+        sessionStorage.setItem("adminId", data.adminId);
+        sessionStorage.setItem("adminEmail", data.email);
+        sessionStorage.setItem("adminName", data.fullName);
+        sessionStorage.setItem("institutionName", data.institutionName);
+        sessionStorage.setItem("adminStatus", data.status);
+        sessionStorage.setItem("institutionId", data.institutionId);
+        sessionStorage.setItem("userType", "admin");
+
+        window.location.href = "/admin";
+        break;
+
+      case "superadmin":
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("role", "SUPERADMIN");
+
+        sessionStorage.setItem("superAdminId", data.superAdminId);
+        sessionStorage.setItem("superAdminUsername", data.username);
+        sessionStorage.setItem("superAdminName", data.fullName);
+
+        window.location.href = "/superadmin/dashboard";
+        break;
+
+
+      case "faculty":
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("role", "FACULTY");
+
+        sessionStorage.setItem("facultyId", data.facultyId);        // public ID
+        sessionStorage.setItem("facultyDbId", data.facultyDbId);    // numeric DB ID
+        sessionStorage.setItem("facultyEmail", data.email);
+        sessionStorage.setItem("facultyName", data.fullName);
+        sessionStorage.setItem("facultyDepartment", data.department);
+        sessionStorage.setItem("institutionName", data.institutionName);
+        sessionStorage.setItem("institutionId", data.institutionId);
+
+        window.location.href = "/faculty";
+        break;
+
+
+      case "student":
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("role", "STUDENT");
+
+        sessionStorage.setItem("studentId", data.studentId);
+        sessionStorage.setItem("studentRegistrationNo", data.registrationNo);
+        sessionStorage.setItem("studentName", data.fullName);
+        sessionStorage.setItem("studentStatus", data.status);
+        sessionStorage.setItem("institutionName", data.institutionName);
+        sessionStorage.setItem("institutionPublicId", data.institutionPublicId);
+        sessionStorage.setItem("institutionId", data.institutionId);
+
+        window.location.href = "/student";
+        break;
+    }
 
       setSuccess(`Welcome back! Redirecting to ${userType} dashboard...`);
 

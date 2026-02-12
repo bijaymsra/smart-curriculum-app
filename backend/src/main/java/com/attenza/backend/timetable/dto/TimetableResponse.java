@@ -24,4 +24,6 @@ public class TimetableResponse {
 
     private String roomCode;
     private Integer totalStudents;
+    private String attendanceStatus;
+
 }

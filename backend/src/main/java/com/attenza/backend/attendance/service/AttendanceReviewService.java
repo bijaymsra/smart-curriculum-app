@@ -8,6 +8,7 @@ import com.attenza.backend.attendance.repository.AttendanceSubmissionRepository;
 import com.attenza.backend.attendance.repository.AttendanceSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -22,69 +23,34 @@ public class AttendanceReviewService {
     /* =========================
        Approve submission
        ========================= */
+    @Transactional
     public void approve(Long submissionId) {
-
-        AttendanceSubmission submission = submissionRepository
-                .findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Submission not found"));
-
-        AttendanceSession session = sessionRepository
-                .findById(submission.getSessionId())
-                .orElseThrow(() -> new RuntimeException("Attendance session not found"));
-
-        if (session.getStatus() == AttendanceSessionStatus.FINALIZED) {
-            throw new RuntimeException("Cannot modify finalized attendance");
-        }
-
-        submission.setStatus(AttendanceSubmissionStatus.APPROVED);
-        submissionRepository.save(submission);
-
-        sessionService.pushReviewUpdate(
-                submission.getSessionId(),
-                Map.of(
-                        "id", submission.getId(),
-                        "studentId", submission.getStudentId(),
-                        "studentName", submission.getStudentName(),
-                        "status", submission.getStatus().name()
-                )
-        );
+        updateStatus(submissionId, AttendanceSubmissionStatus.APPROVED);
     }
 
     /* =========================
        Reject submission
        ========================= */
+    @Transactional
     public void reject(Long submissionId) {
-
-        AttendanceSubmission submission = submissionRepository
-                .findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Submission not found"));
-
-        AttendanceSession session = sessionRepository
-                .findById(submission.getSessionId())
-                .orElseThrow(() -> new RuntimeException("Attendance session not found"));
-
-        if (session.getStatus() == AttendanceSessionStatus.FINALIZED) {
-            throw new RuntimeException("Cannot modify finalized attendance");
-        }
-
-        submission.setStatus(AttendanceSubmissionStatus.REJECTED);
-        submissionRepository.save(submission);
-
-        sessionService.pushReviewUpdate(
-                submission.getSessionId(),
-                Map.of(
-                        "submissionId", submission.getId(),
-                        "studentId", submission.getStudentId(),
-                        "studentName", submission.getStudentName(),
-                        "status", submission.getStatus().name()
-                )
-        );
+        updateStatus(submissionId, AttendanceSubmissionStatus.REJECTED);
     }
 
     /* =========================
        Flag submission
        ========================= */
+    @Transactional
     public void flag(Long submissionId) {
+        updateStatus(submissionId, AttendanceSubmissionStatus.FLAGGED);
+    }
+
+    /* =========================
+       Internal Status Update Logic
+       ========================= */
+
+    @Transactional
+    public void updateStatus(Long submissionId,
+                            AttendanceSubmissionStatus newStatus) {
 
         AttendanceSubmission submission = submissionRepository
                 .findById(submissionId)
@@ -98,7 +64,7 @@ public class AttendanceReviewService {
             throw new RuntimeException("Cannot modify finalized attendance");
         }
 
-        submission.setStatus(AttendanceSubmissionStatus.FLAGGED);
+        submission.setStatus(newStatus);
         submissionRepository.save(submission);
 
         sessionService.pushReviewUpdate(
@@ -111,4 +77,5 @@ public class AttendanceReviewService {
                 )
         );
     }
+
 }

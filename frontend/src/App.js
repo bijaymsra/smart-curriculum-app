@@ -4,9 +4,10 @@ import About from "./pages/common/About";
 import Docs from "./pages/common/Docs";
 import Login from "./pages/login/Login";
 import Signup from "./pages/login/Signup";
-
+import ProtectedRoute from "./protect/ProtectedRoute";
 import { AdminProvider } from "./context/AdminContext";
 
+// Admin Components
 import Admin from "./pages/admin/Admin";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminStudents from "./pages/admin/Student";
@@ -21,14 +22,11 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminTimetable from "./pages/admin/Timetable";
 import AdminAnalytics from "./pages/admin/Analytics";
 
-// import StudentDashboard from "./pages/student/StudentDashboard";
 
 // Faculty Components
 import FacultyLayout from './pages/faculty/FacultyLayout';
 import FacultyDashboard from './pages/faculty/FacultyDashboard';
 import FacultyAttendance from './pages/faculty/FacultyAttendance';
-import FacultyClasses from './pages/faculty/FacultyClasses';
-import FacultyStudents from './pages/faculty/FacultyStudents';
 import FacultyAnalytics from './pages/faculty/FacultyAnalytics';
 import FacultySettings from './pages/faculty/FacultySettings';
 
@@ -37,7 +35,6 @@ import FacultySettings from './pages/faculty/FacultySettings';
 import StudentLayout from './pages/student/StudentLayout';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentAttendance from './pages/student/StudentAttendance';
-import StudentSchedule from './pages/student/StudentSchedule';
 import StudentPlanner from './pages/student/StudentPlanner';
 import StudentTasks from './pages/student/StudentTasks';
 import StudentProfile from './pages/student/StudentProfile';
@@ -54,7 +51,7 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
 
       {/* ===== ADMIN LAYOUT ===== */}
-      <Route path="/admin" element={<AdminProvider><Admin /></AdminProvider>}>
+      <Route path="/admin" element={<ProtectedRoute allowedRole="ADMIN"><AdminProvider><Admin /></AdminProvider></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="students" element={<AdminStudents />} />
         <Route path="students/new" element={<AdminAddStudent />} />
@@ -69,38 +66,26 @@ export default function App() {
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 
-      {/* ===== STUDENT LAYOUT DASHBOARD ===== */}
-      {/* <Route path="/student/dashboard" element={<StudentDashboard />} /> */}
 
       {/* ===== FACULTY PORTAL ===== */}
-      <Route path="/faculty" element={<FacultyLayout />}>
+      <Route path="/faculty" element={<ProtectedRoute allowedRole="FACULTY"><FacultyLayout /></ProtectedRoute>}>
         <Route index element={<FacultyDashboard />} />
         <Route path="dashboard" element={<FacultyDashboard />} />
         <Route path="attendance" element={<FacultyAttendance />} />
-        <Route path="classes" element={<FacultyClasses />} />
-        <Route path="students" element={<FacultyStudents />} />
         <Route path="analytics" element={<FacultyAnalytics />} />
         <Route path="settings" element={<FacultySettings />} />
       </Route>
 
 
       {/* ===== STUDENT PORTAL ===== */}
-    <Route path="/student" element={<StudentLayout />}>
+    <Route path="/student" element={<ProtectedRoute allowedRole="STUDENT"><StudentLayout /></ProtectedRoute>}>
       <Route index element={<StudentDashboard />} />
       <Route path="dashboard" element={<StudentDashboard />} />
       <Route path="attendance" element={<StudentAttendance />} />
-      <Route path="schedule" element={<StudentSchedule />} />
       <Route path="planner" element={<StudentPlanner />} />
       <Route path="tasks" element={<StudentTasks />} />
       <Route path="profile" element={<StudentProfile />} />
     </Route>
-
-
-
-
-
-
-
 
       
     </Routes>

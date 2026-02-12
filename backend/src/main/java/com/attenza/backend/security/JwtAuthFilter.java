@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtStudentFilter extends OncePerRequestFilter {
+public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
 
@@ -25,34 +25,31 @@ public class JwtStudentFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // Only process if Bearer token is present
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
             try {
-                // Extract studentId from JWT
-                Long studentId = jwtTokenService.extractStudentId(token);
+                String subject = jwtTokenService.extractSubject(token);
+                String role = jwtTokenService.extractRole(token);
 
-                // Make studentId available to controllers
-                request.setAttribute("studentId", studentId);
+                // ✅ Attach based on role
+                if ("FACULTY".equals(role)) {
+                    request.setAttribute("facultyId", subject);
+                }
+
+                if ("STUDENT".equals(role)) {
+                    request.setAttribute("studentId", Long.parseLong(subject));
+                }
+
+                request.setAttribute("role", role);
 
             } catch (Exception ex) {
-                // Invalid / expired token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired student token");
+                response.getWriter().write("Invalid or expired token");
                 return;
             }
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * Optional optimization:
-     * Skip filtering for non-student endpoints if you want
-     */
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/student/");
     }
 }

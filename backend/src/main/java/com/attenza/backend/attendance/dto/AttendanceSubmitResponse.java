@@ -1,10 +1,16 @@
 package com.attenza.backend.attendance.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
 @AllArgsConstructor
+@Builder
 public class AttendanceSubmitResponse {
+
     private String message;
+    private String sessionId;
+    private Long studentId;
+    private String status;
 }

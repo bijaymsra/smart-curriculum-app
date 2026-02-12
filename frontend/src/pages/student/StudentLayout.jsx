@@ -20,10 +20,9 @@ const StudentLayout = () => {
 
   const navItems = [
     { label: "Dashboard", icon: BarChart3, path: "/student" },
-    { label: "Attendance", icon: CheckCircle, path: "/student/attendance" },
-    { label: "Schedule", icon: Calendar, path: "/student/schedule" },
+    { label: "Mark Attendance", icon: CheckCircle, path: "/student/attendance" },
     { label: "Smart Planner", icon: Target, path: "/student/planner" },
-    { label: "Tasks", icon: FileText, path: "/student/tasks" },
+    { label: "Your Tasks", icon: FileText, path: "/student/tasks" },
     { label: "Profile", icon: User, path: "/student/profile" },
   ];
 
@@ -33,7 +32,6 @@ const StudentLayout = () => {
     
     if (path === "/student" || path === "/student/dashboard") return "Dashboard";
     if (path.startsWith("/student/attendance")) return "Attendance";
-    if (path.startsWith("/student/schedule")) return "Schedule";
     if (path.startsWith("/student/planner")) return "Smart Planner";
     if (path.startsWith("/student/tasks")) return "Tasks & Assignments";
     if (path.startsWith("/student/profile")) return "Profile & Settings";
@@ -50,9 +48,9 @@ const StudentLayout = () => {
 
   // Calculate quick stats
   const quickStats = {
-    attendance: 92,
-    streak: 5,
-    points: 1280
+    attendance: 0,
+    streak: 0,
+    points: 0
   };
 
   return (
@@ -71,9 +69,9 @@ const StudentLayout = () => {
             {sidebarOpen && (
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-                  STUDENT PORTAL
+                  ATTENZA
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">Smart Attendance & Planner</p>
+                <p className="text-xs text-slate-400 mt-1">Student Portal</p>
               </div>
             )}
             <button
@@ -89,26 +87,58 @@ const StudentLayout = () => {
           </div>
           
           {/* Student Profile */}
-          {sidebarOpen && (
-            <div className="mt-6 flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {studentData.fullName?.charAt(0) || "S"}
-              </div>
-              <div>
-                <p className="text-white font-medium truncate">{studentData.fullName || "Student"}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-slate-400 truncate">{studentData.registrationNo}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    studentData.status === 'ACTIVE' 
-                      ? 'bg-green-500/20 text-green-400' 
-                      : 'bg-yellow-500/20 text-yellow-400'
-                  }`}>
-                    {studentData.year}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
+{sidebarOpen && (
+  <div className="mt-6 flex items-start gap-4 px-2 group">
+    {/* Avatar Section */}
+    <div className="relative flex-shrink-0 mt-0.5">
+      {/* Emerald Outer Glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full opacity-20 group-hover:opacity-50 transition duration-300 blur-sm"></div>
+      
+      {/* Main Avatar Circle */}
+      <div className="relative w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700/50 shadow-2xl overflow-hidden">
+        {/* Subtle Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10" />
+        
+        {/* The Initial */}
+        <span className="relative z-10 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent font-bold text-lg">
+          {studentData.fullName?.charAt(0) || "S"}
+        </span>
+      </div>
+    </div>
+
+    {/* Text Section */}
+<div className="flex flex-col min-w-0 flex-1">
+  {/* Name - Takes the top row */}
+ <p className="text-white font-semibold text-sm truncate tracking-wide">
+    {studentData.fullName || "Student"}
+  </p>
+  
+  {/* Info Row - Optimized for space */}
+  <div className="flex flex-col gap-0.5 mt-1">
+    {/* Registration Number */}
+    <span className="text-[10px] text-slate-500 font-medium truncate leading-none">
+      {studentData.registrationNo}
+    </span>
+    
+    {/* Year Badge - Pushed to its own line or made very compact */}
+    <div className="mt-1">
+      <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold border uppercase tracking-wider ${
+        studentData.status === 'ACTIVE' 
+          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+          : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+      }`}>
+        {studentData.year}
+      </span>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+)}
+
+
+
         </div>
 
         {/* Navigation */}
@@ -137,6 +167,7 @@ const StudentLayout = () => {
           ))}
         </nav>
 
+
         {/* Gamification Stats */}
         {sidebarOpen && (
           <div className="mt-8 mx-4 p-4 bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-xl border border-emerald-700/30">
@@ -161,16 +192,6 @@ const StudentLayout = () => {
                 <span className="font-semibold text-purple-400">{quickStats.points}</span>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        {sidebarOpen && (
-          <div className="mt-4 mx-4">
-            <button className="w-full py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-              <Smartphone size={16} />
-              Scan Attendance
-            </button>
           </div>
         )}
       </aside>

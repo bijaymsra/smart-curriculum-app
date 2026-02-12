@@ -1,8 +1,11 @@
 package com.attenza.backend.attendance.entity;
 
 public enum AttendanceSubmissionStatus {
-    SUBMITTED,
-    FLAGGED,
+
+    PENDING,   // scanned but not reviewed
     APPROVED,
-    REJECTED
+    REJECTED,
+    FLAGGED
+
 }
+

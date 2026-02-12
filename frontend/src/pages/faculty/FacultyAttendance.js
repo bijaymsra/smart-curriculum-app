@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { QrCode, PlayCircle, Users, HelpCircle, Projector, Smartphone, Flag, ThumbsUp, ThumbsDown, Clock3, CheckCircle, XCircle, Download, ChevronRight, Shield, Timer} from 'lucide-react';
+import { QrCode, Users, Projector, Smartphone, Flag, ThumbsDown, Clock3, CheckCircle, XCircle, Shield} from 'lucide-react';
 import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 const FacultyAttendance = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const FacultyAttendance = () => {
   // State Management
   const [attendanceSession, setAttendanceSession] = useState(null);
   const [qrCode, setQrCode] = useState(null);
-  const [countdown, setCountdown] = useState(120); // 2 minutes
+  const [countdown, setCountdown] = useState(120); 
   const [qrRefreshTimer, setQrRefreshTimer] = useState(30);
   const [attendanceList, setAttendanceList] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -20,6 +21,7 @@ const FacultyAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [todayClasses, setTodayClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(true);
+
 
 
 
@@ -41,7 +43,7 @@ const FacultyAttendance = () => {
         fullName: sessionStorage.getItem("facultyName"),
       };
 
-      useEffect(() => {
+useEffect(() => {
         fetchTodayClasses();
       }, []);
 
@@ -49,14 +51,8 @@ const FacultyAttendance = () => {
       try {
         setClassesLoading(true);
 
-        const res = await fetch(
-          `${API_BASE}/api/admin/timetable/entries/ui`,
-          {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-            },
-          }
-        );
+        const res = await authFetch(`${API_BASE}/api/admin/timetable/entries/ui`);
+
 
         if (!res.ok) throw new Error("Failed to fetch timetable");
 
@@ -72,15 +68,15 @@ const FacultyAttendance = () => {
             String(e.facultyId) === String(faculty.facultyId)
           )
           .map(e => ({
-            id: e.timetableId,
-            courseCode: e.subjectCode,
-            courseName: e.subjectName,
-            time: e.time,
-            room: e.roomCode,
-            totalStudents: e.totalStudents, 
-            attendanceRate: 100,
-            status: "upcoming",
-          }));
+          id: e.timetableId,
+          courseCode: e.subjectCode,
+          courseName: e.subjectName,
+          time: e.time,
+          room: e.roomCode,
+          totalStudents: e.totalStudents,
+          attendanceStatus: e.attendanceStatus || null
+        }));
+
 
         setTodayClasses(normalized);
       } catch (err) {
@@ -117,105 +113,117 @@ const FacultyAttendance = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Start attendance session
-  const startAttendance = async (classData) => {
-    setLoading(true);
-    try {
-      setSelectedClass(classData);
-      setShowSessionModal(true);
+// Start attendance session
+const startAttendance = async (classData) => {
+  setLoading(true);
 
+  // RESET STATE FIRST (VERY IMPORTANT)
+  setCountdown(120);
+  setQrRefreshTimer(30);
+  setAttendanceList([]);
+  setQrCode(null);
 
-      // Call backend API
-      const res = await fetch(`${API_BASE}/api/attendance/session/start`, {
+  // Clear any old timers
+  if (countdownRef.current) clearInterval(countdownRef.current);
+  if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
+
+  try {
+    setSelectedClass(classData);
+    setShowSessionModal(true);
+
+    // Call backend API
+    const res = await authFetch(
+      `${API_BASE}/api/attendance/session/start`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           facultyId: faculty.facultyId,
           classId: classData.id
         })
-      });
-
-      if (!res.ok) throw new Error("Failed to start attendance session");
-
-      const data = await res.json();
-      const sessionId = data.sessionId;
-
-      // Create session state
-      const newSession = {
-        id: sessionId,
-        classId: classData.id,
-        className: classData.courseName,
-        startTime: new Date().toISOString(),
-        expiryTime: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
-        status: "ACTIVE",
-        totalStudents: classData.totalStudents,
-        submittedCount: 0
-      };
-
-      setAttendanceSession(newSession);
-      generateQRCode(sessionId);
-
-      // Start countdown timer
-      countdownRef.current = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current);
-            setTimeout(endAttendanceSession, 0);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      // Start QR refresh timer
-      setQrRefreshTimer(30);
-      qrRefreshRef.current = setInterval(() => {
-        setQrRefreshTimer(prev => {
-          if (countdown <= 0) return 0;
-          if (prev <= 1) {
-            generateQRCode(sessionId);
-            return 30;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-
-    } catch (err) {
-      console.error(err);
-      alert("Unable to start attendance. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-    const generateQRCode = async (sessionId) => {
-      if (!sessionId) return;
-
-      try {
-        const res = await fetch(
-          `${API_BASE}/api/attendance/session/${sessionId}/qr-token`,
-          {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-            },
-          }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch QR token");
-
-        const token = await res.text();
-
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-          "attn:" + token
-        )}`;
-
-        setQrCode(qrUrl);
-
-      } catch (err) {
-        console.error("QR generation failed", err);
       }
+    );
+
+
+    if (!res.ok) throw new Error("Failed to start attendance session");
+
+    const data = await res.json();
+    const sessionId = data.sessionId;
+
+    const newSession = {
+      id: sessionId,
+      classId: classData.id,
+      className: classData.courseName,
+      startTime: new Date().toISOString(),
+      expiryTime: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+      status: "ACTIVE",
+      totalStudents: classData.totalStudents,
+      submittedCount: 0
     };
+
+    setAttendanceSession(newSession);
+
+    // 🔥 Generate first QR immediately
+    generateQRCode(sessionId);
+
+    // Start countdown timer
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current);
+          handleAutoExpire();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Start QR refresh timer
+    qrRefreshRef.current = setInterval(() => {
+      setQrRefreshTimer(prev => {
+
+        if (prev <= 1) {
+          generateQRCode(sessionId);
+          return 30;
+        }
+
+        return prev - 1;
+      });
+    }, 1000);
+
+  } catch (err) {
+    console.error(err);
+    alert("Unable to start attendance. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+const generateQRCode = async (sessionId) => {
+  if (!sessionId) return;
+
+  try {
+    const res = await authFetch(`${API_BASE}/api/attendance/session/${sessionId}/qr-token`);
+
+
+    if (!res.ok) throw new Error("Failed to fetch QR token");
+
+    const token = await res.text();
+
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+      "attn:" + token
+    )}`;
+
+    setQrCode(qrUrl);
+
+  } catch (err) {
+    console.error("QR generation failed", err);
+  }
+};
+
+
+
 
   // real-time listener
   useEffect(() => {
@@ -225,37 +233,35 @@ const FacultyAttendance = () => {
     `${API_BASE}/api/attendance/session/${attendanceSession.id}/stream`
   );
 
-eventSource.onmessage = (event) => {
-  const data = JSON.parse(event.data);
 
-  const normalized = {
-  submissionId: data.id ?? data.submissionId, 
-  studentId: data.studentId,
-  studentName: data.studentName,
-  status: data.status,
-  time: data.submittedAt || data.time
-};
+  eventSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
 
+    const normalized = {
+      submissionId: data.submissionId ?? data.id,
+      studentId: data.studentId,
+      studentName: data.studentName,
+      status: data.status,
+      time: data.submittedAt
+        ? new Date(data.submittedAt).toLocaleTimeString()
+        : data.time || ""
+    };
 
-setAttendanceList(prev => {
-  const idx = prev.findIndex(
-    s => String(s.submissionId) === String(normalized.submissionId)
-  );
+    setAttendanceList(prev => {
+      const idx = prev.findIndex(
+        s => String(s.submissionId) === String(normalized.submissionId)
+      );
 
-  if (idx !== -1) {
-    const copy = [...prev];
-    copy[idx] = { ...copy[idx], ...normalized };
-    return copy;
-  }
+      if (idx !== -1) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], ...normalized };
+        return copy;
+      }
 
-  // ONLY add if truly new submission
-  return [...prev, normalized];
-});
+      return [...prev, normalized];
+    });
+  };
 
-
-
-
-};
 
 
 
@@ -263,18 +269,39 @@ setAttendanceList(prev => {
 }, [attendanceSession?.id]);
 
 
+
+  const handleAutoExpire = async () => {
+    if (!attendanceSession?.id) return;
+
+    try {
+      await authFetch(`${API_BASE}/api/attendance/session/${attendanceSession.id}/complete`,
+      {
+        method: "POST",
+      }
+    );
+
+      endAttendanceSession(); 
+
+    } catch (err) {
+      console.error("Auto-expire failed", err);
+      alert("Failed to complete session automatically.");
+    }
+  };
+
+
+
+
+
   // End attendance session
   const endAttendanceSession = () => {
     if (!attendanceSession) return;
 
-if (attendanceSession.status === "COMPLETED") {
-  setShowSessionModal(false);
-  setShowSummaryModal(true);
+    if (attendanceSession.status === "FINALIZED") {
+      setShowSessionModal(false);
+      setShowSummaryModal(true);
 
-  return;
-}
-
-
+      return;
+    }
 
 
     // Clear timers
@@ -290,30 +317,17 @@ if (attendanceSession.status === "COMPLETED") {
       totalStudents,
       submittedCount: submitted,
       absentCount: totalStudents - submitted,
-      flaggedCount: attendanceList.filter(s => s.status === "FLAGGED").length,
-      attendanceRate: totalStudents > 0 ? Math.round((submitted / totalStudents) * 100) : 0
+      attendanceRate:
+        totalStudents > 0
+          ? Math.round((submitted / totalStudents) * 100)
+          : 0
     };
 
+
     setSessionSummary(summary);
-    setAttendanceSession(prev => prev ? { ...prev, status: "COMPLETED" } : null);
+    setAttendanceSession(prev => prev ? { ...prev, status: "FINALIZED" } : null);
     setShowSessionModal(false);
     setShowSummaryModal(true);
-
-    // timer setting for 30 min
-// if (randomTimerRef.current) clearInterval(randomTimerRef.current);
-
-// const COOLDOWN_SECONDS = 8; // here for checking only -> later we can put 30 min
-// setRandomCheckCooldown(COOLDOWN_SECONDS);
-
-// randomTimerRef.current = setInterval(() => {
-//   setRandomCheckCooldown(prev => {
-//     if (prev <= 1) {
-//       clearInterval(randomTimerRef.current);
-//       return null; // cooldown finished
-//     }
-//     return prev - 1;
-//   });
-// }, 1000);
 
   };
 
@@ -331,79 +345,102 @@ const cancelAttendance = () => {
 };
 
 
-// useEffect(() => {
-//   // if (randomCheckCooldown === null) return;
-
-//   // ⛔ prevent duplicate intervals
-//   // if (randomTimerRef.current) return;
-
-//   randomTimerRef.current = setInterval(() => {
-//     setRandomCheckCooldown(prev => {
-//       if (prev <= 1) {
-//         clearInterval(randomTimerRef.current);
-//         randomTimerRef.current = null;
-//         return null;
-//       }
-//       return prev - 1;
-//     });
-//   }, 1000);
-
-//   return () => {
-//     if (randomTimerRef.current) {
-//       clearInterval(randomTimerRef.current);
-//       randomTimerRef.current = null;
-//     }
-//   };
-// }, [randomCheckCooldown]);
-
-
-
-
-
-
-
-
-
 
   // Submit final attendance
-const submitAttendance = () => {
-  // RESET TIMERS
-  if (countdownRef.current) clearInterval(countdownRef.current);
-  if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
+const submitAttendance = async () => {
+  if (!attendanceSession?.id) return;
 
-  // countdownRef.current = null;
-  qrRefreshRef.current = null;
+  try {
+    await authFetch(
+      `${API_BASE}/api/attendance/session/${attendanceSession.id}/finalize`,
+      {
+        method: "POST",
+      }
+    );
 
-  //  RESET STATE
-  // setCountdown(120);
-  setQrRefreshTimer(30);
-setAttendanceSession({ status: "COMPLETED" });
-  setAttendanceList([]);
-  setSessionSummary(null);
+    // Clear timers
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (qrRefreshRef.current) clearInterval(qrRefreshRef.current);
 
-  setShowSummaryModal(false);
-  navigate('/faculty/attendance');
+    setShowSummaryModal(false);
+    setAttendanceSession(null);
+    setSessionSummary(null);
+
+
+    navigate('/faculty/attendance');
+    window.location.reload();
+
+  } catch (err) {
+    console.error("Finalization failed", err);
+    alert("Unable to finalize attendance.");
+  }
 };
 
 
 
-  const reviewSubmission = async (submissionId, action) => {
+
+const reviewSubmission = async (submissionId, action) => {
+
+  const statusMap = {
+    approve: "APPROVED",
+    reject: "REJECTED",
+    flag: "FLAGGED"
+  };
+
   try {
-    await fetch(
-      `${API_BASE}/api/attendance/review/${submissionId}/${action}`,
+    const res = await authFetch(
+      `${API_BASE}/api/attendance/review/${submissionId}`,
       {
-        method: "POST",
+        method: "PATCH",
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          status: statusMap[action]
+        }),
       }
     );
-    // DO NOT update state here — SSE will do it
+
+    if (!res.ok) throw new Error("Review failed");
+
   } catch (err) {
     console.error("Review failed", err);
     alert("Unable to update attendance status");
   }
 };
+
+
+
+// background fix for review section
+useEffect(() => {
+  if (showSummaryModal) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "auto";
+  }
+
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, [showSummaryModal]);
+
+
+// backgound fix for Attendance QR code
+
+useEffect(() => {
+  if (showSessionModal || showSummaryModal) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "auto";
+  }
+
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, [showSessionModal, showSummaryModal]);
+
+
+
 
   return (
     <div className="space-y-8">
@@ -443,9 +480,14 @@ setAttendanceSession({ status: "COMPLETED" });
                       <span className="text-2xl font-bold text-white">
                         {classItem.courseCode}
                       </span>
-                      <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
-                        Upcoming
-                      </span>
+
+                      {classItem.attendanceStatus !== "FINALIZED" && (
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                          Upcoming
+                        </span>
+                      )}
+
+
                     </div>
                     <h4 className="text-lg font-semibold text-white mb-1">
                       {classItem.courseName}
@@ -470,10 +512,27 @@ setAttendanceSession({ status: "COMPLETED" });
 
                 </div>
 
-                <button onClick={() => startAttendance(classItem)}
-                className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group">
-                <span>Start Attendance Session</span>
+                <button
+                  onClick={() =>
+                    classItem.attendanceStatus !== "FINALIZED" &&
+                    startAttendance(classItem)
+                  }
+                  disabled={classItem.attendanceStatus === "FINALIZED"}
+                  className={`w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2
+                    ${
+                      classItem.attendanceStatus === "FINALIZED"
+                        ? "bg-slate-600 text-slate-300 cursor-not-allowed"
+                        : "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/20"
+                    }
+                  `}
+                >
+                  <span>
+                    {classItem.attendanceStatus === "FINALIZED"
+                      ? "Attendance Submitted"
+                      : "Start Attendance Session"}
+                  </span>
                 </button>
+
               </div>
             ))
           )}
@@ -492,6 +551,7 @@ setAttendanceSession({ status: "COMPLETED" });
       {showSessionModal && selectedClass && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
           <div className="bg-slate-800 rounded-2xl border border-slate-700/50 w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+
             {/* Modal Header */}
             <div className="p-6 border-b border-slate-700/50 bg-slate-800/50 flex items-center justify-between">
               <div>
@@ -606,9 +666,10 @@ setAttendanceSession({ status: "COMPLETED" });
                                   <div>
                                     <p className="text-white font-medium">{student.studentName}</p>
 
-                                    {student.status === "APPROVED" && (
+
+
+                                      {["PENDING", "APPROVED"].includes(student.status) && (
                                       <p className="text-slate-400 text-sm">
-                                        Submitted at {student.time}
                                       </p>
                                     )}
                                   </div>
@@ -617,67 +678,54 @@ setAttendanceSession({ status: "COMPLETED" });
                               </div>
                               
                               <div className="flex items-center gap-3">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                  student.status === 'SUBMITTED' ? 'bg-blue-500/20 text-blue-400' :
-                                  student.status === 'FLAGGED' ? 'bg-amber-500/20 text-amber-400' :
-                                  student.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-400' :
-                                  'bg-red-500/20 text-red-400'
-                                }`}>
+                                
+                                <span className="text-slate-400 text-sm font-medium">
+                                  Current Status:
+                                </span>
+
+                                {/* Status Badge */}
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    student.status === "PENDING"
+                                      ? "bg-blue-500/20 text-blue-400"
+                                      : student.status === "FLAGGED"
+                                      ? "bg-amber-500/20 text-amber-400"
+                                      : student.status === "REJECTED"
+                                      ? "bg-red-500/20 text-red-400"
+                                      : "bg-slate-500/20 text-slate-400"
+                                  }`}
+                                >
                                   {student.status}
                                 </span>
-                                  
-                                {student.status === 'APPROVED' && (
-                                  
-                                  <>
-                                <button onClick={() => reviewSubmission(student.submissionId, "flag")} className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm flex items-center gap-1">
-                                  <Flag size={14} />
-                                  Flag
-                                </button>
 
+                                <div className="h-4 w-[1px] bg-slate-700 mx-1" aria-hidden="true" />
 
-                                    <button
-                                      onClick={() => reviewSubmission(student.submissionId, "approve")}
-                                      className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm flex items-center gap-1"
-                                    >
-                                      <ThumbsUp size={14} />
-                                      Approve
-                                    </button>
-
-                                    <button
-                                      onClick={() => reviewSubmission(student.submissionId, "reject")}
-                                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm flex items-center gap-1"
-                                    >
-                                      <ThumbsDown size={14} />
-                                      Reject
-                                    </button>
-
-                                  </>
- 
+                                {/* Show Flag if NOT already flagged */}
+                                {student.status !== "FLAGGED" && (
+                                  <button
+                                    onClick={() => reviewSubmission(student.submissionId, "flag")}
+                                    className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm flex items-center gap-1"
+                                  >
+                                    <Flag size={14} />
+                                    Flag
+                                  </button>
                                 )}
 
-                                                                                    
-                             {student.status === 'FLAGGED' && (
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() => reviewSubmission(student.submissionId, "approve")}
-                                      className="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm flex items-center gap-1"
-                                    >
-                                      <ThumbsUp size={14} />
-                                      Approve
-                                    </button>
-
-                                    <button
-                                      onClick={() => reviewSubmission(student.submissionId, "reject")}
-                                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm flex items-center gap-1"
-                                    >
-                                      <ThumbsDown size={14} />
-                                      Reject
-                                    </button>
-                                  </div>
+                                {student.status !== "REJECTED" && (
+                                  <button
+                                    onClick={() => reviewSubmission(student.submissionId, "reject")}
+                                    className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm flex items-center gap-1"
+                                  >
+                                    <ThumbsDown size={14} />
+                                    Reject
+                                  </button>
                                 )}
 
                               </div>
+
                             </div>
+
+
                           </div>
                         ))
                       ) : (
@@ -743,13 +791,16 @@ setAttendanceSession({ status: "COMPLETED" });
       {/* Attendance Session Summary */}
       {showSummaryModal && sessionSummary && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700/50 w-full max-w-2xl">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700/50 w-full max-w-2xl max-h-[90vh] flex flex-col">
+
             <div className="p-6 border-b border-slate-700/50">
-              <h3 className="text-2xl font-bold text-white">Attendance Session Summary</h3>
-              <p className="text-slate-400">Review and finalize the attendance for {selectedClass?.courseName}</p>
+              <center><h3 className="text-2xl font-bold text-white">Attendance Session Summary</h3></center>
+            <center> <p className="text-slate-400">Review and finalize the attendance for {selectedClass?.courseName} Class</p></center> 
+
             </div>
             
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1">
+
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-slate-900/50 rounded-xl p-4">
                   <div className="text-3xl font-bold text-white mb-2">{sessionSummary.submittedCount}</div>
@@ -764,12 +815,15 @@ setAttendanceSession({ status: "COMPLETED" });
                   <div className="text-slate-400">Attendance Rate</div>
                 </div>
                 <div className="bg-slate-900/50 rounded-xl p-4">
-                  <div className="text-3xl font-bold text-amber-400 mb-2">{sessionSummary.flaggedCount}</div>
+                  <div className="text-3xl font-bold text-amber-400 mb-2">
+                  {attendanceList.filter(s => s.status === "FLAGGED").length}
+                  </div>
+
                   <div className="text-slate-400">Flagged Entries</div>
                 </div>
               </div>
               
-              {sessionSummary.flaggedCount > 0 && (
+              {attendanceList.filter(s => s.status === "FLAGGED").length > 0 && (
                 <div className="mb-6">
                   <h4 className="text-white font-semibold mb-3">Flagged Students Requiring Review</h4>
                   <div className="space-y-2">
@@ -818,15 +872,34 @@ setAttendanceSession({ status: "COMPLETED" });
                 </div>
               )}
               
+
               <div className="mb-6">
-                <h4 className="text-white font-semibold mb-3">Missing Students (Did Not Submit)</h4>
-                <div className="bg-slate-900/50 rounded-lg p-4">
-                  <p className="text-slate-400">
-                    {sessionSummary.absentCount} students did not submit attendance within the 2-minute window.
-                    They will be marked as <span className="text-red-400 font-medium">ABSENT</span>.
+                <h4 className="text-white font-semibold mb-3">
+                  Important Notice
+                </h4>
+
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-amber-500/30">
+                  <p className="text-slate-300 leading-relaxed">
+                    All students who have successfully scanned the QR code will initially appear with a 
+                    <span className="text-blue-400 font-semibold"> PENDING </span>
+                    status.
+                    <br /><br />
+                    When you click the 
+                    <span className="text-emerald-400 font-semibold"> "Submit Attendance" </span>
+                    button, the system will automatically convert all 
+                    <span className="text-blue-400 font-semibold"> PENDING </span>
+                    entries to 
+                    <span className="text-emerald-400 font-semibold"> APPROVED </span>.
+                    <br /><br />
+                    Only students marked as 
+                    <span className="text-amber-400 font-semibold"> FLAGGED </span>
+                    or 
+                    <span className="text-red-400 font-semibold"> REJECTED </span>
+                    will remain unchanged.
                   </p>
                 </div>
               </div>
+
             </div>
             
             <div className="p-6 border-t border-slate-700/50 flex justify-between">
@@ -862,10 +935,11 @@ setAttendanceSession({ status: "COMPLETED" });
           </div>
         </div>
       )}
+
+
+
     </div>
   );
 };
 
 export default FacultyAttendance;
-
-

@@ -33,16 +33,4 @@ public class AttendanceSession {
     @Enumerated(EnumType.STRING)
     private AttendanceSessionStatus status;
 
-
-    // phase 2
-    @Column(nullable = false)
-    private int phase = 1;
-
-    @Column(name = "phase2_allowed_at")
-    private LocalDateTime phase2AllowedAt;
-
-    @Column(nullable = false)
-    private boolean finalised = false;
-
-
 }

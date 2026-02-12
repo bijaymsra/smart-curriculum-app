@@ -1,19 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, AlertCircle, TrendingUp, PlayCircle, UserCheck, RefreshCw, FileText, Zap, ArrowUpRight, ArrowDownRight, ClipboardCheck, Calendar as CalendarIcon, ExternalLink, CheckCircle, XCircle, Percent, Eye, Settings as SettingsIcon } from 'lucide-react';
+import {  AlertCircle,ClipboardCheck,Percent, TrendingUp, PlayCircle, RefreshCw, FileText, Zap, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ExternalLink, CheckCircle, XCircle, Eye, Settings as SettingsIcon } from 'lucide-react';
+import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
+
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
-  const [attendanceSession, setAttendanceSession] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [insights, setInsights] = useState([]);
 
-  // Add authentication check
+
   useEffect(() => {
     const facultyId = sessionStorage.getItem("facultyId");
     if (!facultyId) {
       navigate("/login");
     }
   }, [navigate]);
+
+
+useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const res = await authFetch(`${API_BASE}/api/faculty/dashboard`);
+
+
+      if (!res.ok) throw new Error("Failed to fetch dashboard");
+
+      const data = await res.json();
+      console.log("Dashboard API:", data);
+
+      setDashboardData(data);
+
+    } catch (err) {
+      console.error("Dashboard error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
+}, []);
+
+
 
   // Get faculty data
   const faculty = {
@@ -23,133 +60,71 @@ const FacultyDashboard = () => {
     designation: sessionStorage.getItem("facultyDesignation") || "Assistant Professor",
   };
 
-  // Mock classes data
-  const todayClasses = [
-    {
-      id: 1,
-      courseCode: 'CS201',
-      courseName: 'Data Structures',
-      time: '10:00 AM - 11:30 AM',
-      room: 'Room 302',
-      totalStudents: 45,
-      presentCount: 42,
-      attendanceRate: 93,
-      status: 'completed',
-      lowEngagement: false
-    },
-    {
-      id: 2,
-      courseCode: 'CS203',
-      courseName: 'Database Management',
-      time: '1:00 PM - 3:00 PM',
-      room: 'Lab 101',
-      totalStudents: 40,
-      presentCount: 38,
-      attendanceRate: 95,
-      status: 'upcoming',
-      lowEngagement: true
-    },
-    {
-      id: 3,
-      courseCode: 'CS205',
-      courseName: 'Web Technologies',
-      time: '3:30 PM - 5:00 PM',
-      room: 'Room 205',
-      totalStudents: 38,
-      presentCount: 35,
-      attendanceRate: 92,
-      status: 'upcoming',
-      lowEngagement: false
-    }
-  ];
 
-  // Stats data
-  const stats = [
-    { 
-      label: 'Today\'s Classes', 
-      value: '3', 
-      change: '+1', 
-      trend: 'up', 
-      icon: CalendarIcon, 
-      color: 'from-blue-500 to-cyan-500',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20'
-    },
-    { 
-      label: 'Avg Attendance', 
-      value: '93.3%', 
-      change: '+2.5%', 
-      trend: 'up', 
-      icon: Percent, 
-      color: 'from-emerald-500 to-green-500',
-      bgColor: 'bg-emerald-500/10',
-      borderColor: 'border-emerald-500/20'
-    },
-    { 
-      label: 'Students Present', 
-      value: '115', 
-      change: '+8', 
-      trend: 'up', 
-      icon: UserCheck, 
-      color: 'from-purple-500 to-pink-500',
-      bgColor: 'bg-purple-500/10',
-      borderColor: 'border-purple-500/20'
-    },
-    { 
-      label: 'Pending Tasks', 
-      value: '2', 
-      change: '-1', 
-      trend: 'down', 
-      icon: ClipboardCheck, 
-      color: 'from-amber-500 to-orange-500',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/20'
-    }
-  ];
 
-  // Insights data
-  const insights = [
-    {
-      type: 'warning',
-      title: 'Low Post-Lunch Attendance',
-      message: 'CS203 shows 15% lower attendance in post-lunch sessions.',
-      action: 'Review Schedule',
-      icon: AlertCircle,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/30'
-    },
-    {
-      type: 'success',
-      title: 'High Engagement Alert',
-      message: 'Your Data Structures class has 95% attendance consistently.',
-      action: 'View Details',
-      icon: CheckCircle,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/10',
-      borderColor: 'border-emerald-500/30'
-    },
-    {
-      type: 'alert',
-      title: 'Students Need Attention',
-      message: '5 students have missed 3+ consecutive classes.',
-      action: 'See List',
-      icon: XCircle,
-      color: 'text-red-400',
-      bgColor: 'bg-red-500/10',
-      borderColor: 'border-red-500/30'
-    }
-  ];
 
-  const handleStartAttendance = (classItem) => {
-    navigate('/faculty/attendance', { state: { class: classItem } });
+useEffect(() => {
+  const fetchInsights = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+
+      const res = await fetch(
+        `${API_BASE}/api/faculty/dashboard/insights`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch insights");
+
+      const data = await res.json();
+      setInsights(data);
+
+    } catch (err) {
+      console.error("Insights error:", err);
+    }
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  fetchInsights();
+}, []);
+
+
+
+
+
+
+  // Insights data , will use python based script for this :
+const getInsightStyle = (type) => {
+  switch (type) {
+    case "success":
+      return {
+        icon: CheckCircle,
+        color: "text-emerald-400",
+        bgColor: "bg-emerald-500/10",
+        borderColor: "border-emerald-500/30"
+      };
+    case "warning":
+      return {
+        icon: AlertCircle,
+        color: "text-amber-400",
+        bgColor: "bg-amber-500/10",
+        borderColor: "border-amber-500/30"
+      };
+    case "alert":
+      return {
+        icon: XCircle,
+        color: "text-red-400",
+        bgColor: "bg-red-500/10",
+        borderColor: "border-red-500/30"
+      };
+    default:
+      return {};
+  }
+};
+
+
 
   if (loading) {
     return (
@@ -161,6 +136,49 @@ const FacultyDashboard = () => {
       </div>
     );
   }
+
+const stats = dashboardData
+  ? [
+      {
+        label: "Today's Lectures",
+        value: dashboardData.todayClassesCount,
+        icon: CalendarIcon,
+        color: "from-blue-500 to-cyan-500",
+        bgColor: "bg-blue-500/10",
+        borderColor: "border-blue-500/20"
+      },
+      {
+        label: "Lectures Conducted",
+        value: dashboardData.totalSessionsConducted,
+        icon: ClipboardCheck,
+        color: "from-purple-500 to-pink-500",
+        bgColor: "bg-purple-500/10",
+        borderColor: "border-purple-500/20"
+      },
+      {
+        label: "Active Session",
+        value: dashboardData.activeSession ? "Yes" : "No",
+        icon: PlayCircle,
+        color: "from-emerald-500 to-green-500",
+        bgColor: "bg-emerald-500/10",
+        borderColor: "border-emerald-500/20"
+      },
+      {
+        label: "Profile Completion",
+        value: dashboardData.profileCompletionPercentage + "%",
+        icon: Percent,
+        color: "from-amber-500 to-orange-500",
+        bgColor: "bg-amber-500/10",
+        borderColor: "border-amber-500/20"
+      }
+    ]
+  : [];
+
+
+
+
+
+
 
   return (
     <div className="space-y-8">
@@ -210,9 +228,9 @@ const FacultyDashboard = () => {
           </div>
           
           <div className="space-y-4">
-            {todayClasses.map((classItem) => (
+            {dashboardData?.todayClasses.map((classItem, idx) => (
               <div 
-                key={classItem.id} 
+               key={classItem.timetableId || idx}
                 className={`bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 hover:border-blue-500/30 ${
                   classItem.status === 'completed' 
                     ? 'border-slate-700/50' 
@@ -222,7 +240,7 @@ const FacultyDashboard = () => {
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl font-bold text-white">{classItem.courseCode}</span>
+                      <span className="text-2xl font-bold text-white">{classItem.subjectCode}</span>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         classItem.status === 'completed' 
                           ? 'bg-emerald-500/20 text-emerald-400'
@@ -236,16 +254,19 @@ const FacultyDashboard = () => {
                         </span>
                       )}
                     </div>
-                    <h4 className="text-lg font-semibold text-white mb-1">{classItem.courseName}</h4>
+                    <h4 className="text-lg font-semibold text-white mb-1">{classItem.subjectName}</h4>
                     <p className="text-slate-400 text-sm">
-                      {classItem.time} • {classItem.room}
+                      {classItem.time} • {classItem.roomCode}
                     </p>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-white">
-                        {classItem.attendanceRate}%
+                       <div className="text-sm text-slate-400">
+                          Scheduled Class
+                        </div>
+
                       </div>
                       <div className="text-xs text-slate-400">Attendance</div>
                     </div>
@@ -254,12 +275,6 @@ const FacultyDashboard = () => {
                 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-700/50">
                   <div className="flex items-center gap-6">
-                    <div>
-                      <p className="text-sm text-slate-400">Students</p>
-                      <p className="text-white font-medium">
-                        {classItem.presentCount}/{classItem.totalStudents}
-                      </p>
-                    </div>
                     <div>
                       <p className="text-sm text-slate-400">Status</p>
                       <p className={`text-sm font-medium ${
@@ -276,15 +291,14 @@ const FacultyDashboard = () => {
                   <div className="flex gap-3">
                     {classItem.status === 'upcoming' ? (
                       <button
-                        onClick={() => handleStartAttendance(classItem)}
                         className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center gap-2"
                       >
                         <PlayCircle size={18} />
-                        Start Attendance
+                        Comming SOON
                       </button>
                     ) : (
                       <button
-                        onClick={() => navigate(`/faculty/classes/${classItem.id}`)}
+                        onClick={() => navigate('/faculty/attendance')}
                         className="px-6 py-2 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
                       >
                         <Eye size={18} />
@@ -313,24 +327,28 @@ const FacultyDashboard = () => {
             </div>
             
             <div className="space-y-4">
-              {insights.map((insight, idx) => (
-                <div 
-                  key={idx} 
-                  className={`${insight.bgColor} rounded-xl p-4 border ${insight.borderColor}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <insight.icon className={`mt-1 ${insight.color}`} size={20} />
-                    <div className="flex-1">
-                      <h4 className="text-white font-semibold text-sm mb-1">{insight.title}</h4>
-                      <p className="text-slate-300 text-xs mb-3">{insight.message}</p>
-                      <button className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
-                        {insight.action}
-                        <ExternalLink size={12} />
-                      </button>
+              {insights.map((insight, idx) => {
+                const style = getInsightStyle(insight.type);
+                const Icon = style.icon;
+
+                return (
+                  <div key={idx} className={`${style.bgColor} rounded-xl p-4 border ${style.borderColor}`}>
+                    <div className="flex items-start gap-3">
+                      <Icon className={`mt-1 ${style.color}`} size={20} />
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold text-sm mb-1">{insight.title}</h4>
+                        <p className="text-slate-300 text-xs mb-3">{insight.message}</p>
+                        <button
+                          onClick={() => navigate('/faculty/attendance')}
+                          className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+                          {insight.action}
+                          <ExternalLink size={12} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -348,7 +366,9 @@ const FacultyDashboard = () => {
                 <ExternalLink size={16} className="text-slate-400 group-hover:text-blue-400" />
               </button>
               
-              <button className="w-full flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group">
+              <button 
+                onClick={() => navigate('/faculty/analytics')}
+                className="w-full flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
                     <TrendingUp size={16} className="text-purple-400" />
@@ -358,17 +378,9 @@ const FacultyDashboard = () => {
                 <ExternalLink size={16} className="text-slate-400 group-hover:text-purple-400" />
               </button>
               
-              <button className="w-full flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                    <SettingsIcon size={16} className="text-emerald-400" />  {/* Fixed here */}
-                  </div>
-                  <span className="text-sm text-white">Attendance Settings</span>
-                </div>
-                <ExternalLink size={16} className="text-slate-400 group-hover:text-emerald-400" />
-              </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>

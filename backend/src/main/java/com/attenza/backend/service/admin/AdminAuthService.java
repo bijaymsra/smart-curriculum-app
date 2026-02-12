@@ -7,6 +7,8 @@ import com.attenza.backend.entity.AdminUser;
 import com.attenza.backend.entity.UserRole;
 import com.attenza.backend.exception.BadRequestException;
 import com.attenza.backend.repository.admin.AdminUserRepository;
+import com.attenza.backend.security.JwtTokenService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ public class AdminAuthService {
 
     private final AdminUserRepository adminRepo;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenService jwtTokenService;   
 
     public AdminLoginResponse login(AdminLoginRequest request) {
 
@@ -38,13 +41,21 @@ public class AdminAuthService {
             throw new BadRequestException("Your account is " + admin.getStatus());
         }
 
-            return new AdminLoginResponse(
-                        admin.getId(),
-                        admin.getEmail(),
-                        admin.getFullName(),
-                        admin.getInstitution().getName(), 
-                        admin.getStatus().name(),
-                        admin.getInstitution().getId()
-                    );
+        // ✅ Generate JWT Token
+        String token = jwtTokenService.generateToken(
+                admin.getId().toString(),   // subject
+                "ADMIN"                     // role
+        );
+
+        // ✅ Return response WITH token (without breaking existing structure)
+        return new AdminLoginResponse(
+                token,                             
+                admin.getId(),
+                admin.getEmail(),
+                admin.getFullName(),
+                admin.getInstitution().getName(),
+                admin.getStatus().name(),
+                admin.getInstitution().getId()
+        );
     }
 }

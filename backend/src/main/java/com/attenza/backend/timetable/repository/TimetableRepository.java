@@ -13,4 +13,3 @@ public interface TimetableRepository extends JpaRepository<TimetableEntry, Long>
 
     List<TimetableEntry> findByRoom_Id(Long roomId);
 }
-

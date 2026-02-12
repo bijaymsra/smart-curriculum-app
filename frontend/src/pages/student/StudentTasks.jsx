@@ -23,150 +23,71 @@ const StudentTasks = () => {
   });
 
   // Stats
-  const [stats, setStats] = useState({
-    total: 0,
-    completed: 0,
-    pending: 0,
-    overdue: 0,
-    completionRate: 0,
-    pointsEarned: 0,
-    streak: 0
-  });
+  const [stats, setStats] = useState(null);
+
 
   useEffect(() => {
     loadTasks();
   }, []);
 
   const loadTasks = async () => {
-    setLoading(true);
-    try {
-      // Try to fetch from API
-      const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/tasks`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setTasks(data.tasks || []);
-        setStats(data.stats || {});
-      } else {
-        // Load mock data if API fails
-        loadMockData();
+  setLoading(true);
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/tasks`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`
       }
-    } catch (error) {
-      console.error('Error loading tasks:', error);
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+
+      const safeStats = {
+        total: data.stats?.total ?? 0,
+        completed: data.stats?.completed ?? 0,
+        pending: data.stats?.pending ?? 0,
+        overdue: data.stats?.overdue ?? 0,
+        completionRate: data.stats?.completionRate ?? 0,
+        pointsEarned: data.stats?.pointsEarned ?? 0,
+        streak: data.stats?.streak ?? 0
+      };
+
+      setTasks(data.tasks || []);
+      setStats(safeStats);
+
+      // ✅ STOP LOADING ONLY AFTER BOTH ARE READY
+      setLoading(false);
+
+    } else {
       loadMockData();
-    } finally {
       setLoading(false);
     }
-  };
+
+  } catch (error) {
+    console.error('Error loading tasks:', error);
+    loadMockData();
+    setLoading(false);
+  }
+};
 
   const loadMockData = () => {
     const mockTasks = [
       {
         id: 1,
-        title: 'Database Systems Assignment',
-        description: 'Complete all SQL queries for Chapter 5 and 6',
-        dueDate: '2024-01-15',
-        dueTime: '23:59',
-        priority: 'high',
-        category: 'assignment',
-        estimatedTime: 120,
-        points: 100,
+        title: 'NA',
+        description: 'NA',
+        dueDate: 'NA',
+        dueTime: 'NA',
+        priority: 'NA',
+        category: 'NA',
+        estimatedTime: 0,
+        points: 0,
         completed: false,
         overdue: false,
-        createdAt: '2024-01-10',
-        tags: ['SQL', 'Database', 'Important'],
-        subject: 'Database Systems',
-        attachments: 2
-      },
-      {
-        id: 2,
-        title: 'Data Structures Project',
-        description: 'Implement Binary Search Tree with traversal algorithms',
-        dueDate: '2024-01-18',
-        dueTime: '17:00',
-        priority: 'high',
-        category: 'project',
-        estimatedTime: 180,
-        points: 150,
-        completed: false,
-        overdue: false,
-        createdAt: '2024-01-08',
-        tags: ['C++', 'Algorithms', 'Project'],
-        subject: 'Data Structures',
-        attachments: 1
-      },
-      {
-        id: 3,
-        title: 'Web Development Lab Report',
-        description: 'Write report on React hooks and state management',
-        dueDate: '2024-01-12',
-        dueTime: '14:00',
-        priority: 'medium',
-        category: 'lab',
-        estimatedTime: 90,
-        points: 75,
-        completed: true,
-        overdue: false,
-        createdAt: '2024-01-05',
-        completedAt: '2024-01-11',
-        tags: ['React', 'JavaScript', 'Lab'],
-        subject: 'Web Development',
+        createdAt: 'NA',
+        tags: ['NA', 'NA', 'NA'],
+        subject: 'NA',
         attachments: 0
-      },
-      {
-        id: 4,
-        title: 'Operating Systems Quiz Preparation',
-        description: 'Study process synchronization and deadlocks',
-        dueDate: '2024-01-14',
-        dueTime: '09:00',
-        priority: 'medium',
-        category: 'study',
-        estimatedTime: 60,
-        points: 50,
-        completed: false,
-        overdue: false,
-        createdAt: '2024-01-10',
-        tags: ['OS', 'Theory', 'Quiz'],
-        subject: 'Operating Systems',
-        attachments: 0
-      },
-      {
-        id: 5,
-        title: 'Networking Assignment',
-        description: 'Complete TCP/IP protocol analysis questions',
-        dueDate: '2024-01-10',
-        dueTime: '23:59',
-        priority: 'high',
-        category: 'assignment',
-        estimatedTime: 45,
-        points: 80,
-        completed: false,
-        overdue: true,
-        createdAt: '2024-01-03',
-        tags: ['Networking', 'TCP/IP', 'Urgent'],
-        subject: 'Computer Networks',
-        attachments: 1
-      },
-      {
-        id: 6,
-        title: 'Software Engineering Presentation',
-        description: 'Prepare slides on Agile methodology',
-        dueDate: '2024-01-20',
-        dueTime: '10:30',
-        priority: 'low',
-        category: 'presentation',
-        estimatedTime: 120,
-        points: 90,
-        completed: false,
-        overdue: false,
-        createdAt: '2024-01-09',
-        tags: ['Agile', 'Presentation', 'Team'],
-        subject: 'Software Engineering',
-        attachments: 3
       }
     ];
 
@@ -185,7 +106,7 @@ const StudentTasks = () => {
       overdue,
       completionRate: Math.round((completed / total) * 100),
       pointsEarned: mockTasks.filter(t => t.completed).reduce((sum, t) => sum + t.points, 0),
-      streak: 3 // This would come from API
+      streak: 0 // This would come from API
     });
   };
 
@@ -380,9 +301,12 @@ const StudentTasks = () => {
     <div className="space-y-8">
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+{stats && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
         {/* Total Tasks */}
-        <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-sm rounded-2xl p-6 border border-blue-700/30 group hover:scale-[1.02] transition-all">
+        <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-sm rounded-2xl p-6 border border-blue-700/30 group hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-400">Total Tasks</p>
@@ -459,7 +383,8 @@ const StudentTasks = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div>)}
+
 
 
         {/* Filters & Controls */}

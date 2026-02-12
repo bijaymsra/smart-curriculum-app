@@ -1,12 +1,11 @@
 package com.attenza.backend.attendance.repository;
 
 import com.attenza.backend.attendance.entity.AttendanceSession;
+import com.attenza.backend.attendance.entity.AttendanceSessionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.attenza.backend.attendance.entity.AttendanceSessionStatus;
-import com.attenza.backend.attendance.entity.AttendanceSessionStatus;
+
+import java.time.LocalDateTime;
 import java.util.List;
-
-
 import java.util.Optional;
 
 public interface AttendanceSessionRepository
@@ -18,5 +17,21 @@ public interface AttendanceSessionRepository
             Long classId,
             AttendanceSessionStatus status
     );
+
     List<AttendanceSession> findByStatus(AttendanceSessionStatus status);
+
+    Optional<AttendanceSession>
+    findTopByClassIdOrderByStartTimeDesc(Long classId);
+
+    // ✅ NEW — Count finalized sessions
+    long countByFacultyIdAndStatus(
+            String facultyId,
+            AttendanceSessionStatus status
+    );
+
+    // ✅ NEW — Check active session (not expired yet)
+    boolean existsByFacultyIdAndExpiryTimeAfter(
+            String facultyId,
+            LocalDateTime time
+    );
 }

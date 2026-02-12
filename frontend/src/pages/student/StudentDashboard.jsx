@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Award, Zap, TrendingUp, Users, Clock, AlertCircle, ChevronRight, Target as TargetIcon} from "lucide-react";
-import Chart from "chart.js/auto";
+import API_BASE from "../../config/api";
+import { authFetch } from "../../utils/authFetch";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    attendance: 92,
-    streak: 5,
-    points: 1280,
-    level: "Gold",
-    rank: 12,
-    totalStudents: 150
+    attendance: 0,
+    streak: 0,
+    points: 0,
+    level: "NA",
+    rank: 0,
+    totalStudents: 0
   });
   const [todaySchedule, setTodaySchedule] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -44,11 +45,7 @@ const StudentDashboard = () => {
     try {
       // Load today's schedule
       const today = new Date().toLocaleString('en-US', { weekday: 'long' }).toUpperCase();
-      const scheduleRes = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/schedule/${today}`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
-      });
+      const scheduleRes = await authFetch(`${API_BASE}/api/student/schedule/${today}`);
       
       if (scheduleRes.ok) {
         const scheduleData = await scheduleRes.json();
@@ -56,11 +53,7 @@ const StudentDashboard = () => {
       }
 
       // Load attendance stats
-      const statsRes = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/attendance/stats`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
-      });
+      const statsRes = await authFetch(`${API_BASE}/api/student/attendance/stats`);
 
       if (statsRes.ok) {
         const statsData = await statsRes.json();
@@ -68,11 +61,7 @@ const StudentDashboard = () => {
       }
 
       // Load recommendations
-      const recRes = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/recommendations`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
-      });
+      const recRes = await authFetch(`${API_BASE}/api/student/recommendations`);
 
       if (recRes.ok) {
         const recData = await recRes.json();
@@ -80,11 +69,7 @@ const StudentDashboard = () => {
       }
 
       // Load tasks
-      const tasksRes = await fetch(`${process.env.REACT_APP_API_BASE}/api/student/tasks/upcoming`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
-      });
+      const tasksRes = await authFetch(`${API_BASE}/api/student/tasks/upcoming`);
 
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
@@ -97,57 +82,26 @@ const StudentDashboard = () => {
       loadMockData();
     } finally {
       setLoading(false);
-      setTimeout(initCharts, 100);
+      // setTimeout(initCharts, 100);
     }
   };
+
+
 
   const loadMockData = () => {
     setTodaySchedule([
-      { id: 1, subject: "Data Structures", time: "10:00 AM - 11:30 AM", room: "302", status: "completed" },
-      { id: 2, subject: "Database Systems", time: "1:00 PM - 3:00 PM", room: "Lab 101", status: "upcoming" },
-      { id: 3, subject: "Web Technologies", time: "3:30 PM - 5:00 PM", room: "205", status: "upcoming" }
+      { id: 0, subject: "NA", time: "NA", room: "NA", status: "completed" }
     ]);
 
     setRecommendations([
-      { id: 1, title: "Complete Database Assignment", description: "Due in 2 days. Focus on SQL queries.", priority: "high", category: "Assignment" },
-      { id: 2, title: "Review Tree Algorithms", description: "Prepare for upcoming Data Structures test", priority: "medium", category: "Study" }
+      { id: 1, title: "NA", description: "NA", priority: "NA", category: "NA" }
     ]);
 
     setUpcomingTasks([
-      { id: 1, title: "Submit Database Assignment", dueDate: "2024-01-15", priority: "high", completed: false },
-      { id: 2, title: "Prepare Presentation", dueDate: "2024-01-16", priority: "medium", completed: false }
+      { id: 1, title: "NA", dueDate: "NA", priority: "NA", completed: false },
     ]);
   };
 
-  const initCharts = () => {
-    // Attendance Trend Chart
-    const ctx = document.getElementById('attendanceChart');
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-          datasets: [{
-            label: 'Attendance %',
-            data: [85, 88, 92, 90, 94],
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            borderWidth: 3,
-            tension: 0.4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: false, min: 70, max: 100, grid: { color: 'rgba(255,255,255,0.1)' } },
-            x: { grid: { color: 'rgba(255,255,255,0.1)' } }
-          }
-        }
-      });
-    }
-  };
 
   const handleScanAttendance = () => {
     navigate("/student/attendance");
@@ -175,7 +129,7 @@ const StudentDashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Attendance Card */}
-        <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-sm rounded-2xl p-6 border border-emerald-700/30 group hover:scale-[1.02] transition-all">
+        <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-sm rounded-2xl p-6 border border-emerald-700/30 group hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-400">Attendance Score</p>
@@ -283,29 +237,6 @@ const StudentDashboard = () => {
 
       {/* Charts & Schedule Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Attendance Chart */}
-        <div className="lg:col-span-2 bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white">Attendance Trend</h3>
-              <p className="text-sm text-slate-400">Weekly performance overview</p>
-            </div>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">
-                Week
-              </button>
-              <button className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">
-                Month
-              </button>
-              <button className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">
-                Semester
-              </button>
-            </div>
-          </div>
-          <div className="h-64">
-            <canvas id="attendanceChart" height="250"></canvas>
-          </div>
-        </div>
 
         {/* Today's Schedule */}
         <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">

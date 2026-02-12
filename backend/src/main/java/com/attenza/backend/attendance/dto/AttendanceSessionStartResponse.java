@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AttendanceSessionStartResponse {
     private String sessionId;
-    private int expiresIn; // seconds
+    private int expiresIn; 
 }

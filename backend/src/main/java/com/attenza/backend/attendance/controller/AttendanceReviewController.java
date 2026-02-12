@@ -1,6 +1,9 @@
 package com.attenza.backend.attendance.controller;
 
+import com.attenza.backend.attendance.dto.AttendanceReviewRequest;
+import com.attenza.backend.attendance.entity.AttendanceSubmissionStatus;
 import com.attenza.backend.attendance.service.AttendanceReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,36 +15,17 @@ public class AttendanceReviewController {
 
     private final AttendanceReviewService reviewService;
 
-    /* =========================
-       APPROVE
-       ========================= */
-    @PostMapping("/{submissionId}/approve")
-    public ResponseEntity<?> approve(
-            @PathVariable Long submissionId
+    @PatchMapping("/{submissionId}")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Long submissionId,
+            @Valid @RequestBody AttendanceReviewRequest request
     ) {
-        reviewService.approve(submissionId);
-        return ResponseEntity.ok().build();
-    }
 
-    /* =========================
-       REJECT
-       ========================= */
-    @PostMapping("/{submissionId}/reject")
-    public ResponseEntity<?> reject(
-            @PathVariable Long submissionId
-    ) {
-        reviewService.reject(submissionId);
-        return ResponseEntity.ok().build();
-    }
+        reviewService.updateStatus(
+                submissionId,
+                request.getStatus()
+        );
 
-    /* =========================
-       FLAG (optional)
-       ========================= */
-    @PostMapping("/{submissionId}/flag")
-    public ResponseEntity<?> flag(
-            @PathVariable Long submissionId
-    ) {
-        reviewService.flag(submissionId);
         return ResponseEntity.ok().build();
     }
 }
