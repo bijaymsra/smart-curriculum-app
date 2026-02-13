@@ -16,18 +16,20 @@ public class FacultyDashboardController {
 
     @GetMapping
     public FacultyDashboardResponse getDashboard(
-            @RequestAttribute("facultyId") String facultyId
+            org.springframework.security.core.Authentication authentication
     ) {
+        String facultyId = authentication.getName();
         return facultyDashboardService.getDashboard(facultyId);
     }
 
+
     @GetMapping("/insights")
     public List<FacultyInsightDTO> getInsights(
-            @RequestAttribute("facultyId") String facultyId
+            org.springframework.security.core.Authentication authentication
     ) {
+        String facultyId = authentication.getName();
         return facultyDashboardService.generateInsights(facultyId);
     }
-
 
 }
 

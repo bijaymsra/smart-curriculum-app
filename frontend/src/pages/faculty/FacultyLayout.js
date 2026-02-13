@@ -1,12 +1,47 @@
 import React, { useState,useEffect } from "react";
 import { Outlet, useLocation, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, ClipboardCheck, Calendar, Users2, TrendingUp, Settings as SettingsIcon, Menu, X, Bell, LogOut} from "lucide-react";
+import { BarChart3, ClipboardCheck, TrendingUp, Settings as SettingsIcon, Menu, X, Bell, LogOut} from "lucide-react";
 import { authFetch } from "../../utils/authFetch";
+import API_BASE from "../../config/api";
 
 const FacultyLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+
+  const unreadCount = notifications.filter(n => n.unread).length;
+
+
+
+  useEffect(() => {
+  fetchNotifications();
+}, []);
+
+
+  const fetchNotifications = async () => {
+  try {
+    setLoadingNotifications(true);
+
+    const res = await authFetch(
+      `${API_BASE}/api/faculty/notifications/me`
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch notifications");
+
+    const data = await res.json();
+    setNotifications(data);
+
+  } catch (err) {
+    console.error("Notification error:", err);
+  } finally {
+    setLoadingNotifications(false);
+  }
+};
+
+
 
   // Get faculty data from session storage
   const facultyData = {
@@ -141,23 +176,6 @@ const navItems = [
             </NavLink>
           ))}
         </nav>
-
-        {/* Quick Stats */}
-        {sidebarOpen && (
-          <div className="mt-8 mx-4 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
-            <h3 className="text-sm font-medium text-slate-400 mb-3">Today's Overview</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Classes</span>
-                <span className="font-semibold text-blue-400">NA</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Pending</span>
-                <span className="font-semibold text-amber-400">NA</span>
-              </div>
-            </div>
-          </div>
-        )}
       </aside>
 
       {/* =======================
@@ -168,6 +186,8 @@ const navItems = [
           sidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
+
+
         {/* Header */}
         <header className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-40">
           <div className="px-8 py-5 flex items-center justify-between">
@@ -186,10 +206,75 @@ const navItems = [
               {/* Quick Actions */}
               <div className="flex items-center gap-2">
                 
-                <button className="p-3 relative bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">
-                  <Bell size={20} className="text-slate-300" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+            <div className="relative">
+
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-3 relative bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                <Bell size={20} className="text-slate-300" />
+
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+              <div className="absolute right-0 mt-3 w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
+
+                <div className="p-4 border-b border-slate-700">
+                  <h4 className="text-white font-semibold">Notifications</h4>
+                </div>
+
+                {loadingNotifications ? (
+                  <div className="p-6 text-center text-slate-400">
+                    Loading...
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="p-6 text-center text-slate-400">
+                    No notifications
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => {
+                        setShowNotifications(false);
+                        navigate(n.actionUrl);
+                      }}
+                      className={`p-4 border-b border-slate-800 cursor-pointer hover:bg-slate-800 transition ${
+                        n.unread ? "bg-slate-800/40" : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+
+                        <div className={`w-2 h-2 mt-2 rounded-full ${
+                          n.type === "ALERT" ? "bg-red-500" : "bg-blue-500"
+                        }`} />
+
+                        <div className="flex-1">
+                          <p className="text-white font-medium text-sm">
+                            {n.title}
+                          </p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            {n.message}
+                          </p>
+                          <p className="text-slate-500 text-[10px] mt-2">
+                            {new Date(n.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+
+                      </div>
+                    </div>
+                  ))
+                )}
+
+              </div>
+            )}
+            </div>
+
                 
                 <button 
                   onClick={handleLogout}

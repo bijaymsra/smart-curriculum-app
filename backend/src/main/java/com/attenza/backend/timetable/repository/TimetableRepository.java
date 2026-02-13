@@ -5,11 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TimetableRepository extends JpaRepository<TimetableEntry, Long> {
+public interface TimetableRepository
+        extends JpaRepository<TimetableEntry, Long> {
 
     List<TimetableEntry> findByFaculty_Id(Long facultyId);
+
+    List<TimetableEntry> findByFaculty_FacultyId(String facultyId);
 
     List<TimetableEntry> findByStudentGroup_Id(Long studentGroupId);
 
     List<TimetableEntry> findByRoom_Id(Long roomId);
 }
+

@@ -18,20 +18,26 @@ public interface AttendanceSessionRepository
             AttendanceSessionStatus status
     );
 
-    List<AttendanceSession> findByStatus(AttendanceSessionStatus status);
+    List<AttendanceSession> findByStatus(
+            AttendanceSessionStatus status
+    );
 
     Optional<AttendanceSession>
     findTopByClassIdOrderByStartTimeDesc(Long classId);
 
-    // ✅ NEW — Count finalized sessions
     long countByFacultyIdAndStatus(
             String facultyId,
             AttendanceSessionStatus status
     );
 
-    // ✅ NEW — Check active session (not expired yet)
     boolean existsByFacultyIdAndExpiryTimeAfter(
             String facultyId,
             LocalDateTime time
     );
+
+    List<AttendanceSession> findByFacultyIdAndStatus(
+            String facultyId,
+            AttendanceSessionStatus status
+    );
 }
+
