@@ -14,10 +14,6 @@ public class StudentAttendanceController {
 
     private final StudentAttendanceService attendanceService;
 
-    /**
-     * Fetch attendance for logged-in student
-     * Student ID is extracted from JWT by security filter
-     */
     @GetMapping
     public List<StudentAttendanceDTO> getMyAttendance(
             @RequestAttribute("studentId") Long studentId

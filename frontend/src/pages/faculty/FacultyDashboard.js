@@ -10,6 +10,18 @@ const FacultyDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [insights, setInsights] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+
+
+
+
+  // Logic to determine what to show
+  const classesToShow = isExpanded 
+    ? dashboardData?.todayClasses 
+    : dashboardData?.todayClasses?.slice(0, 1);
+
+  const hasMoreClasses = (dashboardData?.todayClasses?.length || 0) > 1;
 
 
   useEffect(() => {
@@ -180,6 +192,7 @@ const stats = dashboardData
 
 
 
+
   return (
     <div className="space-y-8">
 
@@ -215,102 +228,83 @@ const stats = dashboardData
 
       {/* Today's Classes & Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Today's Classes */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-              <CalendarIcon className="text-blue-400" size={24} />
-              Today's Schedule
-            </h3>
-            <span className="text-sm text-slate-400">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-            </span>
+
+  {/* Today's Classes */}
+  <div className="lg:col-span-2 space-y-6">
+    <div className="flex items-center justify-between">
+      <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+        <CalendarIcon className="text-blue-400" size={24} />
+        Today's Schedule
+      </h3>
+      <span className="text-sm text-slate-400">
+        {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+      </span>
+    </div>
+    
+    <div className="space-y-4">
+      {/* Map through the sliced array instead of the full one */}
+      {classesToShow?.map((classItem, idx) => (
+        <div 
+          key={classItem.timetableId || idx}
+          className={`bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 hover:border-blue-500/30 ${
+            classItem.status === 'completed' 
+              ? 'border-slate-700/50' 
+              : 'border-blue-500/30 bg-gradient-to-r from-blue-500/5 to-cyan-500/5'
+          }`}
+        >
+          {/* ... Your existing class card content ... */}
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl font-bold text-white">{classItem.subjectCode}</span>
+              </div>
+              <h4 className="text-lg font-semibold text-white mb-1">{classItem.subjectName}</h4>
+              <p className="text-slate-400 text-sm">
+                {classItem.time} • {classItem.roomCode}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">
+                  <div className="text-sm text-slate-400">Scheduled Class</div>
+                </div>
+                <div className="text-xs text-slate-400">Attendance</div>
+              </div>
+            </div>
           </div>
           
-          <div className="space-y-4">
-            {dashboardData?.todayClasses.map((classItem, idx) => (
-              <div 
-               key={classItem.timetableId || idx}
-                className={`bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 hover:border-blue-500/30 ${
-                  classItem.status === 'completed' 
-                    ? 'border-slate-700/50' 
-                    : 'border-blue-500/30 bg-gradient-to-r from-blue-500/5 to-cyan-500/5'
-                }`}
-              >
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl font-bold text-white">{classItem.subjectCode}</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        classItem.status === 'completed' 
-                          ? 'bg-emerald-500/20 text-emerald-400'
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {classItem.status === 'completed' ? 'Completed' : 'Upcoming'}
-                      </span>
-                      {classItem.lowEngagement && (
-                        <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded-full">
-                          Low Engagement
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-lg font-semibold text-white mb-1">{classItem.subjectName}</h4>
-                    <p className="text-slate-400 text-sm">
-                      {classItem.time} • {classItem.roomCode}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">
-                       <div className="text-sm text-slate-400">
-                          Scheduled Class
-                        </div>
-
-                      </div>
-                      <div className="text-xs text-slate-400">Attendance</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-700/50">
-                  <div className="flex items-center gap-6">
-                    <div>
-                      <p className="text-sm text-slate-400">Status</p>
-                      <p className={`text-sm font-medium ${
-                        classItem.attendanceRate >= 90 ? 'text-emerald-400' :
-                        classItem.attendanceRate >= 75 ? 'text-amber-400' :
-                        'text-red-400'
-                      }`}>
-                        {classItem.attendanceRate >= 90 ? 'Excellent' :
-                         classItem.attendanceRate >= 75 ? 'Good' : 'Needs Attention'}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    {classItem.status === 'upcoming' ? (
-                      <button
-                        className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center gap-2"
-                      >
-                        <PlayCircle size={18} />
-                        Comming SOON
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => navigate('/faculty/attendance')}
-                        className="px-6 py-2 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-                      >
-                        <Eye size={18} />
-                        View Details
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-700/50">
+            <div className="flex items-center gap-6"></div>
+            
+            <div className="flex gap-3">
+                <button
+                  onClick={() => navigate('/faculty/attendance')}
+                  className="px-6 py-2 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                >
+                  <Eye size={18} />
+                  View Details
+                </button>
+            </div>
           </div>
         </div>
+      ))}
+
+      {/* View All / Show Less Toggle Button */}
+      {hasMoreClasses && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full py-3 mt-2 border border-dashed border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/5 text-slate-400 hover:text-blue-400 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+        >
+          {isExpanded ? (
+            <>Show Less</>
+          ) : (
+            <>View All Classes ({dashboardData.todayClasses.length - 1} more)</>
+          )}
+        </button>
+      )}
+    </div>
+  </div>
 
         {/* Insights & Quick Actions */}
         <div className="space-y-6">
@@ -319,7 +313,7 @@ const stats = dashboardData
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Zap className="text-amber-400" size={24} />
-                AI Insights
+                Smart Insights
               </h3>
               <button className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
                 <RefreshCw size={18} className="text-slate-400" />
@@ -335,15 +329,22 @@ const stats = dashboardData
                   <div key={idx} className={`${style.bgColor} rounded-xl p-4 border ${style.borderColor}`}>
                     <div className="flex items-start gap-3">
                       <Icon className={`mt-1 ${style.color}`} size={20} />
+
                       <div className="flex-1">
                         <h4 className="text-white font-semibold text-sm mb-1">{insight.title}</h4>
                         <p className="text-slate-300 text-xs mb-3">{insight.message}</p>
-                        <button
-                          onClick={() => navigate('/faculty/attendance')}
-                          className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
-                          {insight.action}
-                          <ExternalLink size={12} />
-                        </button>
+                      {/* Dynamic Status Badge */}
+                        <div className="flex">
+                          <div className={`flex items-center gap-2 px-2.5 py-1 rounded-full select-none backdrop-blur-md border ${style.bgColor} ${style.borderColor}`}>
+                            <span className="relative flex h-2 w-2">
+                              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${style.color.replace('text', 'bg')}`}></span>
+                              <span className={`relative inline-flex rounded-full h-2 w-2 ${style.color.replace('text', 'bg')}`}></span>
+                            </span>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${style.color}`}>
+                              {insight.action}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

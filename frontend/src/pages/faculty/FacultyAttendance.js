@@ -665,16 +665,7 @@ useEffect(() => {
 
                                   <div>
                                     <p className="text-white font-medium">{student.studentName}</p>
-
-
-
-                                      {["PENDING", "APPROVED"].includes(student.status) && (
-                                      <p className="text-slate-400 text-sm">
-                                      </p>
-                                    )}
                                   </div>
-
-
                               </div>
                               
                               <div className="flex items-center gap-3">
@@ -695,7 +686,7 @@ useEffect(() => {
                                       : "bg-slate-500/20 text-slate-400"
                                   }`}
                                 >
-                                  {student.status}
+                                  {student.status === "PENDING" ? "SUBMITTED" : student.status}
                                 </span>
 
                                 <div className="h-4 w-[1px] bg-slate-700 mx-1" aria-hidden="true" />
@@ -881,13 +872,13 @@ useEffect(() => {
                 <div className="bg-slate-900/50 rounded-lg p-4 border border-amber-500/30">
                   <p className="text-slate-300 leading-relaxed">
                     All students who have successfully scanned the QR code will initially appear with a 
-                    <span className="text-blue-400 font-semibold"> PENDING </span>
+                    <span className="text-blue-400 font-semibold"> SUBMITTED </span>
                     status.
                     <br /><br />
                     When you click the 
                     <span className="text-emerald-400 font-semibold"> "Submit Attendance" </span>
                     button, the system will automatically convert all 
-                    <span className="text-blue-400 font-semibold"> PENDING </span>
+                    <span className="text-blue-400 font-semibold"> SUBMITTED </span>
                     entries to 
                     <span className="text-emerald-400 font-semibold"> APPROVED </span>.
                     <br /><br />

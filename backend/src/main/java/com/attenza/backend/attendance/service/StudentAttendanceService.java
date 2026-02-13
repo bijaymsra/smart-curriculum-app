@@ -23,53 +23,43 @@ public class StudentAttendanceService {
     private final AttendanceSessionRepository sessionRepository;
     private final TimetableRepository timetableRepository;
 
-    public List<StudentAttendanceDTO> getStudentAttendance(Long studentId) {
 
-        /* 1️⃣ Fetch only APPROVED submissions */
-        List<AttendanceSubmission> approved =
-                submissionRepository.findByStudentIdAndStatus(
-                        studentId,
-                        AttendanceSubmissionStatus.APPROVED
-                );
+        public List<StudentAttendanceDTO> getStudentAttendance(Long studentId) {
 
-        /* 2️⃣ Keep only FINALIZED sessions */
-        return approved.stream()
+        // 1️⃣ Fetch ALL submissions for the student
+        List<AttendanceSubmission> allSubmissions = 
+                submissionRepository.findByStudentId(studentId);
+
+        return allSubmissions.stream()
                 .filter(sub -> {
-                    AttendanceSession session =
-                            sessionRepository.findById(sub.getSessionId()).orElse(null);
-
-                    return session != null
-                            && session.getStatus() == AttendanceSessionStatus.FINALIZED;
+                        // 2️⃣ Check if the session is FINALIZED
+                        AttendanceSession session = 
+                                sessionRepository.findById(sub.getSessionId()).orElse(null);
+                        
+                        return session != null 
+                                && session.getStatus() == AttendanceSessionStatus.FINALIZED;
                 })
                 .map(sub -> {
+                        AttendanceSession session = sessionRepository.findById(sub.getSessionId())
+                                .orElseThrow(() -> new RuntimeException("Session not found"));
 
-                    AttendanceSession session =
-                            sessionRepository.findById(sub.getSessionId())
-                                    .orElseThrow(() ->
-                                            new RuntimeException("Session not found"));
+                        TimetableEntry entry = timetableRepository.findById(session.getClassId())
+                                .orElseThrow(() -> new RuntimeException("Timetable entry not found"));
 
-                    TimetableEntry entry =
-                            timetableRepository.findById(session.getClassId())
-                                    .orElseThrow(() ->
-                                            new RuntimeException("Timetable entry not found"));
+                        // 3️⃣ Logic: Only APPROVED counts as PRESENT. 
+                        // Everything else (REJECTED, FLAGGED) results in ABSENT.
+                        String finalStatus = (sub.getStatus() == AttendanceSubmissionStatus.APPROVED) 
+                                        ? "PRESENT" 
+                                        : "ABSENT";
 
-                    String subjectCode =
-                            entry.getCourseOffering()
-                                    .getSubject()
-                                    .getSubjectCode();
-
-                    String subjectName =
-                            entry.getCourseOffering()
-                                    .getSubject()
-                                    .getSubjectName();
-
-                    return new StudentAttendanceDTO(
-                            subjectCode,
-                            subjectName,
-                            session.getStartTime().toLocalDate(),
-                            "PRESENT"
-                    );
+                        return new StudentAttendanceDTO(
+                                entry.getCourseOffering().getSubject().getSubjectCode(),
+                                entry.getCourseOffering().getSubject().getSubjectName(),
+                                session.getStartTime().toLocalDate(),
+                                finalStatus
+                        );
                 })
                 .collect(Collectors.toList());
-    }
+        }
+
 }

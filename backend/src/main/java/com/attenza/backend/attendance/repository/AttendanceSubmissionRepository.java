@@ -9,6 +9,9 @@ import java.util.List;
 public interface AttendanceSubmissionRepository
         extends JpaRepository<AttendanceSubmission, Long> {
 
+
+    List<AttendanceSubmission> findByStudentId(Long studentId);
+    
     // Prevent duplicate submission (Phase 1 & 2)
     boolean existsBySessionIdAndStudentId(
             String sessionId,
