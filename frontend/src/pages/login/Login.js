@@ -6,7 +6,7 @@ import API_BASE from "../../config/api";
 
 
 export default function Login() {
-  const [userType, setUserType] = useState("admin"); // "admin", "superadmin", "faculty", "student"
+  const [userType, setUserType] = useState("admin"); 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

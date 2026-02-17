@@ -35,4 +35,9 @@ public interface AttendanceSubmissionRepository
     );
 
     long countByStatus(AttendanceSubmissionStatus status);
+
+    List<AttendanceSubmission> findByStatus(
+        AttendanceSubmissionStatus status
+);
+
 }

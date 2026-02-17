@@ -16,7 +16,7 @@ echo "🚀 Starting React frontend..."
 # BROWSER=none prevents it from popping open 100 tabs if you restart often
 HTTPS=true BROWSER=none npm start &
 
-# 4. Handle Shutdown (Ctrl+C)
+# 4. Handle Shutdown (command+ shift+ C)
 cleanup() {
     echo -e "\n🛑 Force killing all processes on ports..."
     lsof -ti :8080,3000 | xargs kill -9 2>/dev/null
@@ -25,5 +25,5 @@ cleanup() {
 
 trap cleanup SIGINT
 
-echo "Base is running. Press Ctrl+C to stop everything."
+echo "Base is running. Press Command + shift + C to stop everything."
 wait

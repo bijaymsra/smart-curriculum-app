@@ -204,7 +204,7 @@ export default function Courses() {
     setLoading(prev => ({ ...prev, courses: true }));
     
     try {
-      await authFetch(`${API_BASE}/api/admin/subjects`, {
+      await fetch(`${API_BASE}/api/admin/subjects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -280,7 +280,7 @@ export default function Courses() {
     setLoading(prev => ({ ...prev, departments: true }));
     
     try {
-      await authFetch(`${API_BASE}/api/admin/departments`, {
+      await fetch(`${API_BASE}/api/admin/departments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

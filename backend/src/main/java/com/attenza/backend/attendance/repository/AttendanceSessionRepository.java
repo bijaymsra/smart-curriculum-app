@@ -39,5 +39,14 @@ public interface AttendanceSessionRepository
             String facultyId,
             AttendanceSessionStatus status
     );
+
+
+     long countByStatus(AttendanceSessionStatus status);
+
+    long countByStatusAndStartTimeBetween(
+            AttendanceSessionStatus status,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }
 
