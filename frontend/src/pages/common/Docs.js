@@ -161,8 +161,7 @@ export default function Docs() {
           <div className="doc-section">
             <h2>📚 Getting Started</h2>
             <h3>System Overview</h3>
-            <p>The Attendance Tracking and Personalized Student Planner is a unified platform that automates attendance tracking while enhancing student productivity through intelligent scheduling. The system leverages advanced technologies including face recognition, QR code scanning, and proximity-based identification.</p>
-            {/* ... keep the rest of your long content here exactly as you had it ... */}
+            <p>The Smart Curriculum & Personalized System Management is a unified platform that automates attendance tracking while enhancing student productivity through intelligent scheduling. The system leverages advanced technologies dynamic QR code scanning identification.</p>
 
                 <div className="info-box">
                     <strong>🎯 Key Features:</strong> Automated attendance marking, real-time dashboards, personalized task recommendations, predictive scheduling, and seamless LMS/ERP integration.
@@ -173,9 +172,7 @@ export default function Docs() {
                 
                 <h4>1. Automated Attendance Engine</h4>
                 <ul>
-                    <li><strong>Face Recognition:</strong> Utilizes MTCNN for face detection and EfficientNet B4 for identification, achieving 94% accuracy</li>
                     <li><strong>QR Code System:</strong> Dynamic, time-limited QR codes with 99% accuracy and built-in fraud prevention</li>
-                    <li><strong>Proximity Detection:</strong> Bluetooth/Wi-Fi based automatic attendance with geofencing capabilities</li>
                 </ul>
 
                 <h4>2. Personalized Planner Module</h4>
@@ -183,10 +180,10 @@ export default function Docs() {
 
                 <h4>3. Web/Mobile Interface</h4>
                 <ul>
-                    <li><strong>Backend:</strong> Python (Flask), TensorFlow, MySQL</li>
+                    <li><strong>Backend:</strong>Spring Boot, MySQL</li>
                     <li><strong>Cloud Platform:</strong> AWS (S3 storage, EC2 computation, Lambda functions)</li>
-                    <li><strong>Frontend:</strong> React Web dashboard + Flutter (Android/iOS)</li>
-                    <li><strong>Security:</strong> SSL-based communication, encrypted QR codes, GDPR compliant</li>
+                    <li><strong>Frontend:</strong> React Web dashboard</li>
+                    <li><strong>Security:</strong> SSL-based communication, encrypted QR codes, JWT Authentication</li>
                 </ul>
 
                 <h3>System Requirements</h3>
@@ -210,11 +207,6 @@ export default function Docs() {
                             <td>Android 11+ / iOS 15+</td>
                         </tr>
                         <tr>
-                            <td>Camera (Face Recognition)</td>
-                            <td>2MP front camera</td>
-                            <td>5MP+ with auto-focus</td>
-                        </tr>
-                        <tr>
                             <td>Internet Connection</td>
                             <td>2 Mbps</td>
                             <td>5+ Mbps</td>
@@ -229,7 +221,7 @@ export default function Docs() {
                 <h3>Student Access</h3>
                 <ul>
                     <li>View attendance summary (daily/weekly/monthly)</li>
-                    <li>Mark attendance via face/QR/proximity</li>
+                    <li>Mark attendance via Session based QR-Code</li>
                     <li>Access personalized planner with task recommendations</li>
                     <li>Manage class schedule and timetable</li>
                     <li>Create and track personal tasks and to-dos</li>
@@ -268,14 +260,12 @@ export default function Docs() {
                             <li>Receive invitation email from your institution</li>
                             <li>Click activation link and create password</li>
                             <li>Complete profile setup with photo upload</li>
-                            <li>Enable camera/location permissions (if using face/proximity methods)</li>
+                            <li>Enable camera permissions (for Qr-Code Scanning)</li>
                         </ul>
                     </li>
                     <li><strong>Marking Attendance:</strong>
                         <ul>
-                            <li><em>Face Recognition:</em> Open app, position face in frame, wait for confirmation</li>
-                            <li><em>QR Code:</em> Scan faculty-displayed QR code using app camera</li>
-                            <li><em>Proximity:</em> Ensure Bluetooth/Wi-Fi enabled, attendance marks automatically</li>
+                            <li><em>QR Code:</em> Scan faculty-displayed QR code using web camera</li>
                         </ul>
                     </li>
                     <li><strong>Using the Planner:</strong>
@@ -296,7 +286,7 @@ export default function Docs() {
                 <ol>
                     <li>Log in to faculty dashboard</li>
                     <li>Select course and class session</li>
-                    <li>Choose attendance method (display QR / enable face recognition / activate proximity)</li>
+                    <li>Start attendance Session (display QR Code)</li>
                     <li>Monitor real-time attendance marking</li>
                     <li>Review and approve any pending corrections</li>
                     <li>Export attendance reports as needed</li>
@@ -350,7 +340,6 @@ export default function Docs() {
                 {
                 "student_id": "12345",
                 "class_id": "CS101",
-                "method": "face_recognition",
                 "timestamp": "2024-11-06T10:30:00Z"
                 }`}
                 </pre>
@@ -369,13 +358,13 @@ export default function Docs() {
             <h2>❓ Frequently Asked Questions</h2>
 
             <div className="faq-item">
-              <div className="faq-question">How accurate is the face recognition system?</div>
-              <div className="faq-answer">Our face recognition system achieves 94% accuracy ...</div>
+              <div className="faq-question">How accurate is the QR rCode system?</div>
+              <div className="faq-answer">Our QR Code system achieves good accuracy as it is session based dynamically changes every 30 sec...</div>
             </div>
 
             <div className="faq-item">
               <div className="faq-question">Can students mark proxy attendance?</div>
-              <div className="faq-answer">No. Our system includes multiple fraud prevention measures ...</div>
+              <div className="faq-answer">No. Our system includes fraud prevention measures ...</div>
             </div>
 
             {/* ... rest of FAQ items ... */}
@@ -398,19 +387,6 @@ export default function Docs() {
                     <div className="faq-question">Is my personal data secure?</div>
                     <div className="faq-answer">
                         Yes. We implement enterprise-grade security including SSL encryption for all communications, encrypted storage of biometric data, GDPR compliance, role-based access controls, and regular security audits. Facial recognition data is hashed and cannot be reverse-engineered. You can request data deletion at any time through your profile settings.
-                    </div>
-                </div>
-
-                <div className="faq-item">
-                    <div className="faq-question">Which attendance method should I use?</div>
-                    <div className="faq-answer">
-                        The best method depends on your situation:
-                        <ul style={{marginTop: '0.5rem'}}>
-                            <li><strong>Face Recognition:</strong> Fastest and most contactless, ideal for large classes</li>
-                            <li><strong>QR Code:</strong> Simple and reliable, works on any smartphone</li>
-                            <li><strong>Proximity:</strong> Most convenient (automatic), requires Bluetooth/Wi-Fi enabled</li>
-                        </ul>
-                        Your institution may configure which methods are available for each class.
                     </div>
                 </div>
 
@@ -445,31 +421,6 @@ export default function Docs() {
 
             <div className="doc-section">
                 <h2>🔧 Troubleshooting</h2>
-                
-                <h3>Face Recognition Issues</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Problem</th>
-                            <th>Solution</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Face not detected</td>
-                            <td>Ensure adequate lighting, remove glasses/masks, position face centrally in frame</td>
-                        </tr>
-                        <tr>
-                            <td>Recognition fails repeatedly</td>
-                            <td>Update profile photo in settings, ensure camera lens is clean, check internet connection</td>
-                        </tr>
-                        <tr>
-                            <td>Camera permission denied</td>
-                            <td>Enable camera access in device settings → Apps → Smart Attendance → Permissions</td>
-                        </tr>
-                    </tbody>
-                </table>
-
                 <h3>QR Code Issues</h3>
                 <table>
                     <thead>
@@ -490,30 +441,6 @@ export default function Docs() {
                         <tr>
                             <td>Location verification failed</td>
                             <td>Enable location services, ensure you're physically in the classroom</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Proximity-Based Issues</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Problem</th>
-                            <th>Solution</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Attendance not marked automatically</td>
-                            <td>Enable Bluetooth and Wi-Fi, check location services are on, ensure app is running</td>
-                        </tr>
-                        <tr>
-                            <td>High battery drain</td>
-                            <td>Proximity detection is optimized, but you can switch to manual QR/face methods</td>
-                        </tr>
-                        <tr>
-                            <td>Outside geofence range</td>
-                            <td>Move closer to the classroom beacon; typical range is 10-20 meters</td>
                         </tr>
                     </tbody>
                 </table>
@@ -770,7 +697,7 @@ export default function Docs() {
                 
                 <h4>3.1 Permitted Uses</h4>
                 <ul>
-                    <li>Mark attendance through approved methods (face/QR/proximity)</li>
+                    <li>Mark attendance through approved methods (QR Code)</li>
                     <li>Access personal academic records and schedules</li>
                     <li>Use personalized planner for academic productivity</li>
                     <li>Generate reports and export personal data</li>
@@ -805,9 +732,7 @@ export default function Docs() {
 
                 <h4>4.2 Technical Requirements</h4>
                 <ul>
-                    <li>Face recognition requires clear facial visibility (no masks/obstructions unless medically necessary)</li>
                     <li>QR codes expire after time limits (typically 2 minutes)</li>
-                    <li>Proximity marking requires Bluetooth/Wi-Fi enabled and location services active</li>
                     <li>You are responsible for maintaining device functionality</li>
                 </ul>
 
@@ -977,7 +902,7 @@ export default function Docs() {
                 </li>
                 </ul>
                 <div className="success-box">
-                    <strong>✅ Acknowledgment:</strong> By using the Smart Attendance and Personalized Student Planner, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.
+                    <strong>✅ Acknowledgment:</strong> By using the Smart Curriculum & Personalized System Management, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.
                 </div>
         </div>
         </div>
@@ -1013,9 +938,8 @@ export default function Docs() {
               Terms
             </a>
           </div>
-          <p style={{ marginTop: '1.5rem' }}>&copy; 2025 Attenza - Attendance Tracking & Personalized Student Planner. All rights reserved.</p>
+          <p style={{ marginTop: '1.5rem' }}>&copy; {new Date().getFullYear()} Attenza - Smart Curriculum & Personalized System Management. All rights reserved.</p>
           <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', opacity: 0.8 }}>Developed by Bijay Kumar Mishra</p>
-          <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', opacity: 0.8 }}>Under the Guidance of Lovely Professional University, Punjab, India</p>
         </div>
       </footer>
     </div>

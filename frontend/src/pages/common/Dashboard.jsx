@@ -348,7 +348,7 @@ export default function Dashboard() {
       <nav className="navbar">
         <div className="container">
           <div className="nav-brand">
-            <img src={logo} alt="Logo" className="logo" />
+            {/* <img src={logo} alt="Logo" className="logo" /> */}
             <span className="brand-name">Attenza</span>
           </div>
           <ul className="nav-menu">
@@ -376,8 +376,8 @@ export default function Dashboard() {
         <div className="container">
           <div className="hero-content">
             <div className="hero-text">
-              <h1 className="hero-title">Attendance Tracking & Personalized Planner</h1>
-              <p className="hero-subtitle">Automate attendance with AI-powered recognition and transform student productivity with intelligent planning. Built for the future of education.</p>
+              <h1 className="hero-title">Smart Curriculum & Personalized System Management</h1>
+              <p className="hero-subtitle">Automate attendance with Intelligent-powered built for the future of education.</p>
               <div className="hero-buttons">
                 <a href="signup" className="btn btn-primary btn-large">Request Demo</a>
                 <a href="#how-it-works" className="btn btn-outline btn-large">Learn More</a>
@@ -398,7 +398,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="hero-image">
-              <img src={logo} alt="Platform Dashboard Preview" />
+              {/* <img src={logo} alt="Platform Dashboard Preview" /> */}
             </div>
           </div>
         </div>
@@ -417,14 +417,14 @@ export default function Dashboard() {
                         <img src={logo} alt="Face Recognition"/>
                     </div>
                     <h3 class="feature-title">Multi-Modal Attendance</h3>
-                    <p class="feature-description">Face recognition, QR codes, or proximity-based tracking. Choose what works best for your institution.</p>
+                    <p class="feature-description">QR codes works best for your institution.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <img src={logo} alt="Smart Planner"/>
                     </div>
                     <h3 class="feature-title">Personalized Planner</h3>
-                    <p class="feature-description">AI-driven recommendations that convert idle time into productive academic and career activities.</p>
+                    <p class="feature-description">Intellizent-driven recommendations that convert idle time into productive academic and career activities.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -465,50 +465,17 @@ export default function Dashboard() {
                 <h2 class="section-title">How It Works</h2>
                 <p class="section-subtitle">Three flexible methods to track attendance accurately</p>
             </div>
-            <div class="methods-grid">
-                <div class="method-card">
-                    <div class="method-number">01</div>
-                    <div class="method-icon">
-                        {/* <img src={logo} alt="Face Recognition"/> */}
-                        <span>👤</span>
-                    </div>
-                    <h3 class="method-title">Face Recognition</h3>
-                    <p class="method-description">Advanced AI-powered facial recognition ensures accurate and contactless attendance marking in seconds.</p>
-                    <ul class="method-features">
-                        <li>99.9% accuracy rate</li>
-                        <li>Works in varying lighting</li>
-                        <li>Privacy-focused encryption</li>
-                    </ul>
-                </div>
-                <div class="method-card">
-                    <div class="method-number">02</div>
-                    <div class="method-icon">
-                        {/* <img src={logo} alt="QR Code"/> */}
-                        <span>📱</span>
-                    </div>
-                    <h3 class="method-title">QR Code Scanning</h3>
+           <center> <div class="methods-grid">
+              <div class="method-card">
+                    <h3 class="method-title">📱 QR Code Scanning</h3>
                     <p class="method-description">Quick and easy attendance marking using dynamically generated QR codes that refresh periodically.</p>
                     <ul class="method-features">
                         <li>Time-limited codes</li>
-                        <li>Location verification</li>
+                        <li>Session verification</li>
                         <li>Fraud prevention</li>
                     </ul>
-                </div>
-                <div class="method-card">
-                    <div class="method-number">03</div>
-                    <div class="method-icon">
-                        {/* <img src={logo} alt="Proximity"/> */}
-                        <span>📡</span>
-                    </div>
-                    <h3 class="method-title">Proximity-Based</h3>
-                    <p class="method-description">Automatic attendance marking using Bluetooth or WiFi proximity detection within the classroom.</p>
-                    <ul class="method-features">
-                        <li>Hands-free operation</li>
-                        <li>Geofencing enabled</li>
-                        <li>Battery efficient</li>
-                    </ul>
-                </div>
-            </div>
+                </div> 
+            </div> </center>
         </div>
     </section>
 
@@ -558,7 +525,7 @@ export default function Dashboard() {
     <section class="benefits">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Why Choose SmartAttend?</h2>
+                <h2 class="section-title">Why Choose us?</h2>
                 <p class="section-subtitle">Aligned with NEP 2020 for personalized learning excellence</p>
             </div>
             <div class="benefits-grid">
@@ -598,7 +565,7 @@ export default function Dashboard() {
         <div class="container">
             <div class="dascta-content">
                 <h2 class="dascta-title">Ready to Transform Your Institution?</h2>
-                <p class="dascta-subtitle">Join leading educational institutions using SmartAttend to enhance learning outcomes</p>
+                <p class="dascta-subtitle">Join leading educational institutions to enhance learning outcomes</p>
                 <div class="dascta-buttons">
                     <a href="signup" class="btn btn-primary btn-large">Request a Demo</a>
                     <a href="about" class="btn btn-outline-light btn-large">Contact Sales</a>
@@ -614,7 +581,6 @@ export default function Dashboard() {
           <div className="dasfooter-grid">
             <div className="dasfooter-column">
               <div className="dasfooter-brand">
-                <img src={logo} alt="Logo" className="logo" />
                 <span className="brand-name">Attenza</span>
               </div>
               <p className="dasfooter-description">Revolutionizing education through intelligent attendance tracking and personalized learning.</p>
@@ -653,11 +619,11 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="dasfooter-bottom">
-            <p>&copy; 2025 SmartAttend. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Attenza - Smart Curriculum & Personalized System Management. All rights reserved.</p>
+                      <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', opacity: 0.8 }}>Developed by Bijay Kumar Mishra</p>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-

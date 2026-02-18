@@ -281,7 +281,7 @@ export default function Signup() {
               <h1 className="text-3xl font-bold tracking-tight">Attenza</h1>
             </div>
             <p className="text-blue-100 text-lg max-w-md">
-              Join the future of intelligent attendance management and personalized learning
+              Join the future of Smart Curriculum & Personalized System Management
             </p>
           </div>
 
@@ -297,8 +297,8 @@ export default function Signup() {
                   </svg>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-1">Multi-Modal Tracking</h4>
-                  <p className="text-blue-200 text-sm">Face recognition, QR codes, and proximity-based attendance</p>
+                  <h4 className="font-medium mb-1">Modal Tracking</h4>
+                  <p className="text-blue-200 text-sm">Dynamic Session based QR code attendance</p>
                 </div>
               </div>
 
@@ -310,7 +310,7 @@ export default function Signup() {
                 </div>
                 <div>
                   <h4 className="font-medium mb-1">Smart Planner</h4>
-                  <p className="text-blue-200 text-sm">AI-powered personalized learning recommendations</p>
+                  <p className="text-blue-200 text-sm">Smart Curriculum & Personalized System Management</p>
                 </div>
               </div>
 
@@ -337,7 +337,7 @@ export default function Signup() {
               <div className="animate-fade-in">
                 <div className="text-center mb-10">
                   <h2 className="text-3xl font-bold text-gray-900 mb-3">Get Started with Attenza</h2>
-                  <p className="text-gray-600">Choose your account type to begin</p>
+                  <p className="text-gray-600">Click below to begin the journey!</p>
                 </div>
 
                 {/* Institution Card */}
@@ -345,11 +345,6 @@ export default function Signup() {
                   onClick={handleAccountTypeSelect}
                   className="relative bg-white rounded-2xl shadow-lg p-8 border-2 border-transparent hover:border-blue-500 hover:shadow-xl transition-all duration-300 cursor-pointer group animate-slide-up"
                 >
-                  <div className="absolute -top-3 -right-3">
-                    <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
-                      Recommended
-                    </span>
-                  </div>
 
                   <div className="flex items-start space-x-6">
                     <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">

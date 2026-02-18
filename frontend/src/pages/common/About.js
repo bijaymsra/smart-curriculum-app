@@ -23,7 +23,7 @@ export default function About() {
 
       {/* Hero Section */}
       <section className={styles.abthero}>
-        <h2>Attendance Tracking & Personalized Planner</h2>
+        <h1>Smart Curriculum & Personalized System Management</h1>
         <p>
           Revolutionizing education through intelligent attendance tracking and
           personalized learning experiences
@@ -42,8 +42,7 @@ export default function About() {
             and personalized learning recommendations.
           </p>
           <p>
-            By leveraging advanced face recognition, QR code scanning, and
-            proximity-based identification methods, we eliminate manual errors
+            By leveraging advanced QR code scanning, we eliminate manual errors
             and reduce administrative burden. Simultaneously, our intelligent
             planner uses predictive analytics to transform students' idle time
             into goal-oriented academic and career activities, perfectly aligned
@@ -84,28 +83,7 @@ export default function About() {
           </div>
 
           <div className={styles.methodsGrid}>
-            {/* Method 1 */}
             <div className={styles.methodCard}>
-              <div className={styles.methodNumber}>01</div>
-              <div className={styles.methodIcon}>
-                <span>👤</span>
-              </div>
-              <h3 className={styles.methodTitle}>Face Recognition</h3>
-              <p className={styles.methodDescription}>
-                Advanced AI-powered facial recognition ensures accurate and
-                contactless attendance marking in seconds.
-              </p>
-              <ul className={styles.methodFeatures}>
-                <li>99.9% accuracy rate</li>
-                <li>Works in varying lighting</li>
-                <li>Privacy-focused encryption</li>
-                <li>Real-time processing</li>
-              </ul>
-            </div>
-
-            {/* Method 2 */}
-            <div className={styles.methodCard}>
-              <div className={styles.methodNumber}>02</div>
               <div className={styles.methodIcon}>
                 <span>📱</span>
               </div>
@@ -116,28 +94,9 @@ export default function About() {
               </p>
               <ul className={styles.methodFeatures}>
                 <li>Time-limited codes</li>
-                <li>Location verification</li>
+                <li>Session verification</li>
                 <li>Fraud prevention</li>
                 <li>Instant validation</li>
-              </ul>
-            </div>
-
-            {/* Method 3 */}
-            <div className={styles.methodCard}>
-              <div className={styles.methodNumber}>03</div>
-              <div className={styles.methodIcon}>
-                <span>📡</span>
-              </div>
-              <h3 className={styles.methodTitle}>Proximity-Based</h3>
-              <p className={styles.methodDescription}>
-                Automatic attendance marking using Bluetooth or WiFi proximity
-                detection within the classroom.
-              </p>
-              <ul className={styles.methodFeatures}>
-                <li>Hands-free operation</li>
-                <li>Geofencing enabled</li>
-                <li>Battery efficient</li>
-                <li>Seamless integration</li>
               </ul>
             </div>
           </div>
@@ -208,8 +167,7 @@ export default function About() {
       {/* Footer */}
       <footer className={styles.footer}>
         <p>
-          &copy; 2024 Smart Attendance & Personalized Student Planner. All
-          rights reserved.
+          &copy; {new Date().getFullYear()} Attenza - Smart Curriculum & Personalized System Management. All rights reserved.
         </p>
         <p>
           <a
