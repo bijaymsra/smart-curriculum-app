@@ -94,13 +94,13 @@ export default function Dashboard() {
       label: 'Create Course', 
       icon: BookOpen, 
       color: 'bg-pink-500 hover:bg-pink-600',
-      onClick: () => navigate('/admin/courses/new')
+      onClick: () => navigate('/admin/courses')
     },
     { 
       label: 'Schedule Class', 
       icon: Clock, 
       color: 'bg-indigo-500 hover:bg-indigo-600',
-      onClick: () => navigate('/admin/schedule/new')
+      onClick: () => navigate('/admin/timetable')
     }
   ];
 

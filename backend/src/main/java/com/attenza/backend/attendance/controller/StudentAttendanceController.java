@@ -3,6 +3,7 @@ package com.attenza.backend.attendance.controller;
 import com.attenza.backend.attendance.dto.StudentAttendanceDTO;
 import com.attenza.backend.attendance.service.StudentAttendanceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +17,9 @@ public class StudentAttendanceController {
 
     @GetMapping
     public List<StudentAttendanceDTO> getMyAttendance(
-            @RequestAttribute("studentId") Long studentId
+            Authentication authentication
     ) {
+        Long studentId = Long.parseLong(authentication.getName());
         return attendanceService.getStudentAttendance(studentId);
     }
-
 }

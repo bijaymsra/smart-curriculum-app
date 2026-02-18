@@ -48,5 +48,11 @@ public interface AttendanceSessionRepository
             LocalDateTime start,
             LocalDateTime end
     );
+
+    long countByClassIdInAndStatus(
+    List<Long> classIds,
+    AttendanceSessionStatus status
+);
+
 }
 

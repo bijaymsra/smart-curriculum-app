@@ -132,11 +132,6 @@ const Admin = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="relative p-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors focus:outline-none">
-                <Bell size={20} className="text-slate-300" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
               <SystemStatus />
             </div>
           </div>

@@ -35,7 +35,6 @@ import FacultySettings from './pages/faculty/FacultySettings';
 import StudentLayout from './pages/student/StudentLayout';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentAttendance from './pages/student/StudentAttendance';
-import StudentPlanner from './pages/student/StudentPlanner';
 import StudentTasks from './pages/student/StudentTasks';
 import StudentProfile from './pages/student/StudentProfile';
 
@@ -82,7 +81,6 @@ export default function App() {
       <Route index element={<StudentDashboard />} />
       <Route path="dashboard" element={<StudentDashboard />} />
       <Route path="attendance" element={<StudentAttendance />} />
-      <Route path="planner" element={<StudentPlanner />} />
       <Route path="tasks" element={<StudentTasks />} />
       <Route path="profile" element={<StudentProfile />} />
     </Route>

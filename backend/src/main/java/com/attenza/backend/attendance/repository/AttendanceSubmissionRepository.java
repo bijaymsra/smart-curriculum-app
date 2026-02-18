@@ -37,7 +37,13 @@ public interface AttendanceSubmissionRepository
     long countByStatus(AttendanceSubmissionStatus status);
 
     List<AttendanceSubmission> findByStatus(
-        AttendanceSubmissionStatus status
+        AttendanceSubmissionStatus status);
+
+
+        long countByStudentIdAndStatus(
+    Long studentId,
+    AttendanceSubmissionStatus status
 );
+
 
 }

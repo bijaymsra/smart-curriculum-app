@@ -21,8 +21,7 @@ const StudentLayout = () => {
   const navItems = [
     { label: "Dashboard", icon: BarChart3, path: "/student" },
     { label: "Mark Attendance", icon: CheckCircle, path: "/student/attendance" },
-    { label: "Smart Planner", icon: Target, path: "/student/planner" },
-    { label: "Your Tasks", icon: FileText, path: "/student/tasks" },
+    { label: "Smart Planner", icon: FileText, path: "/student/tasks" },
     { label: "Profile", icon: User, path: "/student/profile" },
   ];
 
@@ -32,7 +31,6 @@ const StudentLayout = () => {
     
     if (path === "/student" || path === "/student/dashboard") return "Dashboard";
     if (path.startsWith("/student/attendance")) return "Attendance";
-    if (path.startsWith("/student/planner")) return "Smart Planner";
     if (path.startsWith("/student/tasks")) return "Tasks & Assignments";
     if (path.startsWith("/student/profile")) return "Profile & Settings";
     
@@ -87,55 +85,55 @@ const StudentLayout = () => {
           </div>
           
           {/* Student Profile */}
-{sidebarOpen && (
-  <div className="mt-6 flex items-start gap-4 px-2 group">
-    {/* Avatar Section */}
-    <div className="relative flex-shrink-0 mt-0.5">
-      {/* Emerald Outer Glow */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full opacity-20 group-hover:opacity-50 transition duration-300 blur-sm"></div>
+          {sidebarOpen && (
+            <div className="mt-6 flex items-start gap-4 px-2 group">
+              {/* Avatar Section */}
+              <div className="relative flex-shrink-0 mt-0.5">
+                {/* Emerald Outer Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full opacity-20 group-hover:opacity-50 transition duration-300 blur-sm"></div>
+                
+                {/* Main Avatar Circle */}
+                <div className="relative w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700/50 shadow-2xl overflow-hidden">
+                  {/* Subtle Background Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10" />
+                  
+                  {/* The Initial */}
+                  <span className="relative z-10 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent font-bold text-lg">
+                    {studentData.fullName?.charAt(0) || "S"}
+                  </span>
+                </div>
+              </div>
+
+    {/* Text Section */}
+    <div className="flex flex-col min-w-0 flex-1">
+      {/* Name - Takes the top row */}
+    <p className="text-white font-semibold text-sm truncate tracking-wide">
+        {studentData.fullName || "Student"}
+      </p>
       
-      {/* Main Avatar Circle */}
-      <div className="relative w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700/50 shadow-2xl overflow-hidden">
-        {/* Subtle Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10" />
-        
-        {/* The Initial */}
-        <span className="relative z-10 bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent font-bold text-lg">
-          {studentData.fullName?.charAt(0) || "S"}
+      {/* Info Row - Optimized for space */}
+      <div className="flex flex-col gap-0.5 mt-1">
+        {/* Registration Number */}
+        <span className="text-[10px] text-slate-500 font-medium truncate leading-none">
+          {studentData.registrationNo}
         </span>
+        
+        {/* Year Badge - Pushed to its own line or made very compact */}
+        <div className="mt-1">
+          <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold border uppercase tracking-wider ${
+            studentData.status === 'ACTIVE' 
+              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+          }`}>
+            {studentData.year}
+          </span>
+        </div>
       </div>
     </div>
 
-    {/* Text Section */}
-<div className="flex flex-col min-w-0 flex-1">
-  {/* Name - Takes the top row */}
- <p className="text-white font-semibold text-sm truncate tracking-wide">
-    {studentData.fullName || "Student"}
-  </p>
-  
-  {/* Info Row - Optimized for space */}
-  <div className="flex flex-col gap-0.5 mt-1">
-    {/* Registration Number */}
-    <span className="text-[10px] text-slate-500 font-medium truncate leading-none">
-      {studentData.registrationNo}
-    </span>
-    
-    {/* Year Badge - Pushed to its own line or made very compact */}
-    <div className="mt-1">
-      <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold border uppercase tracking-wider ${
-        studentData.status === 'ACTIVE' 
-          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-          : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-      }`}>
-        {studentData.year}
-      </span>
-    </div>
-  </div>
-</div>
 
-
-  </div>
-)}
+      </div>
+    )}
 
 
 
@@ -166,34 +164,6 @@ const StudentLayout = () => {
             </NavLink>
           ))}
         </nav>
-
-
-        {/* Gamification Stats */}
-        {sidebarOpen && (
-          <div className="mt-8 mx-4 p-4 bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-xl border border-emerald-700/30">
-            <h3 className="text-sm font-medium text-slate-400 mb-3 flex items-center gap-2">
-              <Award size={14} />
-              Your Stats
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Attendance</span>
-                <span className="font-semibold text-emerald-400">{quickStats.attendance}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Streak</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-amber-400">{quickStats.streak} days</span>
-                  <Zap size={12} className="text-amber-400" />
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-300">Points</span>
-                <span className="font-semibold text-purple-400">{quickStats.points}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </aside>
 
       {/* =======================
@@ -221,12 +191,7 @@ const StudentLayout = () => {
             <div className="flex items-center gap-4">
               
               {/* Quick Actions */}
-              <div className="flex items-center gap-2">
-                <button className="p-3 relative bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">
-                  <Bell size={20} className="text-slate-300" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                
+              <div className="flex items-center gap-2">                
                 <button 
                   onClick={handleLogout}
                   className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors flex items-center gap-2"

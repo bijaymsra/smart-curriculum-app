@@ -30,4 +30,5 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
         String departmentCode,
         Long institutionId
     );
+
 }

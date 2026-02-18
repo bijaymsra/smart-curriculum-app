@@ -13,8 +13,8 @@ cd backend
 # 3. Start the Frontend
 cd ../frontend
 echo "🚀 Starting React frontend..."
-# BROWSER=none prevents it from popping open 100 tabs if you restart often
-HTTPS=true BROWSER=none npm start &
+# BROWSER=none prevents it from popping open new tab at browser
+BROWSER=none npm start &
 
 # 4. Handle Shutdown (command+ shift+ C)
 cleanup() {

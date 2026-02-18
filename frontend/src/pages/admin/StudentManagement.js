@@ -113,11 +113,11 @@ export default function StudentManagement() {
 
       const updatedStudent = await res.json();
 
-      // ✅ update UI state
+      // update UI state
       setStudent(updatedStudent);
       setPendingStatus(updatedStudent.status);
 
-      // ✅ show success
+      // show success
       setSaveSuccess(true);
 
       // ⏳ auto-hide after 3s
@@ -161,7 +161,7 @@ export default function StudentManagement() {
     return configs[status] || configs.ACTIVE;
   };
 
-  // ✅ Early returns AFTER all hooks
+  // Early returns AFTER all hooks
   if (adminLoading) {
     return <div className="p-10 text-slate-400">Loading admin...</div>;
   }

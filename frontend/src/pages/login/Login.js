@@ -47,9 +47,6 @@ export default function Login() {
       case "admin":
         if (!email || !password) validationError = "Email and password are required";
         break;
-      case "superadmin":
-        if (!username || !password) validationError = "Username and password are required";
-        break;
       case "faculty":
         if (!institutionId || !facultyId || !password) {
           validationError = "Institution ID, Faculty ID, and password are required";
@@ -93,10 +90,6 @@ export default function Login() {
           endpoint = `${API_BASE}/api/admin-auth/login`
           requestBody = { email, password };
           break;
-        case "superadmin":
-          endpoint = `${API_BASE}/api/superadmin-auth/login`;
-          requestBody = { username, password };
-          break;
         case "faculty":
           endpoint = `${API_BASE}/api/faculty/auth/login`;
           requestBody = { institutionId, facultyId, password };
@@ -136,18 +129,6 @@ export default function Login() {
 
         window.location.href = "/admin";
         break;
-
-      case "superadmin":
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("role", "SUPERADMIN");
-
-        sessionStorage.setItem("superAdminId", data.superAdminId);
-        sessionStorage.setItem("superAdminUsername", data.username);
-        sessionStorage.setItem("superAdminName", data.fullName);
-
-        window.location.href = "/superadmin/dashboard";
-        break;
-
 
       case "faculty":
         sessionStorage.setItem("token", data.token);
@@ -194,7 +175,6 @@ export default function Login() {
   const getUserTypeColor = (type) => {
     switch (type) {
       case "admin": return { bg: "from-blue-500 to-purple-500", text: "text-blue-400", border: "border-blue-500/30", bgLight: "bg-blue-500/20" };
-      case "superadmin": return { bg: "from-red-500 to-orange-500", text: "text-red-400", border: "border-red-500/30", bgLight: "bg-red-500/20" };
       case "faculty": return { bg: "from-indigo-500 to-violet-500", text: "text-indigo-400", border: "border-indigo-500/30", bgLight: "bg-indigo-500/20" };
       case "student": return { bg: "from-green-500 to-emerald-500", text: "text-green-400", border: "border-green-500/30", bgLight: "bg-green-500/20" };
       default: return { bg: "from-blue-500 to-purple-500", text: "text-blue-400", border: "border-blue-500/30", bgLight: "bg-blue-500/20" };
@@ -328,21 +308,6 @@ export default function Login() {
                 <Building className={`w-5 h-5 ${userType === "admin" ? "text-blue-400" : "text-slate-400"}`} />
                 <span className={`text-sm font-medium ${userType === "admin" ? "text-blue-300" : "text-slate-300"}`}>
                   Admin
-                </span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleUserTypeChange("superadmin")}
-              className={`p-3 rounded-xl transition-all duration-300 ${userType === "superadmin" 
-                ? "bg-red-500/20 border border-red-500/50 shadow-lg shadow-red-500/10" 
-                : "bg-slate-700/30 hover:bg-slate-700/50 border border-slate-700"}`}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <Shield className={`w-5 h-5 ${userType === "superadmin" ? "text-red-400" : "text-slate-400"}`} />
-                <span className={`text-sm font-medium ${userType === "superadmin" ? "text-red-300" : "text-slate-300"}`}>
-                  Super Admin
                 </span>
               </div>
             </button>
@@ -563,7 +528,7 @@ export default function Login() {
                 <>
                   <div className="relative z-10 flex items-center justify-center gap-3">
                     {userType === "admin" && <Building className="w-5 h-5" />}
-                    {userType === "superadmin" && <Shield className="w-5 h-5" />}
+                    {/* {userType === "superadmin" && <Shield className="w-5 h-5" />} */}
                     {userType === "faculty" && <GraduationCap className="w-5 h-5" />}
                     {userType === "student" && <User className="w-5 h-5" />}
                     <span>Sign In as {userType.charAt(0).toUpperCase() + userType.slice(1)}</span>

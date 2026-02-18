@@ -46,15 +46,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
        // 🔹 REQUIRED FOR ATTENDANCE QR FLOW
        Optional<Student> findByPublicId(String publicId);
 
-       // 🔹 REQUIRED FOR STUDENT GROUP DYNAMIC COUNT
-       // long countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndDepartment(
-       // Long institutionId,
-       // String course,
-       // String batch,
-       // Integer semester,
-       // String section,
-       // String department
-       // );
        long countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndDepartmentAndStatusIn(
        Long institutionId,
        String course,
@@ -64,6 +55,27 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
        String department,
        java.util.Collection<com.attenza.backend.entity.StudentStatus> statuses
        );
+
+       
+       Optional<Student> findByRegistrationNo(String registrationNo);
+
+int countByInstitution_IdAndCourseAndBatchAndSemesterAndSection(
+    Long institutionId,
+    String course,
+    String batch,
+    Integer semester,
+    String section
+);
+
+int countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndAttendancePercentageGreaterThan(
+    Long institutionId,
+    String course,
+    String batch,
+    Integer semester,
+    String section,
+    Integer attendancePercentage
+);
+
 
 
 
