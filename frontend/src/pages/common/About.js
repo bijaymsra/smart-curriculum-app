@@ -200,7 +200,7 @@ export default function About() {
         <p>
           Join hundreds of educational institutions already using our platform
         </p>
-        <a href="signup.html" className={styles.ctaButton}>
+        <a href="signup" className={styles.ctaButton}>
           Request a Demo
         </a>
       </section>

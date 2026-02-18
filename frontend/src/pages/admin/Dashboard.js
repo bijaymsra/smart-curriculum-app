@@ -27,7 +27,6 @@ const dashboardApi = {
 
   // Get faculty stats
   getFacultyStats: async (institutionId) => {
-    const token = localStorage.getItem('token');
     const response = await authFetch(
       `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`,
       {
@@ -54,11 +53,6 @@ const dashboardApi = {
         }
       }
     );
-    if (!response.ok) {
-      // If endpoint doesn't exist yet, return default
-      console.warn('Courses stats endpoint not implemented yet');
-      return { totalCourses: 87, activeClassrooms: 24 };
-    }
     return response.json();
   }
 };
@@ -68,10 +62,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalFaculty: 0,
-    totalCourses: 0,
-    activeClassrooms: 0,
-    studentAttendance: 0,
-    facultyUtilization: 0
+    totalCourses: 0
   });
   const [alerts, setAlerts] = useState([]);
   const { admin, loading: adminLoading } = useAdmin();
@@ -132,68 +123,8 @@ export default function Dashboard() {
         setStats({
           totalStudents: studentStats.totalStudents || studentStats.total || 0,
           totalFaculty: facultyStats.totalFaculty || facultyStats.total || 0,
-          totalCourses: courseStats.totalCourses || 0,
-          activeClassrooms: courseStats.activeClassrooms || 0,
-          studentAttendance: studentStats.avgAttendance || studentStats.averageAttendance || 0,
-          facultyUtilization: facultyStats.avgUtilization || facultyStats.averageUtilization || 0
+          totalCourses: courseStats.totalCourses || 0
         });
-
-        // Generate dynamic alerts based on stats
-        const newAlerts = [];
-        
-        // Check for low attendance
-        if ((studentStats.avgAttendance || 0) < 75) {
-          newAlerts.push({
-            type: 'warning',
-            message: `Student attendance below 75% (${studentStats.avgAttendance || 0}%)`,
-            time: 'Recent'
-          });
-        }
-
-        // Check for low faculty utilization
-        if ((facultyStats.avgUtilization || 0) < 70) {
-          newAlerts.push({
-            type: 'warning',
-            message: `Faculty utilization below 70% (${facultyStats.avgUtilization || 0}%)`,
-            time: 'Recent'
-          });
-        }
-
-        // Check for warning faculty
-        if (facultyStats.warningFaculty && facultyStats.warningFaculty > 0) {
-          newAlerts.push({
-            type: 'warning',
-            message: `${facultyStats.warningFaculty} faculty members need attention`,
-            time: 'Recent'
-          });
-        }
-
-        // Check for suspended students
-        if (studentStats.suspendedStudents && studentStats.suspendedStudents > 0) {
-          newAlerts.push({
-            type: 'error',
-            message: `${studentStats.suspendedStudents} students are suspended`,
-            time: 'Recent'
-          });
-        }
-
-        // Add sample alerts if none generated
-        if (newAlerts.length === 0) {
-          newAlerts.push(
-            {
-              type: 'info',
-              message: 'System operating normally',
-              time: 'Today'
-            },
-            {
-              type: 'info',
-              message: 'All faculty utilization within optimal range',
-              time: 'Today'
-            }
-          );
-        }
-
-        setAlerts(newAlerts.slice(0, 4)); // Show max 4 alerts
 
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -201,15 +132,8 @@ export default function Dashboard() {
         setStats({
           totalStudents: 0,
           totalFaculty: 0,
-          totalCourses: 0,
-          activeClassrooms: 0,
-          studentAttendance: 0,
-          facultyUtilization: 0
+          totalCourses: 0
         });
-        setAlerts([
-          { type: 'warning', message: 'Could not load real-time data', time: 'Just now' },
-          { type: 'info', message: 'Using sample data', time: 'Just now' }
-        ]);
       } finally {
         setLoading(false);
       }
@@ -239,27 +163,6 @@ export default function Dashboard() {
       icon: BookOpen, 
       color: 'from-pink-500 to-pink-600', 
       change: '+8%' 
-    },
-    { 
-      title: 'Active Classrooms', 
-      value: formatNumber(stats.activeClassrooms), 
-      icon: Building2, 
-      color: 'from-indigo-500 to-indigo-600', 
-      change: '0%' 
-    },
-    { 
-      title: "Student Attendance", 
-      value: `${stats.studentAttendance.toFixed(1)}%`, 
-      icon: Calendar, 
-      color: stats.studentAttendance >= 75 ? 'from-emerald-500 to-emerald-600' : 'from-orange-500 to-orange-600', 
-      change: stats.studentAttendance >= 75 ? '+2.3%' : '-2.3%' 
-    },
-    { 
-      title: 'Faculty Utilization', 
-      value: `${stats.facultyUtilization.toFixed(1)}%`, 
-      icon: TrendingUp, 
-      color: stats.facultyUtilization >= 70 ? 'from-orange-500 to-orange-600' : 'from-red-500 to-red-600', 
-      change: stats.facultyUtilization >= 70 ? '+4%' : '-4%' 
     }
   ];
 
@@ -344,28 +247,12 @@ export default function Dashboard() {
               <AlertCircle className="text-orange-400" size={24} />
               Alerts & Warnings
             </h3>
-            <button className="text-sm text-blue-400 hover:text-blue-300">View All</button>
           </div>
+
           <div className="space-y-3">
-            {alerts.map((alert, idx) => (
-              <div key={idx} className={`p-4 rounded-xl border transition-all hover:scale-[1.02] cursor-pointer ${
-                alert.type === 'error' ? 'bg-red-500/10 border-red-500/30' :
-                alert.type === 'warning' ? 'bg-orange-500/10 border-orange-500/30' :
-                'bg-blue-500/10 border-blue-500/30'
-              }`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-white font-medium">{alert.message}</p>
-                    <p className="text-slate-400 text-xs mt-1">{alert.time}</p>
-                  </div>
-                  <AlertCircle size={20} className={
-                    alert.type === 'error' ? 'text-red-400' :
-                    alert.type === 'warning' ? 'text-orange-400' :
-                    'text-blue-400'
-                  } />
-                </div>
-              </div>
-            ))}
+            <p className="text-slate-300 text-sm">
+              You will be notified when there are any alerts or warnings.
+            </p>
           </div>
         </div>
 

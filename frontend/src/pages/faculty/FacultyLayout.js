@@ -197,7 +197,7 @@ const navItems = [
               </h2>
               <p className="text-slate-400 mt-1">
                 {activeLabel === "Dashboard" 
-                  ? `Welcome back, ${facultyData.fullName?.split(' ')[0] || "Professor"}! Here's your overview.`
+                  ? `Welcome back, ${facultyData.fullName?.split(' ')[2] || "Professor"}! Here's your overview.`
                   : `Manage ${activeLabel.toLowerCase()} efficiently`}
               </p>
             </div>
