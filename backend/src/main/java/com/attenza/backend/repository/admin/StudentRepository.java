@@ -59,24 +59,24 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
        
        Optional<Student> findByRegistrationNo(String registrationNo);
 
-int countByInstitution_IdAndCourseAndBatchAndSemesterAndSection(
-    Long institutionId,
-    String course,
-    String batch,
-    Integer semester,
-    String section
-);
+        int countByInstitution_IdAndCourseAndBatchAndSemesterAndSection(
+            Long institutionId,
+            String course,
+            String batch,
+            Integer semester,
+            String section
+        );
 
-int countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndAttendancePercentageGreaterThan(
-    Long institutionId,
-    String course,
-    String batch,
-    Integer semester,
-    String section,
-    Integer attendancePercentage
-);
+        int countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndAttendancePercentageGreaterThan(
+            Long institutionId,
+            String course,
+            String batch,
+            Integer semester,
+            String section,
+            Integer attendancePercentage
+        );
 
-
+        int countByCourse(String course);
 
 
 

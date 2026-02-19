@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, GraduationCap, BookOpen, Building2, Calendar, TrendingUp, AlertCircle, Plus, Clock} from 'lucide-react';
+import { Users, GraduationCap, BookOpen, TrendingUp} from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import API_BASE from "../../config/api";
@@ -54,8 +54,41 @@ const dashboardApi = {
       }
     );
     return response.json();
-  }
-};
+  },
+
+
+    // AI - Institution Insight
+    getAIInsight: async () => {
+      const response = await authFetch(`${API_BASE}/ai/test/admin/insight`);
+      return response.json();
+    },
+
+    // AI - Department Insights
+    getAIDepartments: async (institutionId) => {
+      const response = await authFetch(
+        `${API_BASE}/ai/test/admin/departments/${institutionId}`
+      );
+      return response.json();
+    },
+
+    // AI - Timetable Efficiency
+    getAIEfficiency: async () => {
+      const response = await authFetch(
+        `${API_BASE}/ai/test/admin/efficiency`
+      );
+      return response.json();
+    },
+
+    // AI - Student Risk
+    getAIStudentRisk: async () => {
+      const response = await authFetch(
+        `${API_BASE}/ai/test/admin/student-risk`
+      );
+      return response.json();
+    }
+
+    };
+
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -64,36 +97,16 @@ export default function Dashboard() {
     totalFaculty: 0,
     totalCourses: 0
   });
-  const [alerts, setAlerts] = useState([]);
   const { admin, loading: adminLoading } = useAdmin();
-  const navigate = useNavigate();
 
-  const quickActions = [
-    { 
-      label: 'Add Student', 
-      icon: Users, 
-      color: 'bg-blue-500 hover:bg-blue-600',
-      onClick: () => navigate('/admin/students/new')
-    },
-    { 
-      label: 'Add Faculty', 
-      icon: GraduationCap, 
-      color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => navigate('/admin/faculty/new')
-    },
-    { 
-      label: 'Create Course', 
-      icon: BookOpen, 
-      color: 'bg-pink-500 hover:bg-pink-600',
-      onClick: () => navigate('/admin/courses')
-    },
-    { 
-      label: 'Schedule Class', 
-      icon: Clock, 
-      color: 'bg-indigo-500 hover:bg-indigo-600',
-      onClick: () => navigate('/admin/timetable')
-    }
-  ];
+  /* ===== NEW AI STATE ===== */
+const [aiInsight, setAiInsight] = useState(null);
+const [departmentInsights, setDepartmentInsights] = useState([]);
+const [efficiency, setEfficiency] = useState(null);
+const [riskSummary, setRiskSummary] = useState(null);
+
+
+  const navigate = useNavigate();
 
   // Format numbers with commas
   const formatNumber = (num) => {
@@ -111,11 +124,33 @@ export default function Dashboard() {
         const institutionId = admin.institutionId;
 
         // Fetch data in parallel
-        const [studentStats, facultyStats, courseStats] = await Promise.all([
+        const [
+          studentStats,
+          facultyStats,
+          courseStats
+        ] = await Promise.all([
           dashboardApi.getStudentStats(institutionId),
           dashboardApi.getFacultyStats(institutionId),
-          dashboardApi.getCourseStats(institutionId)
+          dashboardApi.getCourseStats(institutionId),
         ]);
+
+        const [
+          insight,
+          departments,
+          efficiencyData,
+          riskData
+        ] = await Promise.all([
+          dashboardApi.getAIInsight(),
+          dashboardApi.getAIDepartments(institutionId),
+          dashboardApi.getAIEfficiency(),
+          dashboardApi.getAIStudentRisk()
+        ]);
+
+        setAiInsight(insight);
+        setDepartmentInsights(departments);
+        setEfficiency(efficiencyData);
+        setRiskSummary(riskData);
+
 
         console.log('Dashboard data:', { studentStats, facultyStats, courseStats });
 
@@ -125,6 +160,11 @@ export default function Dashboard() {
           totalFaculty: facultyStats.totalFaculty || facultyStats.total || 0,
           totalCourses: courseStats.totalCourses || 0
         });
+
+        setAiInsight(insight);
+        setDepartmentInsights(departments || []);
+        setEfficiency(efficiencyData);
+        setRiskSummary(riskData);
 
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -238,44 +278,113 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Alerts & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Alerts */}
-        <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertCircle className="text-orange-400" size={24} />
-              Alerts & Warnings
-            </h3>
+
+    {/* AI Institutional Intelligence */}
+    {aiInsight && (
+      <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <TrendingUp size={24} className="text-indigo-400" />
+          Smart Overview
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="bg-slate-900/40 p-4 rounded-xl">
+            <p className="text-slate-400 text-sm">Institution Attendance</p>
+            <p className="text-2xl font-bold text-white">
+              {aiInsight.institutionAttendanceAverage?.toFixed(1)}%
+            </p>
           </div>
 
-          <div className="space-y-3">
-            <p className="text-slate-300 text-sm">
-              You will be notified when there are any alerts or warnings.
+          <div className="bg-slate-900/40 p-4 rounded-xl">
+            <p className="text-slate-400 text-sm">At-Risk Students</p>
+            <p className="text-2xl font-bold text-red-400">
+              {aiInsight.atRiskStudents}
+            </p>
+          </div>
+
+          <div className="bg-slate-900/40 p-4 rounded-xl">
+            <p className="text-slate-400 text-sm">Underutilized Faculty</p>
+            <p className="text-2xl font-bold text-yellow-400">
+              {aiInsight.underUtilizedFaculty}
+            </p>
+          </div>
+
+        </div>
+      </div>
+    )}
+
+
+    {efficiency && (
+      <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
+        <h3 className="text-xl font-bold text-white mb-6">
+          Timetable Efficiency
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <p className="text-slate-400 text-sm">Efficiency Score</p>
+            <p className="text-2xl font-bold text-emerald-400">
+              {efficiency.efficiencyScore?.toFixed(1)}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-slate-400 text-sm">Lunch Compliance</p>
+            <p className="text-2xl font-bold text-indigo-400">
+              {efficiency.lunchComplianceRate?.toFixed(1)}%
+            </p>
+          </div>
+
+          <div>
+            <p className="text-slate-400 text-sm">Overload Rate</p>
+            <p className="text-2xl font-bold text-orange-400">
+              {efficiency.overloadRate?.toFixed(1)}%
+            </p>
+          </div>
+
+          <div>
+            <p className="text-slate-400 text-sm">Average Gap</p>
+            <p className="text-2xl font-bold text-white">
+              {efficiency.averageGapMinutes?.toFixed(0)} min
             </p>
           </div>
         </div>
+      </div>
+    )}
 
-        {/* Quick Actions */}
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Plus size={24} />
-            Quick Actions
-          </h3>
-          <div className="space-y-3">
-            {quickActions.map((action, idx) => (
-              <button 
-                key={idx} 
-                onClick={action.onClick}
-                className={`w-full ${action.color} text-white px-4 py-4 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:scale-[1.02] flex items-center gap-3`}
-              >
-                <action.icon size={20} />
-                {action.label}
-              </button>
-            ))}
-          </div>
+
+    {departmentInsights.length > 0 && (
+      <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
+        <h3 className="text-xl font-bold text-white mb-6">
+          Department Risk Analysis
+        </h3>
+
+        <div className="space-y-4">
+          {departmentInsights.slice(0, 5).map((dept, idx) => (
+            <div key={idx} className="flex justify-between items-center bg-slate-900/40 p-4 rounded-xl">
+              <div>
+                <p className="text-white font-medium">{dept.departmentName}</p>
+                <p className="text-sm text-slate-400">
+                  Faculty: {dept.facultyCount} • Students: {dept.studentCount}
+                </p>
+              </div>
+
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold
+                ${dept.riskLevel === 'HIGH'
+                  ? 'bg-red-500/20 text-red-400'
+                  : dept.riskLevel === 'MEDIUM'
+                  ? 'bg-yellow-500/20 text-yellow-400'
+                  : 'bg-emerald-500/20 text-emerald-400'
+                }`}>
+                {dept.riskLevel}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+    )}
+
     </div>
   );
 };

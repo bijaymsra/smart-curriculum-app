@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, Clock, TrendingUp, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Edit2, GraduationCap } from 'lucide-react';
+import { Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, Clock, TrendingUp, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";

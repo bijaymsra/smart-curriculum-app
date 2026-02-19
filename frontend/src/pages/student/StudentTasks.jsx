@@ -8,8 +8,7 @@ import {
   Zap,
   Plus,
   Calendar,
-  Trash2,
-  ChevronDown
+  Trash2
 } from "lucide-react";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";

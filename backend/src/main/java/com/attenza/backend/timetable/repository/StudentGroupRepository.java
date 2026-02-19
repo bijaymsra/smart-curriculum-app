@@ -18,4 +18,12 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Long
     );
 
     List<StudentGroup> findAllByInstitutionId(Long institutionId);
+    Optional<StudentGroup> findByInstitutionIdAndCourseAndBatchAndSemesterAndSection(
+        Long institutionId,
+        String course,
+        String batch,
+        Integer semester,
+        String section
+    );
+
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, Phone, MapPin, Save, Loader2 } from "lucide-react";
+import { User, Save, Loader2 } from "lucide-react";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useLocation, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, CheckCircle, Calendar, Target, FileText, User, Bell, LogOut, Award, Zap, Menu, X, Smartphone} from "lucide-react";
+import { BarChart3, CheckCircle, FileText, User, LogOut, Menu, X} from "lucide-react";
 
 const StudentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {  AlertCircle,ClipboardCheck,Percent, TrendingUp, PlayCircle, RefreshCw, FileText, Zap, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ExternalLink, CheckCircle, XCircle, Eye, Settings as SettingsIcon } from 'lucide-react';
+import {  AlertCircle,ClipboardCheck,Percent, TrendingUp, PlayCircle, RefreshCw, FileText, Zap, ArrowUpRight, ArrowDownRight, Calendar as CalendarIcon, ExternalLink, CheckCircle, XCircle, Eye } from 'lucide-react';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 
@@ -11,9 +11,7 @@ const FacultyDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [insights, setInsights] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-
-
-
+  const [aiRecommendations, setAiRecommendations] = useState([]);
 
 
   // Logic to determine what to show
@@ -35,12 +33,6 @@ const FacultyDashboard = () => {
 useEffect(() => {
   const fetchDashboard = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
 
       const res = await authFetch(`${API_BASE}/api/faculty/dashboard`);
 
@@ -63,30 +55,11 @@ useEffect(() => {
 }, []);
 
 
-
-  // Get faculty data
-  const faculty = {
-    id: sessionStorage.getItem("facultyId"),
-    fullName: sessionStorage.getItem("facultyName"),
-    department: sessionStorage.getItem("facultyDepartment"),
-    designation: sessionStorage.getItem("facultyDesignation") || "Assistant Professor",
-  };
-
-
-
-
 useEffect(() => {
   const fetchInsights = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-
-      const res = await fetch(
-        `${API_BASE}/api/faculty/dashboard/insights`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await authFetch(
+        `${API_BASE}/api/faculty/dashboard/insights`
       );
 
       if (!res.ok) throw new Error("Failed to fetch insights");
@@ -103,11 +76,32 @@ useEffect(() => {
 }, []);
 
 
+useEffect(() => {
+  const fetchAIRecommendations = async () => {
+    try {
+      const facultyId = sessionStorage.getItem("facultyId");
+      if (!facultyId) return;
+
+      const res = await authFetch(
+        `${API_BASE}/ai/test/faculty/${facultyId}/recommend`
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch AI recommendations");
+
+      const data = await res.json();
+      setAiRecommendations(data);
+
+    } catch (err) {
+      console.error("AI Recommendation error:", err);
+    }
+  };
+
+  fetchAIRecommendations();
+}, []);
 
 
 
-
-  // Insights data , will use python based script for this :
+  // Insights data , will use script for this :
 const getInsightStyle = (type) => {
   switch (type) {
     case "success":
@@ -185,13 +179,6 @@ const stats = dashboardData
       }
     ]
   : [];
-
-
-
-
-
-
-
 
   return (
     <div className="space-y-8">
@@ -352,6 +339,64 @@ const stats = dashboardData
               })}
             </div>
           </div>
+
+          {/* AI Timetable Intelligence */}
+          {aiRecommendations.length > 0 && (
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+                <TrendingUp className="text-indigo-400" size={22} />
+                Smart Intelligence
+              </h3>
+
+              <div className="space-y-4">
+                {aiRecommendations.map((rec, idx) => {
+
+                  let style = {
+                    bg: "bg-indigo-500/10",
+                    border: "border-indigo-500/30",
+                    text: "text-indigo-400",
+                    icon: TrendingUp
+                  };
+
+                  if (rec.severity === "ALERT") {
+                    style = {
+                      bg: "bg-red-500/10",
+                      border: "border-red-500/30",
+                      text: "text-red-400",
+                      icon: AlertCircle
+                    };
+                  }
+
+                  if (rec.severity === "SUGGESTION") {
+                    style = {
+                      bg: "bg-amber-500/10",
+                      border: "border-amber-500/30",
+                      text: "text-amber-400",
+                      icon: ClipboardCheck
+                    };
+                  }
+
+                  const Icon = style.icon;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`${style.bg} border ${style.border} rounded-xl p-4`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Icon className={`${style.text} mt-1`} size={20} />
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {rec.message}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Quick Actions */}
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">

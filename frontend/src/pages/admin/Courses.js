@@ -712,12 +712,6 @@ export default function Courses() {
   };
 
 
-
-
-
-
-
-
   useEffect(() => {
     console.table(
       courses.map(c => ({
@@ -726,10 +720,6 @@ export default function Courses() {
       }))
     );
   }, [courses]);
-
-
-
-
 
 
   return (

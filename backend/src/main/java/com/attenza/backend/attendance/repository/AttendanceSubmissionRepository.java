@@ -40,10 +40,17 @@ public interface AttendanceSubmissionRepository
         AttendanceSubmissionStatus status);
 
 
+        // long countByStudentIdAndStatus(Long studentId,
+        //         AttendanceSubmissionStatus status);
+
+        
+        long countByStudentId(Long studentId);
+
         long countByStudentIdAndStatus(
-    Long studentId,
-    AttendanceSubmissionStatus status
-);
+                Long studentId,
+                AttendanceSubmissionStatus status
+        );
+
 
 
 }

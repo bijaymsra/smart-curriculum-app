@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useLocation, NavLink } from "react-router-dom";
-import {Users, GraduationCap, Settings as SettingsIcon, BookOpen, Calendar, TrendingUp, Menu, X, BarChart3, Clock, Bell} from "lucide-react";
+import {Users, GraduationCap, Settings as SettingsIcon, BookOpen, Calendar, TrendingUp, Menu, X, BarChart3, Clock} from "lucide-react";
 
 import SystemStatus from "./SystemStatus";
 import { useAdmin } from "../../context/AdminContext";

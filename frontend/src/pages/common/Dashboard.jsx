@@ -497,14 +497,14 @@ export default function Dashboard() {
                 <div class="screenshot-item">
                     <img src={faculty} alt="Faculty Interface"/>
                     <div class="screenshot-caption">
-                        <h4>Faculty Interface</h4>
+                        <h4>Faculty Dashboard</h4>
                         <p>Live attendance tracking and class management tools</p>
                     </div>
                 </div>
                 <div class="screenshot-item">
                     <img src={admin} alt="Admin Analytics"/>
                     <div class="screenshot-caption">
-                        <h4>Admin Analytics</h4>
+                        <h4>Admin Dashboard</h4>
                         <p>Comprehensive insights and institutional management</p>
                     </div>
                 </div>

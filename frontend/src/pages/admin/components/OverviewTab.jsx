@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Activity, AlertTriangle, CheckCircle, Clock, ArrowUp, ArrowDown,PieChart, BarChart3, Target, Eye} from "lucide-react";
-import { useAdmin } from "../../../context/AdminContext";
 import API_BASE from "../../../config/api";
 import { authFetch } from "../../../utils/authFetch";
 import {
@@ -10,7 +9,6 @@ import {
 } from 'recharts';
 
 export default function OverviewTab() {
-  // const { admin } = useAdmin();
 
   const [data, setData] = useState({
     activeSessions: 0,

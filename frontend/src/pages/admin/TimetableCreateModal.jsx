@@ -9,7 +9,7 @@ import { authFetch } from "../../utils/authFetch";
    ========================================================= */
 
 export default function TimetableCreateModal({ open, onClose, onSuccess, editData }) {
-  const { admin, token, loading: adminLoading } = useAdmin();
+  const {admin} = useAdmin();
 
 
 
@@ -96,7 +96,7 @@ useEffect(() => {
 };
 
     loadMasterData();
-  }, [open]);
+  }, [open,admin?.institutionId]);
 
   /* =========================================================
      FORM INITIALIZATION
@@ -128,6 +128,8 @@ useEffect(() => {
     setFormErrors({});
   }, [open, editData]);
 
+
+
   /* =========================================================
      PREVIEW GENERATION
      ========================================================= */
@@ -154,6 +156,8 @@ useEffect(() => {
       updatePreview(form);
     }
   }, [form, studentGroups, courseOfferings, timeSlots, rooms]);
+
+
 
   /* =========================================================
      VALIDATION

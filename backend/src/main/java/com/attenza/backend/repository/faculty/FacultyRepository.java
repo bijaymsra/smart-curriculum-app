@@ -96,4 +96,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, Long> {
 
     Optional<Faculty> findByFacultyIdAndInstitution_PublicId(String facultyId, String institutionPublicId);
 
+
+
 }

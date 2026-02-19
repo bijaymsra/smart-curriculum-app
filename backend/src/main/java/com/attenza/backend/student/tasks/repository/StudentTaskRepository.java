@@ -14,4 +14,6 @@ public interface StudentTaskRepository extends JpaRepository<StudentTask, Long> 
     long countByStudentIdAndCompletedTrue(Long studentId);
 
     long countByStudentIdAndCompletedFalse(Long studentId);
+    List<StudentTask> findByStudentIdAndCompletedFalse(Long studentId);
+
 }

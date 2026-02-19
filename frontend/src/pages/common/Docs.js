@@ -911,8 +911,8 @@ export default function Docs() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-links">
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
+            <a href="/">Home</a>
+            <a href="about">About</a>
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); openTabProgrammatic("docs"); window.scrollTo(0, 0); }}

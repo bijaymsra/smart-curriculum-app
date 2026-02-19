@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { BarChart3, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 

@@ -5,14 +5,15 @@ import {
   TrendingUp,
   Users,
   Clock,
-  AlertCircle,
-  ChevronRight,
+  AlertCircle
 } from "lucide-react";
 
 const StudentDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+
 
   useEffect(() => {
     loadDashboard();
@@ -34,6 +35,32 @@ const StudentDashboard = () => {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+  const fetchAI = async () => {
+    try {
+      const studentId = sessionStorage.getItem("studentId");
+
+      if (!studentId) return;
+
+      const res = await authFetch(
+        `${API_BASE}/ai/test/student/${studentId}/recommend`
+      );
+
+      if (!res.ok) throw new Error("AI fetch failed");
+
+      const data = await res.json();
+      setAiRecommendations(data);
+
+    } catch (err) {
+      console.error("Student AI error:", err);
+    }
+  };
+
+  fetchAI();
+}, []);
+
 
   if (loading) {
     return (
@@ -198,6 +225,73 @@ const StudentDashboard = () => {
           </div>
         )}
       </div>
+
+
+{/* 🧠 AI Study Intelligence */}
+{aiRecommendations.length > 0 && (
+  <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
+    <div className="flex items-center justify-between mb-6">
+      <h3 className="text-white text-lg font-semibold flex items-center gap-2">
+        <AlertCircle className="text-indigo-400" size={20} />
+        Smart Study Intelligence
+      </h3>
+    </div>
+
+    <div className="space-y-4">
+      {aiRecommendations.map((rec, idx) => {
+
+        let style = {
+          bg: "bg-indigo-500/10",
+          border: "border-indigo-500/30",
+          text: "text-indigo-400"
+        };
+
+        if (rec.severity === "ALERT") {
+          style = {
+            bg: "bg-red-500/10",
+            border: "border-red-500/30",
+            text: "text-red-400"
+          };
+        }
+
+        if (rec.severity === "SUGGESTION") {
+          style = {
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/30",
+            text: "text-amber-400"
+          };
+        }
+
+        return (
+          <div
+            key={idx}
+            className={`${style.bg} border ${style.border} rounded-xl p-4`}
+          >
+            <p className={`text-sm ${style.text} font-medium`}>
+              {rec.message}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     </div>
   );
