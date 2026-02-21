@@ -1,0 +1,59 @@
+name: Build & Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/docker.yml'
+
+jobs:
+
+  backend:
+    if: contains(github.event.head_commit.message, 'backend') || contains(join(github.event.commits.*.modified, ','), 'backend/')
+    runs-on: ubuntu-latest
+    name: Build Backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Backend Image
+        run: |
+          cd backend
+          docker build -t techbabu/attenza-backend:latest .
+
+      - name: Push Backend Image
+        run: docker push techbabu/attenza-backend:latest
+
+
+  frontend:
+    if: contains(github.event.head_commit.message, 'frontend') || contains(join(github.event.commits.*.modified, ','), 'frontend/')
+    runs-on: ubuntu-latest
+    name: Build Frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Frontend Image
+        run: |
+          cd frontend
+          docker build -t techbabu/attenza-frontend:latest .
+
+      - name: Push Frontend Image
+        run: docker push techbabu/attenza-frontend:latest
