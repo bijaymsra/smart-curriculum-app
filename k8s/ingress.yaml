@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: attenza-ingress
+  namespace: attenza
+spec:
+  tls:
+    - hosts:
+        - attenza.local
+      secretName: attenza-tls
+  rules:
+    - host: attenza.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

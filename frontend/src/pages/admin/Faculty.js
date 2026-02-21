@@ -80,26 +80,22 @@ export default function Faculty() {
     total: {
       label: 'Total Faculty',
       icon: GraduationCap,
-      color: 'from-purple-500 to-purple-600',
-      trend: 'up'
+      color: 'from-purple-500 to-purple-600'
     },
     active: {
       label: 'Active',
       icon: Users,
-      color: 'from-emerald-500 to-emerald-600',
-      trend: 'up'
+      color: 'from-emerald-500 to-emerald-600'
     },
     avgUtilization: {
       label: 'Avg Utilization',
       icon: TrendingUp,
-      color: 'from-blue-500 to-blue-600',
-      trend: 'up'
+      color: 'from-blue-500 to-blue-600'
     },
     avgPunctuality: {
       label: 'Avg Punctuality',
       icon: Clock,
-      color: 'from-orange-500 to-orange-600',
-      trend: 'up'
+      color: 'from-orange-500 to-orange-600'
     }
   };
 
@@ -532,10 +528,6 @@ const refetchFacultyData = async () => {
             <div className="flex items-start justify-between mb-4">
               <div className={`p-3 bg-gradient-to-r ${stat.color} rounded-xl group-hover:shadow-lg transition-shadow`}>
                 <stat.icon size={24} className="text-white" />
-              </div>
-              <div className={`flex items-center gap-1 text-xs font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-slate-400'}`}>
-                <TrendingUp size={14} className={stat.trend === 'down' ? 'rotate-180' : ''} />
-                {stat.trend === 'up' ? '+2.5%' : '-1.2%'}
               </div>
             </div>
             <p className="text-slate-400 text-sm mb-1">{stat.label}</p>

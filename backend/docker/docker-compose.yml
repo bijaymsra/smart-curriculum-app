@@ -4,10 +4,10 @@ services:
     container_name: attenza-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: attenza_db
-      MYSQL_USER: attenza_user
-      MYSQL_PASSWORD: attenza_pass
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=attenza_db
+      - MYSQL_USER=attenza_user
+      - MYSQL_PASSWORD=attenza_pass
     ports:
       - "3306:3306"
     volumes:
@@ -15,9 +15,3 @@ services:
 
 volumes:
   mysql_data:
-
-
-# docker exec -it attenza-mysql mysql -u attenza_user -p attenza_db
-# curl -X PUT "http://localhost:8080/api/admin-approval/5?status=APPROVED"
-# local mysql to enter -> mysql -u attenza_user -p attenza_db
-# pass -> attenza_pass

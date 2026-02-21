@@ -1,0 +1,55 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: attenza_db
+      MYSQL_USER: attenza_user
+      MYSQL_PASSWORD: attenza_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - docker_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/attenza_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: attenza_user
+      SPRING_DATASOURCE_PASSWORD: attenza_pass
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://localhost:8080
+    container_name: attenza-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  docker_mysql_data:
+    external: true
+
+
+
+# docker exec -it attenza-mysql mysql -u attenza_user -p attenza_db
+# curl -X PUT "http://localhost:8080/api/admin-approval/5?status=APPROVED"
+# local mysql to enter -> mysql -u attenza_user -p attenza_db
+# pass -> attenza_pass

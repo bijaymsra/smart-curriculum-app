@@ -188,21 +188,18 @@ const [riskSummary, setRiskSummary] = useState(null);
       value: formatNumber(stats.totalStudents), 
       icon: Users, 
       color: 'from-blue-500 to-blue-600', 
-      change: '+12%' 
     },
     { 
       title: 'Total Faculty', 
       value: formatNumber(stats.totalFaculty), 
       icon: GraduationCap, 
       color: 'from-purple-500 to-purple-600', 
-      change: '+5%' 
     },
     { 
       title: 'Total Courses', 
       value: formatNumber(stats.totalCourses), 
       icon: BookOpen, 
       color: 'from-pink-500 to-pink-600', 
-      change: '+8%' 
     }
   ];
 
@@ -237,24 +234,6 @@ const [riskSummary, setRiskSummary] = useState(null);
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">
-              {/* Welcome back, {admin.fullName || 'Admin'}! */}
-            </h1>
-            <p className="text-slate-400 mt-1">
-              {admin.institutionName || 'Your Institution'} • {new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -264,13 +243,6 @@ const [riskSummary, setRiskSummary] = useState(null);
               <div className={`p-3 bg-gradient-to-r ${card.color} rounded-xl group-hover:scale-110 transition-transform duration-300`}>
                 <card.icon size={24} className="text-white" />
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                card.change.startsWith('+') ? 'bg-emerald-500/20 text-emerald-400' : 
-                card.change.startsWith('-') ? 'bg-red-500/20 text-red-400' : 
-                'bg-slate-700 text-slate-400'
-              }`}>
-                {card.change}
-              </span>
             </div>
             <h3 className="text-slate-400 text-sm mb-2">{card.title}</h3>
             <p className="text-3xl font-bold text-white">{card.value}</p>
@@ -279,7 +251,7 @@ const [riskSummary, setRiskSummary] = useState(null);
       </div>
 
 
-    {/* AI Institutional Intelligence */}
+    {/* Smart Intelligence */}
     {aiInsight && (
       <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">

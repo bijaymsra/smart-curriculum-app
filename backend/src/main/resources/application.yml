@@ -14,8 +14,14 @@ spring:
   #   driver-class-name: com.mysql.cj.jdbc.Driver
   
   # DOCKER MySQL Config (uncomment when using Docker)
+  # datasource: 
+  #   url: jdbc:mysql://localhost:3306/attenza_db
+  #   username: attenza_user
+  #   password: attenza_pass
+  #   driver-class-name: com.mysql.cj.jdbc.Driver
+
   datasource:
-    url: jdbc:mysql://localhost:3306/attenza_db
+    url: jdbc:mysql://mysql:3306/attenza_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: attenza_user
     password: attenza_pass
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -47,5 +53,12 @@ attendance:
     validity-seconds: 30
 
 
-# jwt:
-#   secret: "7f9a2b5c8e1d4f3a6b0c9d8e7f6a5b4c"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

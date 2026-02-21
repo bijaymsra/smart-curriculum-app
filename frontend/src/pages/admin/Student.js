@@ -28,30 +28,22 @@ export default function Student() {
     total: {
       label: 'Total Students',
       icon: Users,
-      color: 'from-blue-500 to-blue-600',
-      trend: 'up',
-      change: '+12.5%'
+      color: 'from-blue-500 to-blue-600'
     },
     active: {
       label: 'Active',
       icon: CheckCircle,
-      color: 'from-emerald-500 to-emerald-600',
-      trend: 'up',
-      change: '+5.2%'
+      color: 'from-emerald-500 to-emerald-600'
     },
     warning: {
       label: 'Warning',
       icon: AlertCircle,
-      color: 'from-orange-500 to-orange-600',
-      trend: 'down',
-      change: '-2.3%'
+      color: 'from-orange-500 to-orange-600'
     },
     suspended: {
       label: 'Suspended',
       icon: Ban,
-      color: 'from-red-500 to-red-600',
-      trend: 'down',
-      change: '-1.8%'
+      color: 'from-red-500 to-red-600'
     }
   };
 
@@ -290,10 +282,6 @@ export default function Student() {
             <div className="flex items-start justify-between mb-4">
               <div className={`p-3 bg-gradient-to-r ${stat.color} rounded-xl group-hover:shadow-lg transition-shadow`}>
                 <stat.icon size={24} className="text-white" />
-              </div>
-              <div className={`flex items-center gap-1 text-xs font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-slate-400'}`}>
-                <TrendingUp size={14} className={stat.trend === 'down' ? 'rotate-180' : ''} />
-                {stat.change}
               </div>
             </div>
             <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
