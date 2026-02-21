@@ -42,7 +42,6 @@ public class AdminStudentController {
     }
 
 
-    // adding student id for accesing individual student 
     @GetMapping("/{studentId}")
     public StudentResponse getStudentById(
             @PathVariable Long studentId,

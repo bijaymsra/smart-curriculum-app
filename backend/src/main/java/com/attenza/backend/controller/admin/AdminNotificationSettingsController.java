@@ -13,13 +13,11 @@ public class AdminNotificationSettingsController {
 
     private final AdminNotificationSettingsService service;
 
-    // 🔹 Load settings
     @GetMapping("/notifications")
     public AdminNotificationSettings getSettings(@RequestParam Long adminId) {
         return service.getSettings(adminId);
     }
 
-    // 🔹 Update settings (THIS fixes POST error)
     @PutMapping("/notifications")
     public void updateSettings(
             @RequestParam Long adminId,

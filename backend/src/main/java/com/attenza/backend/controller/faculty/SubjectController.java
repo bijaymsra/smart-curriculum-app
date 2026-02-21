@@ -79,7 +79,7 @@ public class SubjectController {
         return ResponseEntity.ok(
                 java.util.Map.of(
                         "totalCourses", totalCourses,
-                        "activeClassrooms", 0 // placeholder for now
+                        "activeClassrooms", 0 
                 )
         );
     }

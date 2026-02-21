@@ -75,7 +75,6 @@ public class FacultyManagementController {
         return ResponseEntity.ok().build();
     }
     
-    // Document Management
     @GetMapping("/{publicId}/documents")
     public ResponseEntity<List<DocumentResponse>> getFacultyDocuments(
             @PathVariable String publicId) {

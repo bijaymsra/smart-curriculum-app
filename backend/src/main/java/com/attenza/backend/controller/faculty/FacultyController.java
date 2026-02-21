@@ -151,9 +151,6 @@ public ResponseEntity<?> filterFaculty(
             @RequestParam(required = false) String format,
             @RequestParam Long institutionId) {
         
-        // Export logic (CSV, Excel, PDF)
-        // You can implement this based on your needs
-        
         List<FacultyResponse> facultyList = facultyService.getAllFaculty(institutionId, Pageable.unpaged())
                 .getContent();
         
@@ -164,7 +161,6 @@ public ResponseEntity<?> filterFaculty(
     }
 
     private String exportToCsv(List<FacultyResponse> facultyList) {
-        // Simple CSV export implementation
         StringBuilder csv = new StringBuilder();
         csv.append("Faculty ID,Name,Email,Department,Designation,Status,Utilization%,Rating\n");
         
