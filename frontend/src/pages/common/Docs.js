@@ -470,14 +470,7 @@ export default function Docs() {
                     <li>Career goals and learning preferences</li>
                 </ul>
 
-                <h4>2.2 Biometric Data</h4>
-                <ul>
-                    <li>Facial recognition data (stored as encrypted mathematical representations, not actual images)</li>
-                    <li>Biometric templates are hashed and cannot be reverse-engineered to recreate your image</li>
-                    <li>Collection occurs only with explicit consent and institutional authorization</li>
-                </ul>
-
-                <h4>2.3 Technical Data</h4>
+                <h4>2.2 Technical Data</h4>
                 <ul>
                     <li>Device information (type, OS version, browser)</li>
                     <li>IP address and approximate location (for geofencing verification)</li>
@@ -485,7 +478,7 @@ export default function Docs() {
                     <li>Login timestamps and session data</li>
                 </ul>
 
-                <h4>2.4 Behavioral Data</h4>
+                <h4>2.3 Behavioral Data</h4>
                 <ul>
                     <li>Task completion patterns and planner interactions</li>
                     <li>Study preferences and goal progression</li>

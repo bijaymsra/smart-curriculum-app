@@ -19,7 +19,6 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Load saved credentials if "Remember Me" was checked
   useEffect(() => {
     const savedUserType = localStorage.getItem("attenza_userType");
     const savedEmail = localStorage.getItem("attenza_email");
