@@ -1,14 +1,32 @@
-# Node (Frontend)
-frontend/node_modules/
-frontend/.env
-frontend/build/
-frontend/.DS_Store
+############################
+# ENV FILES
+############################
+.env
 
-# Java (Backend)
+############################
+# BACKEND
+############################
 backend/target/
-backend/.mvn/
-backend/*.jar
-backend/.DS_Store
+backend/*.log
 
-# General
+############################
+# FRONTEND
+############################
+frontend/node_modules/
+frontend/build/
+
+############################
+# OS FILES
+############################
 .DS_Store
+
+############################
+# IDE
+############################
+.idea/
+.vscode/
+
+############################
+# K8s certs
+############################
+k8s/certs/

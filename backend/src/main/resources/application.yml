@@ -5,26 +5,12 @@ server:
 spring:
   application:
     name: attenza-backend
-  
-  # LOCAL MySQL Config (uncomment when using local MySQL)
-  # datasource:
-  #   url: jdbc:mysql://localhost:3306/attenza_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-  #   username: attenza_user
-  #   password: attenza_pass
-  #   driver-class-name: com.mysql.cj.jdbc.Driver
-  
-  # DOCKER MySQL Config (uncomment when using Docker)
-  datasource: 
-    url: jdbc:mysql://localhost:3306/attenza_db
-    username: attenza_user
-    password: attenza_pass
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # datasource:
-  #   url: jdbc:mysql://mysql:3306/attenza_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-  #   username: attenza_user
-  #   password: attenza_pass
-  #   driver-class-name: com.mysql.cj.jdbc.Driver
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -37,8 +23,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: 3techsoul@gmail.com
-    password: nhuo tblu egzf jino
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -46,12 +32,10 @@ spring:
           starttls:
             enable: true
 
-
 attendance:
   qr:
-    secret: "A7xQpN9mZC8eFJ3K2R0dS1B4H6V5LWyT"
-    validity-seconds: 30
-
+    secret: ${QR_SECRET}
+    validity-seconds: ${QR_VALIDITY_SECONDS:30}
 
 management:
   endpoints:

@@ -8,10 +8,6 @@ RUN npm install
 
 COPY . .
 
-# Inject API URL for Docker environment
-ARG REACT_APP_API_BASE_URL
-ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
-
 RUN npm run build
 
 # ---------- Stage 2: Serve ----------
