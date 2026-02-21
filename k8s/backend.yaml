@@ -15,23 +15,13 @@ spec:
     spec:
       containers:
         - name: backend
-          image: attenza-backend:1.0
-          imagePullPolicy: Never
+          image: techbabu/attenza-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://mysql:3306/attenza_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_USER
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_PASSWORD
+          envFrom:
+            - secretRef:
+                name: attenza-secret
 ---
 apiVersion: v1
 kind: Service

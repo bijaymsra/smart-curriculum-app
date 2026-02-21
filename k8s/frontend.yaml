@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: attenza-frontend:2.0
-          imagePullPolicy: Never
+          image: techbabu/attenza-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
 ---

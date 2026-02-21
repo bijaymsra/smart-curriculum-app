@@ -1,4 +1,4 @@
-# Smart Curriculum & Attendance Management System
+# Smart Curriculum & Personalized Management System
 
 ## Tech Stack
 - React
