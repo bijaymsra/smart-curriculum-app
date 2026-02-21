@@ -40,7 +40,7 @@ public class Faculty {
     private String publicId;
 
     @Column(name = "faculty_id", unique = true, nullable = false)
-    private String facultyId; // Official university ID
+    private String facultyId; 
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -217,7 +217,7 @@ public class Faculty {
     private String panNumber;
 
     @Column(name = "uan_number")
-    private String uanNumber; // For PF
+    private String uanNumber; 
 
     /* =========================
        RESEARCH & PUBLICATIONS

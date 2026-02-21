@@ -1,7 +1,7 @@
 package com.attenza.backend.dto.faculty;
 
 import com.attenza.backend.entity.enums.EmploymentType;
-import com.attenza.backend.entity.enums.FacultyStatus;  // Add this import
+import com.attenza.backend.entity.enums.FacultyStatus; 
 import com.attenza.backend.entity.enums.Gender;
 import jakarta.validation.constraints.Email;
 import lombok.Data;

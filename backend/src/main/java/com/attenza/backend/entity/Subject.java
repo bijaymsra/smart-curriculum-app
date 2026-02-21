@@ -24,7 +24,7 @@ public class Subject {
     private Long id;
 
     @Column(name = "subject_code", unique = true, nullable = false)
-    private String subjectCode; // e.g., CS101, ECE201
+    private String subjectCode; 
 
     @Column(name = "subject_name", nullable = false)
     private String subjectName;

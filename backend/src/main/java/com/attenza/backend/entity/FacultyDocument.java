@@ -24,16 +24,16 @@ public class FacultyDocument {
     private String documentName;
 
     @Column(name = "document_type")
-    private String documentType; // PDF, JPG, DOC, etc.
+    private String documentType; 
 
     @Column(name = "document_category")
-    private String category; // QUALIFICATION, IDENTITY, EMPLOYMENT, RESEARCH, OTHER
+    private String category; 
 
     @Column(name = "file_path", nullable = false)
     private String filePath;
 
     @Column(name = "file_size")
-    private Long fileSize; // in bytes
+    private Long fileSize; 
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
@@ -42,7 +42,7 @@ public class FacultyDocument {
     private Boolean verified = false;
 
     @Column(name = "verified_by")
-    private String verifiedByAdminId; // Admin publicId
+    private String verifiedByAdminId; 
 
     @Column(name = "verification_date")
     private LocalDateTime verificationDate;

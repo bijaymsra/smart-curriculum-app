@@ -19,7 +19,7 @@ public class Department {
     private Long id;
 
     @Column(name = "department_code", unique = true, nullable = false)
-    private String departmentCode; // e.g., CSE, ECE, ME
+    private String departmentCode; 
 
     @Column(name = "department_name", nullable = false)
     private String departmentName;
@@ -29,7 +29,7 @@ public class Department {
     private Institution institution;
 
     @Column(name = "hod_faculty_id")
-    private String hodFacultyPublicId; // Reference by publicId
+    private String hodFacultyPublicId; 
 
     @Column(columnDefinition = "TEXT")
     private String description;

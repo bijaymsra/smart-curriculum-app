@@ -16,9 +16,8 @@ public class AdminPreferenceSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // UI Preferences
-    private String theme = "dark";   // dark | light
-    private String language = "en";  // future-proof
+    private String theme = "dark";   
+    private String language = "en"; 
     private String timezone = "Asia/Kolkata";
 
     @OneToOne(fetch = FetchType.LAZY)

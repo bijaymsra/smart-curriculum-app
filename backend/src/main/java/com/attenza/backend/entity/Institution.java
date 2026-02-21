@@ -19,7 +19,6 @@ public class Institution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔐 SAFE PUBLIC ID (frontend-safe)
     @Column(nullable = false, unique = true, updatable = false)
     private String publicId;
 
@@ -41,7 +40,6 @@ public class Institution {
 
     private LocalDateTime createdAt;
 
-    // ✅ Auto-generate fields before insert
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
