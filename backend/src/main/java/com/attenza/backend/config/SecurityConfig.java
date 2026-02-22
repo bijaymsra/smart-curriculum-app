@@ -35,9 +35,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                         // Allow actuator health for Kubernetes
-                        .requestMatchers("/actuator/health/**").permitAll()
-                        .requestMatchers("/actuator/info").permitAll()
+                         // Allow actuator for all end points
+                        .requestMatchers("/actuator/**").permitAll()
                         // Existing public endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
