@@ -59,7 +59,8 @@ public class SecurityConfig {
 
         config.setAllowedOriginPatterns(List.of(
         "http://localhost:*",
-        "https://localhost:*"
+        "https://localhost:*",
+        "https://attenza.bijaymsra.site"
         ));
 
         config.setAllowedMethods(List.of(
