@@ -300,8 +300,8 @@ export default function SessionsTab() {
             </thead>
 
             <tbody className="divide-y divide-slate-700/50">
-              {currentSessions.length === 0 ? (
-                <tr>
+              {currentSessions.length === 0 ? ( 
+                  <tr className="bg-transparent hover:bg-transparent">
                   <td colSpan="6" className="text-center py-12">
                     <div className="flex flex-col items-center">
                       <Calendar className="text-slate-600 mb-3" size={40} />

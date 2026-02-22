@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap, Building, Award, Plus, X, Save, AlertCircle, Heart, ArrowLeft, BookOpen, Shield, Book, Users, Flag, University, PhoneCall, CheckCircle, ExternalLink, Eye, Lock, Send} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
@@ -8,9 +8,45 @@ import { authFetch } from "../../utils/authFetch";
 export default function AddFaculty() {
   const { admin, loading } = useAdmin();
   const institutionId = admin?.institutionId;
+  const [departments, setDepartments] = useState([]);
 
 
   const navigate = useNavigate();
+  const [loadingState, setLoading] = useState({
+    departments: false,
+  });
+
+
+
+    const fetchDepartments = useCallback(async () => {
+      if (!institutionId) return;
+
+      setLoading(prev => ({ ...prev, departments: true }));
+
+      try {
+        const res = await authFetch(
+          `${API_BASE}/api/admin/departments?institutionId=${institutionId}`,
+          { signal: AbortSignal.timeout(10000) }
+        );
+
+        if (!res.ok) throw new Error(`Failed to fetch departments`);
+
+        const data = await res.json();
+        setDepartments(data);
+
+      } catch (err) {
+        console.error("Fetch departments error:", err);
+      } finally {
+        setLoading(prev => ({ ...prev, departments: false }));
+      }
+    }, [institutionId]);
+
+
+    useEffect(() => {
+      if (!admin?.institutionId) return;
+      fetchDepartments();      
+    }, [admin?.institutionId, fetchDepartments]);
+
   
   // Form state with all required fields
   const [formData, setFormData] = useState({
@@ -19,7 +55,8 @@ export default function AddFaculty() {
     email: '',
     
     // Section 2: Employment Details (Required)
-    department_id: '',
+    // department_id: '',
+    departmentCode: '',
     designation: '',
     employment_type: 'PERMANENT',
     join_date: '',
@@ -56,19 +93,6 @@ export default function AddFaculty() {
   // Form flow state
   const [currentStep, setCurrentStep] = useState(1); 
   
-  // Departments data
-  const departments = [
-    { id: 1, code: 'CSE', name: 'Computer Science and Engineering' },
-    { id: 2, code: 'ECE', name: 'Electronics and Communication Engineering' },
-    { id: 3, code: 'ME', name: 'Mechanical Engineering' },
-    { id: 4, code: 'CE', name: 'Civil Engineering' },
-    { id: 5, code: 'EEE', name: 'Electrical and Electronics Engineering' },
-    { id: 6, code: 'IT', name: 'Information Technology' },
-    { id: 7, code: 'MATHS', name: 'Mathematics' },
-    { id: 8, code: 'PHYSICS', name: 'Physics' },
-    { id: 9, code: 'CHEMISTRY', name: 'Chemistry' },
-    { id: 10, code: 'MANAGEMENT', name: 'Management Studies' }
-  ];
   
   const designations = [
     'Assistant Professor',
@@ -107,18 +131,37 @@ export default function AddFaculty() {
   const maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
   const nationalities = ['Indian', 'Other'];
   
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
   
-  const department = departments.find(
-  d => d.id === Number(formData.department_id)
-  );
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "pincode" && value.length === 6) {
+      try {
+        const res = await fetch(
+          `https://api.postalpincode.in/pincode/${value}`
+        );
+        const data = await res.json();
+
+        if (data[0].Status === "Success") {
+          const postOffice = data[0].PostOffice[0];
+
+          setFormData((prev) => ({
+            ...prev,
+            city: postOffice.District,
+            state: postOffice.State,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching pincode data:", error);
+      }
+    }
+  };
+
 
 const buildFacultyPayload = () => ({
   fullName: formData.full_name,
@@ -133,7 +176,7 @@ const buildFacultyPayload = () => ({
   pincode: formData.pincode,
 
   designation: formData.designation,
-  departmentCode: department?.code,
+  departmentCode: formData.departmentCode,
   joinDate: formData.join_date,
   employmentType: formData.employment_type,
 
@@ -196,7 +239,7 @@ const buildFacultyPayload = () => ({
   const isBasicInfoComplete = () => {
     const requiredFields = [
       'full_name', 'email',
-      'department_id', 'designation', 'employment_type', 'join_date',
+      'departmentCode', 'designation', 'employment_type', 'join_date',
       'phone', 'emergency_contact',
       'address', 'city', 'state', 'pincode',
       'qualification', 'specialization', 'experience_years',
@@ -300,30 +343,56 @@ const buildFacultyPayload = () => ({
         
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
             {/* Department */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                <span className="flex items-center gap-2">
-                  <Building size={16} />
-                  Department
-                  <span className="text-red-400">*</span>
-                </span>
-              </label>
-              <select
-                name="department_id"
-                value={formData.department_id}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                required
-              >
-                <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name} ({dept.code})
-                  </option>
-                ))}
-              </select>
-            </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              <span className="flex items-center gap-2">
+                <Building size={16} />
+                Department
+                <span className="text-red-400">*</span>
+              </span>
+            </label>
+
+            <select
+              name="departmentCode"
+              value={formData.departmentCode || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  departmentCode: e.target.value,
+                }))
+              }
+              disabled={loadingState.departments}
+              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              required
+            >
+              {loadingState.departments && (
+                <option value="">Loading departments...</option>
+              )}
+
+              {!loadingState.departments && departments.length === 0 && (
+                <option value="">
+                  No departments found. Create one first.
+                </option>
+              )}
+
+              {!loadingState.departments && departments.length > 0 && (
+                <>
+                  <option value="">Select Department</option>
+                  {departments.map((dept) => (
+                    <option
+                      key={dept.id}
+                      value={dept.departmentCode}
+                    >
+                      {dept.departmentName} ({dept.departmentCode})
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
+          </div>
             
             {/* Designation */}
             <div>
@@ -500,39 +569,7 @@ const buildFacultyPayload = () => ({
                 required
               />
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  City<span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  placeholder="City"
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  State<span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  placeholder="State"
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                  required
-                />
-              </div>
-            </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Pincode<span className="text-red-400">*</span>
@@ -547,6 +584,38 @@ const buildFacultyPayload = () => ({
                 required
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  City<span className="text-red-400">*</span>
+                </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    placeholder="autofetching..."
+                    readOnly
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white"
+                  />
+
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  State<span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  placeholder="autofetching..."
+                  readOnly
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

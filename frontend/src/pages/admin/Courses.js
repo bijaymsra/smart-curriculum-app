@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {Users, BookOpen, Plus, X, Search, Trash2,Loader2, AlertCircle, CheckCircle,Building2, GraduationCap, Clock} from 'lucide-react';
+import {Users, BookOpen, Plus, X, Search, Trash2,Loader2, AlertCircle, CheckCircle,Building2, GraduationCap, Clock, Calendar, BarChart3} from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import './Courses.css'; 
 import API_BASE from "../../config/api";
@@ -126,6 +126,7 @@ export default function Courses() {
     }
   }, [admin?.institutionId]);
 
+  
   useEffect(() => {
     if (!admin?.institutionId) return;
     
@@ -303,53 +304,6 @@ export default function Courses() {
       setError('Failed to add department. Please try again.');
     } finally {
       setLoading(prev => ({ ...prev, departments: false }));
-    }
-  };
-
-  const handleDeleteDepartment = async (id, name) => {
-    // Check if any courses are using this department
-    const hasCourses = courses.some(c => c.departmentId === id);
-    if (hasCourses) {
-      setError(`Cannot delete "${name}" - it has associated courses`);
-      setTimeout(() => setError(null), 5000);
-      return;
-    }
-    
-    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
-    
-    setDeletingId(id);
-    
-    try {
-      await authFetch(
-        `${API_BASE}/api/admin/departments/${id}?institutionId=${admin.institutionId}`,
-        {
-          method: 'DELETE'
-        }
-      );
-      
-      setDepartments(prev => {
-        const updated = prev.filter(d => d.id !== id);
-        
-        // Remove from existing codes
-        const deletedDept = prev.find(d => d.id === id);
-        if (deletedDept) {
-          setExistingCodes(prevCodes => ({
-            ...prevCodes,
-            departments: new Set([...prevCodes.departments].filter(code => 
-              code !== deletedDept.departmentCode.toUpperCase()
-            ))
-          }));
-        }
-        
-        return updated;
-      });
-      
-      setSuccessMessage('Department deleted successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (err) {
-      setError('Failed to delete department. Please try again.');
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -556,6 +510,7 @@ export default function Courses() {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
         {filteredCourses.map(course => {
           const dept = departments.find(d => d.id === course.departmentId);
           return (
@@ -692,17 +647,6 @@ export default function Courses() {
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => handleDeleteDepartment(dept.id, dept.departmentName)}
-                  disabled={deletingId === dept.id}
-                  className="opacity-0 group-hover:opacity-100 ml-4 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-300 disabled:opacity-50"
-                >
-                  {deletingId === dept.id ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Trash2 size={18} />
-                  )}
-                </button>
               </div>
             </div>
           );
@@ -724,6 +668,28 @@ export default function Courses() {
 
   return (
     <div className="courses-container space-y-6 p-4 md:p-6">
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+        
+        {/* Quick Stats Badge */}
+        <div className="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+          <BarChart3 className="text-blue-400" size={20} />
+          <span className="text-sm text-slate-300">Real-time updates</span>
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </div>
+      </div>
+
       {/* NOTIFICATION BANNERS */}
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg flex items-center gap-3 animate-fade-in">
@@ -1057,22 +1023,6 @@ function StatCard({ title, value, icon: Icon, color, loading }) {
     </div>
   );
 }
-
-// function EnhancedModal({ children, onClose }) {
-//   return (
-//     <div 
-//       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
-//       onClick={onClose}
-//     >
-//       <div 
-//         className="bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up"
-//         onClick={e => e.stopPropagation()}
-//       >
-//         {children}
-//       </div>
-//     </div>
-//   );
-// }
 
 
 function EnhancedModal({ children, onClose }) {

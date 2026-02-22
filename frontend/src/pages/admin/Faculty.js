@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, GraduationCap, TrendingUp, AlertCircle, Plus, Clock, Search, Filter, Download, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight} from 'lucide-react';
+import { Users, GraduationCap, TrendingUp, AlertCircle, Plus, Clock, Search, Filter, Eye, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Calendar, BarChart3} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
@@ -428,9 +428,6 @@ const refetchFacultyData = async () => {
 };
 
 
-
-
-
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
@@ -521,6 +518,27 @@ const refetchFacultyData = async () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+        
+        {/* Quick Stats Badge */}
+        <div className="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+          <BarChart3 className="text-blue-400" size={20} />
+          <span className="text-sm text-slate-300">Real-time updates</span>
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </div>
+      </div>
+
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
@@ -589,11 +607,6 @@ const refetchFacultyData = async () => {
               >
                 <Filter size={20} />
                 Filters
-              </button>
-
-              <button className="px-4 py-3 bg-slate-700/50 hover:bg-slate-700 text-white rounded-xl transition-colors flex items-center gap-2 border border-slate-600/50">
-                <Download size={20} />
-                Export
               </button>
 
               <button
@@ -849,8 +862,8 @@ const refetchFacultyData = async () => {
                     </td>
                   </tr>
                 ))
-              ) : (
-                <tr>
+              ) : (                
+                  <tr className="bg-transparent hover:bg-transparent">
                   <td colSpan="8" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <GraduationCap className="text-slate-500" size={48} />

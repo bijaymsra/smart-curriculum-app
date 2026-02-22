@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {Users, Edit2, Calendar, Plus, Clock, Search, Trash2, Loader2, TrendingUp, X, Building, User, BookOpen} from "lucide-react";
+import {Users, Edit2, Calendar, Plus, Clock, Search, Trash2, Loader2, TrendingUp, X, Building, User, BookOpen, BarChart3} from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 import API_BASE from "../../config/api";
 import TimetableCreateModal from "./TimetableCreateModal";
@@ -190,6 +190,27 @@ export default function Timetable() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+        
+        {/* Quick Stats Badge */}
+        <div className="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+          <BarChart3 className="text-blue-400" size={20} />
+          <span className="text-sm text-slate-300">Real-time updates</span>
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </div>
+      </div>
 
       {/* ================= ENHANCED STATS ================= */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

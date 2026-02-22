@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key} from 'lucide-react';
+import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key, BarChart3} from 'lucide-react';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 
@@ -335,6 +335,26 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+        
+        {/* Quick Stats Badge */}
+        <div className="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+          <BarChart3 className="text-blue-400" size={20} />
+          <span className="text-sm text-slate-300">Real-time updates</span>
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </div>
+      </div>
 
       {/* Tab Navigation */}
       <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-2 border border-slate-700/50">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, AlertCircle, Search, Filter, Eye, Award, Ban, CheckCircle, Clock, TrendingUp, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, GraduationCap } from 'lucide-react';
+import { Users, AlertCircle, Search, Filter, Eye, Ban, CheckCircle, Clock, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, GraduationCap, Calendar, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
@@ -275,6 +275,28 @@ export default function Student() {
   
   return (
     <div className="space-y-6">
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 mt-1 flex items-center gap-2">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+        
+        {/* Quick Stats Badge */}
+        <div className="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+          <BarChart3 className="text-blue-400" size={20} />
+          <span className="text-sm text-slate-300">Real-time updates</span>
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        </div>
+      </div>
+
       {/* Enhanced Stats with Trends */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => (
@@ -288,37 +310,6 @@ export default function Student() {
             <p className="text-3xl font-bold text-white">{stat.value}</p>
           </div>
         ))}
-      </div>
-
-      {/* Quick Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <Award className="text-blue-400" size={20} />
-            <div>
-              <p className="text-slate-400 text-xs">Top Performer This Month</p>
-              <p className="text-white font-semibold">Amit Kumar - 95% Attendance</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/20 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="text-orange-400" size={20} />
-            <div>
-              <p className="text-slate-400 text-xs">Students Below 75%</p>
-              <p className="text-white font-semibold">100 Students Need Attention</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <Users className="text-purple-400" size={20} />
-            <div>
-              <p className="text-slate-400 text-xs">New Admissions</p>
-              <p className="text-white font-semibold">125 Students This Semester</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}
@@ -355,11 +346,6 @@ export default function Student() {
               >
                 <Filter size={20} />
                 Filters
-              </button>
-
-              <button className="px-4 py-3 bg-slate-700/50 hover:bg-slate-700 text-white rounded-xl transition-colors flex items-center gap-2 border border-slate-600/50">
-                <Download size={20} />
-                Export
               </button>
 
               <button
@@ -549,7 +535,7 @@ export default function Student() {
             <tbody className="divide-y divide-slate-700/50">
               {paginatedStudents.length > 0 ? (
                 paginatedStudents.map((student, idx) => (
-                  <tr key={idx} className="hover:bg-slate-700/20 transition-all group">
+                  <tr key={idx} className="group transition-colors hover:bg-slate-800/40">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="relative">
@@ -704,7 +690,7 @@ export default function Student() {
                   </tr>
                 ))
               ) : (
-                <tr>
+                <tr className="bg-transparent hover:bg-transparent">
                   <td colSpan="9" className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center justify-center gap-4">
                       <div className="w-20 h-20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl flex items-center justify-center">

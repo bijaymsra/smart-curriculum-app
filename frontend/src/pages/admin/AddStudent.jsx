@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
@@ -29,9 +29,47 @@ export default function AddStudent() {
     guardianPhone: "",
   });
 
-const [saving, setSaving] = useState(false);
-const [error, setError] = useState("");
-const [success, setSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState({ departments: false });
+
+
+ const fetchDepartments = useCallback(async () => {
+    setLoading(prev => ({ ...prev, departments: true }));
+    try {
+      const res = await authFetch(
+        `${API_BASE}/api/admin/departments?institutionId=${admin.institutionId}`,
+        { 
+          signal: AbortSignal.timeout(10000)
+        }
+      );
+      
+      if (!res.ok) throw new Error(`Failed to fetch departments: ${res.status}`);
+      
+      const data = await res.json();
+      setDepartments(data);
+
+
+    if (!data.some(d => d.departmentCode === form.department)) {
+      update("department", "");
+    }
+      
+      setError(null);
+    } catch (err) {
+      console.error('Fetch departments error:', err);
+      setError('Unable to load departments. Please try again.');
+    } finally {
+      setLoading(prev => ({ ...prev, departments: false }));
+    }
+    }, [admin?.institutionId, form.department]);
+
+
+    useEffect(() => {
+      if (!admin?.institutionId) return;
+      fetchDepartments();      
+    }, [admin?.institutionId, fetchDepartments]);
 
 
 const handleSubmit = async () => {
@@ -44,7 +82,11 @@ const handleSubmit = async () => {
       return;
     }
 
-    // basic validation
+    if (departments.length === 0) {
+      setError("Please create a department before adding students.");
+      return;
+    }
+
     if (!form.fullName || !form.email || !form.course || !form.department || !form.batch || !form.semester || !form.section) {
       setError("Please fill all required fields (*)");
       return;
@@ -119,10 +161,6 @@ const handleSubmit = async () => {
     }
   };
 
-
-
-
-
   const update = (k, v) => setForm({ ...form, [k]: v });
 
   return (
@@ -142,9 +180,15 @@ const handleSubmit = async () => {
         <div>
           <h2 className="text-2xl font-bold text-white">Add New Student</h2>
           <p className="text-slate-400 text-sm">
-            Student will be created in <b>PENDING</b> status. Credentials are sent only after approval.
+            Student will be created in{" "}
+            <span className="text-yellow-400 font-semibold">PENDING</span> status.
+            Credentials are sent only after approval.
+          </p>
+          <p className="text-red-400 text-xs mt-2">
+          * Marked fields are mandatory.
           </p>
         </div>
+
 
         {/* BASIC INFO */}
         <section className="space-y-4">
@@ -196,6 +240,7 @@ const handleSubmit = async () => {
                 className="input"
                 placeholder="Date of Birth"
             />
+
             </div>
 
         </section>
@@ -212,12 +257,40 @@ const handleSubmit = async () => {
             onChange={e => update("course", e.target.value)}
             />
 
-            <input
-            placeholder="Department *"
+          <select
             className="input"
             value={form.department}
             onChange={e => update("department", e.target.value)}
-            />
+            disabled={loading.departments || departments.length === 0}
+          >
+            {/* Loading State */}
+            {loading.departments && (
+              <option value="">Loading departments...</option>
+            )}
+
+            {/* No Department Found */}
+            {!loading.departments && departments.length === 0 && (
+              <option value="">
+                Create Department at Course Management.
+              </option>
+            )}
+
+
+            {/* Normal State */}
+            {!loading.departments && departments.length > 0 && (
+              <>
+                <option value="">Select Department *</option>
+                {departments.map((dept) => (
+                  <option
+                    key={dept.departmentId || dept.id}
+                    value={dept.departmentCode}   
+                  >
+                    {dept.departmentName} ({dept.departmentCode})
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
 
             <input
             placeholder="Batch *"
@@ -307,7 +380,7 @@ const handleSubmit = async () => {
         {success && (
         <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
             <p className="text-emerald-400 font-medium">
-            ✅ Student created successfully.
+            Student created successfully.
             </p>
             <p className="text-slate-400 text-sm mt-1">
             Student is currently in <b>PENDING</b> status. Credentials will be sent after approval.
@@ -315,7 +388,7 @@ const handleSubmit = async () => {
         </div>
         )}
 
-                {error && (
+        {error && (
         <p className="text-red-400 text-sm">
             {error}
         </p>
@@ -323,39 +396,39 @@ const handleSubmit = async () => {
 
 
         {/* ACTIONS */}
-<div className="flex gap-3 pt-4 border-t border-slate-700">
+        <div className="flex gap-3 pt-4 border-t border-slate-700">
 
-  {!success ? (
-    <button
-      onClick={handleSubmit}
-      disabled={saving}
-      className={`flex-1 px-6 py-3 rounded-xl font-medium transition
-        ${
-          saving
-            ? "bg-slate-600 text-slate-300 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600 text-white"
-        }
-      `}
-    >
-      {saving ? "Creating student..." : "Create Student"}
-    </button>
-  ) : (
-    <button
-      onClick={() => setSuccess(false)}
-      className="flex-1 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl"
-    >
-      Add Another Student
-    </button>
-  )}
+          {!success ? (
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className={`flex-1 px-6 py-3 rounded-xl font-medium transition
+                ${
+                  saving
+                    ? "bg-slate-600 text-slate-300 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                }
+              `}
+            >
+              {saving ? "Creating student..." : "Create Student"}
+            </button>
+          ) : (
+            <button
+              onClick={() => setSuccess(false)}
+              className="flex-1 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl"
+            >
+              Add Another Student
+            </button>
+          )}
 
-  <button
-    onClick={() => navigate(-1)}
-    className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl"
-  >
-    Back to Students
-  </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl"
+          >
+            Back to Students
+          </button>
 
-</div>
+        </div>
 
 
       </div>

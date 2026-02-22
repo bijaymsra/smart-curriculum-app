@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Users,Briefcase, BookOpen, TrendingUp, Edit, Eye, Mail, Calendar, FileText, Shield, Activity, Save, Trash2, Upload, CreditCard, CheckCircle, Star, Target, CalendarDays, Clock3, ArrowLeft } from 'lucide-react';
+import { Users,Briefcase, BookOpen, TrendingUp, Edit, Mail, Calendar, Shield, Activity, Save, Trash2, CreditCard, Star, Target, Clock3, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import API_BASE from "../../config/api";
 
 const facultyManagementApi = {
-  // Get faculty by ID - Updated to match your working pattern
     getFacultyById: async (facultyId, institutionId) => {
       const token = localStorage.getItem('token');
       
-      // Convert to number if it's numeric
       const id = isNaN(facultyId) ? facultyId : Number(facultyId);
       
       const response = await fetch(
@@ -44,12 +42,10 @@ const facultyManagementApi = {
     return response.json();
   },
 
-  // Update performance - Use query parameters like faculty.js filter
   updatePerformance: async (facultyId, institutionId, performanceData) => {
     const token = localStorage.getItem('token');
     let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/performance?institutionId=${institutionId}`;
     
-    // Add all parameters
     const params = new URLSearchParams();
     if (performanceData.utilizationPercentage !== undefined) 
       params.append('utilizationPercentage', performanceData.utilizationPercentage);
@@ -76,7 +72,6 @@ const facultyManagementApi = {
     return response.ok;
   },
 
-  // Update workload - Match pattern
   updateWorkload: async (facultyId, institutionId, workloadData) => {
     const token = localStorage.getItem('token');
     let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/workload?institutionId=${institutionId}`;
@@ -101,16 +96,11 @@ const facultyManagementApi = {
     return response.ok;
   },
 
-  // Update leaves - Match pattern
   updateLeaves: async (facultyId, institutionId, leavesData) => {
     const token = localStorage.getItem('token');
     let url = `${API_BASE}/api/admin/faculty-management/${facultyId}/leaves?institutionId=${institutionId}`;
     
     const params = new URLSearchParams();
-    if (leavesData.leavesTaken !== undefined) 
-      params.append('leavesTaken', leavesData.leavesTaken);
-    if (leavesData.leavesAvailable !== undefined) 
-      params.append('leavesAvailable', leavesData.leavesAvailable);
     if (leavesData.medicalLeavesAvailable !== undefined) 
       params.append('medicalLeavesAvailable', leavesData.medicalLeavesAvailable);
     if (leavesData.casualLeavesAvailable !== undefined) 
@@ -130,61 +120,6 @@ const facultyManagementApi = {
     return response.ok;
   },
 
-  // Get documents
-  getDocuments: async (facultyId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty-management/${facultyId}/documents`,
-      {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        }
-      }
-    );
-    if (!response.ok) throw new Error('Failed to fetch documents');
-    return response.json();
-  },
-
-  // Update permissions
-  updatePermissions: async (facultyId, institutionId, permissions) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          attendanceAccess: permissions.attendanceAccess,
-          studentManagement: permissions.studentManagement,
-          marksEntry: permissions.marksEntry,
-          courseCreation: permissions.courseCreation,
-          adminAccess: permissions.adminAccess
-        })
-      }
-    );
-    if (!response.ok) throw new Error('Failed to update permissions');
-    return response.json();
-  },
-
-  // Get permissions
-  getPermissions: async (facultyId, institutionId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty/${facultyId}/permissions?institutionId=${institutionId}`,
-      {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        }
-      }
-    );
-    if (!response.ok) throw new Error('Failed to fetch permissions');
-    return response.json();
-  },
-
-  // Get related faculty - Use filter endpoint like faculty.js
   getRelatedFaculty: async (institutionId, department) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
@@ -200,48 +135,32 @@ const facultyManagementApi = {
   },
 
 
-    // Update faculty status
   updateFacultyStatus: async (facultyId, institutionId, newStatus) => {
     const token = localStorage.getItem('token');
     const url = `${API_BASE}/api/admin/faculty/${facultyId}/status?status=${newStatus}&institutionId=${institutionId}`;
-    console.log('🔗 Status update URL:', url);
     
     const response = await fetch(url, {
-      method: 'PATCH', // Note: It's PATCH, not PUT
+      method: 'PATCH', 
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',
-        // No Content-Type needed since we're using query params
       }
     });
     
-    // Debug logging
     const responseText = await response.text();
-    console.log('📝 Status update response:', {
-      status: response.status,
-      statusText: response.statusText,
-      body: responseText
-    });
     
     if (!response.ok) {
       throw new Error(`Failed to update faculty status: ${response.status} - ${responseText}`);
     }
     
-    return response.ok; // Returns true if successful
+    return response.ok; 
   },
 
 
-
-  // Update faculty basic info - Use your update endpoint
   updateFacultyBasicInfo: async (facultyId, institutionId, facultyData) => {
     const token = localStorage.getItem('token');
     
-    // Debug logging
-    console.log('📝 Faculty data received in API function:', facultyData);
-    console.log('📝 maritalStatus value:', facultyData.maritalStatus);
-    console.log('📝 nationality value:', facultyData.nationality);
     
     const requestBody = {
-      // Map to your FacultyUpdateRequest DTO
       fullName: facultyData.fullName,
       email: facultyData.email,
       phone: facultyData.phone,
@@ -266,7 +185,6 @@ const facultyManagementApi = {
       alternatePhone: facultyData.alternatePhone
     };
     
-    console.log('📝 Request body being sent:', requestBody);
     
     const response = await fetch(
       `${API_BASE}/api/admin/faculty/${facultyId}?institutionId=${institutionId}`,
@@ -282,8 +200,6 @@ const facultyManagementApi = {
     
     // Get the response text first
     const responseText = await response.text();
-    console.log('📝 Response status:', response.status);
-    console.log('📝 Response text:', responseText);
     
     if (!response.ok) {
       throw new Error(`Failed to update faculty info: ${response.status} - ${responseText}`);
@@ -311,11 +227,6 @@ const facultyManagementApi = {
     
     // Get the response text first
     const responseText = await response.text();
-    console.log('🗑️ Delete response:', {
-      status: response.status,
-      statusText: response.statusText,
-      body: responseText
-    });
     
     if (!response.ok) {
       throw new Error(`Failed to delete faculty: ${response.status} - ${responseText}`);
@@ -324,22 +235,6 @@ const facultyManagementApi = {
     return response.ok;
   },
 
-
-  // Delete document
-  deleteDocument: async (documentId) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(
-      `${API_BASE}/api/admin/faculty-management/documents/${documentId}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        }
-      }
-    );
-    if (!response.ok) throw new Error('Failed to delete document');
-    return response.ok;
-  }
 };
 
 export default function FacultyManagement() {
@@ -351,10 +246,8 @@ export default function FacultyManagement() {
   const [loading, setLoading] = useState(true);
   const [relatedFaculty, setRelatedFaculty] = useState([]);
   const { admin, loading: adminLoading } = useAdmin();
-  const [documents, setDocuments] = useState([]);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
@@ -372,10 +265,9 @@ export default function FacultyManagement() {
         setLoading(true);
         setError(null);
         
-        // const institutionId = admin.institutionId || 1;
         const institutionId = admin?.institutionId;
 
-        console.log('🔍 Fetching faculty with:', {
+        console.log('Fetching faculty with:', {
           facultyId,
           type: typeof facultyId,
           isNumeric: !isNaN(facultyId),
@@ -383,7 +275,6 @@ export default function FacultyManagement() {
         });
         
         const facultyResponse = await facultyManagementApi.getFacultyById(facultyId, institutionId);
-        console.log('✅ Faculty response:', facultyResponse);
         
         const mappedFaculty = {
           id: facultyResponse.id || facultyResponse.facultyId || facultyId,
@@ -426,50 +317,16 @@ export default function FacultyManagement() {
           ifscCode: facultyResponse.ifscCode || '',
           attendance: facultyResponse.attendancePercentage || 0,
           performanceScore: facultyResponse.performanceScore || 0,
-          leavesTaken: facultyResponse.leavesTaken || 0,
-          leavesAvailable: facultyResponse.leavesAvailable || 0,
           researchPapers: facultyResponse.researchPapers || 0,
           conferences: facultyResponse.conferences || 0,
           projects: facultyResponse.projects || 0,
           publications: facultyResponse.publications || 0,
           rating: facultyResponse.rating || 0,
-          lastActive: facultyResponse.lastActive || 'N/A',
-          permissions: {
-            attendanceAccess: false,
-            studentManagement: false,
-            marksEntry: false,
-            courseCreation: false,
-            adminAccess: false
-          }
+          lastActive: facultyResponse.lastActive || 'N/A'
         };
         
         setSelectedFaculty(mappedFaculty);
         setEditedFaculty({ ...mappedFaculty });
-        
-        try {
-          const permissionsResponse = await facultyManagementApi.getPermissions(facultyId, institutionId);
-          
-          if (permissionsResponse && typeof permissionsResponse === 'object') {
-            const updatedPermissions = {
-              attendanceAccess: permissionsResponse.attendanceAccess || false,
-              studentManagement: permissionsResponse.studentManagement || false,
-              marksEntry: permissionsResponse.marksEntry || false,
-              courseCreation: permissionsResponse.courseCreation || false,
-              adminAccess: permissionsResponse.adminAccess || false
-            };
-            
-            setSelectedFaculty(prev => ({
-              ...prev,
-              permissions: updatedPermissions
-            }));
-            setEditedFaculty(prev => ({
-              ...prev,
-              permissions: updatedPermissions
-            }));
-          }
-        } catch (permissionsError) {
-          console.warn('Could not fetch permissions:', permissionsError);
-        }
         
         try {
           const related = await facultyManagementApi.getRelatedFaculty(institutionId, mappedFaculty.department);
@@ -508,22 +365,6 @@ export default function FacultyManagement() {
     fetchFacultyData();
   }, [facultyId, admin, adminLoading]);
 
-  useEffect(() => {
-    if (!selectedFaculty) return;
-    
-    const fetchDocuments = async () => {
-      try {
-        const docs = await facultyManagementApi.getDocuments(selectedFaculty.publicId || selectedFaculty.id);
-        setDocuments(docs);
-      } catch (error) {
-        console.error('Error fetching documents:', error);
-        setDocuments([]);
-      }
-    };
-    
-    fetchDocuments();
-  }, [selectedFaculty]);
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'ACTIVE': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
@@ -548,13 +389,10 @@ const handleSaveChanges = async () => {
     const institutionId = admin?.institutionId;
     const publicId = selectedFaculty.publicId || selectedFaculty.id;
 
-    // 1. First update status if it changed
     if (editedFaculty.status !== selectedFaculty.status) {
-      console.log(`🔄 Updating status to: ${editedFaculty.status}`);
       await facultyManagementApi.updateFacultyStatus(publicId, institutionId, editedFaculty.status);
     }
 
-    // 2. Then update other faculty details (without status)
     const updateData = {
       fullName: editedFaculty.fullName,
       email: editedFaculty.email,
@@ -580,16 +418,13 @@ const handleSaveChanges = async () => {
       nationality: editedFaculty.nationality
     };
 
-    console.log('📤 Sending update data:', updateData);
     
     await facultyManagementApi.updateFacultyBasicInfo(publicId, institutionId, updateData);
     
-    // 3. Update permissions if changed
     if (JSON.stringify(editedFaculty.permissions) !== JSON.stringify(selectedFaculty.permissions)) {
       await facultyManagementApi.updatePermissions(publicId, institutionId, editedFaculty.permissions);
     }
     
-    // 4. Update local state
     setSelectedFaculty(editedFaculty);
     setIsEditing(false);
     
@@ -603,36 +438,6 @@ const handleSaveChanges = async () => {
   }
 };
 
-
-  const handlePermissionToggle = async (permission) => {
-    if (isEditing && editedFaculty) {
-      const newPermissions = {
-        ...editedFaculty.permissions,
-        [permission]: !editedFaculty.permissions[permission]
-      };
-      
-      setEditedFaculty(prev => ({
-        ...prev,
-        permissions: newPermissions
-      }));
-      
-      try {
-        // const institutionId = admin.institutionId || 1;
-        const institutionId = admin?.institutionId;
-        await facultyManagementApi.updatePermissions(
-          selectedFaculty.publicId || selectedFaculty.id,
-          institutionId,
-          newPermissions
-        );
-      } catch (error) {
-        console.error('Error updating permissions:', error);
-        setEditedFaculty(prev => ({
-          ...prev,
-          permissions: editedFaculty.permissions
-        }));
-      }
-    }
-  };
     
   const handleDeleteFaculty = async () => {
     if (!selectedFaculty) return;
@@ -649,8 +454,6 @@ const handleSaveChanges = async () => {
       const institutionId = admin?.institutionId;
       const facultyId = selectedFaculty.publicId || selectedFaculty.id;
       
-      console.log('🗑️ Attempting to delete faculty:', { facultyId, institutionId });
-      
       await facultyManagementApi.deleteFaculty(facultyId, institutionId);
       
       alert(`Faculty "${selectedFaculty.fullName}" deleted successfully!`);
@@ -660,7 +463,6 @@ const handleSaveChanges = async () => {
       }, 1000);
       
     } catch (error) {
-      console.error('❌ Error deleting faculty:', error);
       alert(`Failed to delete faculty: ${error.message}`);
     } finally {
       setDeleting(false);
@@ -670,28 +472,13 @@ const handleSaveChanges = async () => {
 
 const handleStatusChange = (newStatus) => {
   if (isEditing && editedFaculty) {
-    // Only update local state, don't call API
     setEditedFaculty(prev => ({
       ...prev,
       status: newStatus
     }));
-    
-    console.log(`📝 Status changed locally to: ${newStatus} (will be saved when clicking Save)`);
   }
 };
 
-
-  const handleDeleteDocument = async (docId, docName) => {
-    if (!window.confirm(`Delete "${docName}"?`)) return;
-    
-    try {
-      await facultyManagementApi.deleteDocument(docId);
-      setDocuments(prev => prev.filter(d => d.id !== docId));
-      alert('Document deleted!');
-    } catch (error) {
-      alert('Delete failed: ' + error.message);
-    }
-  };
 
   if (error) {
     return (
@@ -745,35 +532,48 @@ const handleStatusChange = (newStatus) => {
           Back to Faculty List
         </button>
         <div className="h-4 w-px bg-slate-700/50"></div>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white">Faculty Management</h1>
-          <p className="text-slate-400 text-sm">Manage faculty details and permissions</p>
-        </div>
       </div>
 
       <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl border border-slate-700/50 overflow-hidden">
         <div className="p-6 border-b border-slate-700/50 bg-slate-800/50 flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <div className="relative">
+
+          <div className="flex items-start gap-4 flex-wrap sm:flex-nowrap">
+
+            {/* Avatar */}
+            <div className="relative shrink-0">
               <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
                 {selectedFaculty.fullName.split(' ').map(n => n[0]).join('')}
               </div>
-              {!isEditing && (
-                <div className={`absolute -bottom-2 -right-2 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(selectedFaculty.status)}`}>
-                  {selectedFaculty.status}
-                </div>
-              )}
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-white">{selectedFaculty.fullName}</h3>
-              <p className="text-slate-400">
+
+            {/* Info Section */}
+            <div className="flex-1 min-w-0">
+              
+              {/* Name + Status Row */}
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="text-2xl font-bold text-white break-words">
+                  {selectedFaculty.fullName}
+                </h3>
+
+                {!isEditing && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${getStatusColor(selectedFaculty.status)}`}
+                  >
+                    {selectedFaculty.status}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-slate-400 mt-1">
                 {selectedFaculty.designation} • {selectedFaculty.department}
               </p>
+
               <p className="text-slate-500 text-sm mt-1">
                 Faculty ID: {selectedFaculty.facultyId} • Joined: {selectedFaculty.joinDate}
               </p>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
             {isEditing ? (
               <>
@@ -831,9 +631,7 @@ const handleStatusChange = (newStatus) => {
               { id: 'academic', label: 'Academic & Career', icon: Briefcase },
               { id: 'performance', label: 'Performance', icon: TrendingUp },
               { id: 'financial', label: 'Financial', icon: CreditCard },
-              { id: 'permissions', label: 'Permissions', icon: Shield },
-              { id: 'attendance', label: 'Attendance', icon: CalendarDays },
-              { id: 'documents', label: 'Documents', icon: FileText }
+              { id: 'permissions', label: 'Permissions', icon: Shield }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1012,7 +810,6 @@ const handleStatusChange = (newStatus) => {
                       <span className="text-slate-400 text-sm">Attendance</span>
                     </div>
                     <p className="text-white font-bold text-xl">{selectedFaculty.attendance}%</p>
-                    <p className="text-slate-500 text-xs mt-1">{selectedFaculty.leavesTaken} leaves taken</p>
                   </div>
                   <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
                     <div className="flex items-center gap-2 mb-2">
@@ -1200,7 +997,6 @@ const handleStatusChange = (newStatus) => {
                     <p className="text-slate-400 text-sm mb-1">Attendance Rate</p>
                     <p className="text-white font-bold text-2xl">{selectedFaculty.attendance}%</p>
                     <p className="text-slate-500 text-xs mt-1">
-                      {selectedFaculty.leavesTaken} leaves taken, {selectedFaculty.leavesAvailable} available
                     </p>
                   </div>
                   <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/30 rounded-lg p-4">
@@ -1213,72 +1009,6 @@ const handleStatusChange = (newStatus) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                  <h4 className="text-white font-semibold mb-4">Monthly Performance</h4>
-                  <div className="space-y-3">
-                    {[
-                      { month: 'Jan', attendance: 95, utilization: 88 },
-                      { month: 'Feb', attendance: 92, utilization: 85 },
-                      { month: 'Mar', attendance: 94, utilization: 90 },
-                      { month: 'Apr', attendance: 91, utilization: 82 },
-                      { month: 'May', attendance: 96, utilization: 89 }
-                    ].map((monthData, idx) => (
-                      <div key={idx} className="flex items-center gap-4">
-                        <span className="text-slate-400 text-sm w-12">{monthData.month}</span>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-slate-700 rounded-full h-2">
-                              <div className="h-2 bg-blue-500 rounded-full" style={{ width: `${monthData.attendance}%` }}></div>
-                            </div>
-                            <span className="text-white text-xs w-10">{monthData.attendance}%</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-slate-700 rounded-full h-2">
-                              <div className="h-2 bg-purple-500 rounded-full" style={{ width: `${monthData.utilization}%` }}></div>
-                            </div>
-                            <span className="text-white text-xs w-10">{monthData.utilization}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                  <h4 className="text-white font-semibold mb-4">Peer Comparison</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-slate-400 text-sm">Department Rank</span>
-                        <span className="text-white font-medium">#3 of 28</span>
-                      </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style={{ width: '85%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-slate-400 text-sm">College Rank</span>
-                        <span className="text-white font-medium">#12 of 142</span>
-                      </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style={{ width: '75%' }}></div>
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t border-slate-700/50">
-                      <h5 className="text-white font-medium mb-3">Strengths</h5>
-                      <div className="flex flex-wrap gap-2">
-                        {['Research', 'Student Feedback', 'Punctuality', 'Communication'].map((strength, idx) => (
-                          <span key={idx} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
-                            {strength}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -1288,12 +1018,12 @@ const handleStatusChange = (newStatus) => {
                 <h4 className="text-white font-semibold mb-4">Salary & Benefits</h4>
                 <div className="space-y-4">
                   {[
-                    { label: 'Basic Salary', value: '₹85,000' },
-                    { label: 'HRA', value: '₹25,500' },
-                    { label: 'Special Allowance', value: '₹15,000' },
-                    { label: 'Medical Allowance', value: '₹5,000' },
-                    { label: 'Total Gross', value: '₹1,30,500' },
-                    { label: 'Net Salary', value: '₹1,18,250' }
+                    { label: 'Basic Salary', value: 'NA' },
+                    { label: 'HRA', value: 'NA' },
+                    { label: 'Special Allowance', value: 'NA' },
+                    { label: 'Medical Allowance', value: 'NA' },
+                    { label: 'Total Gross', value: 'NA' },
+                    { label: 'Net Salary', value: 'NA' }
                   ].map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center">
                       <span className="text-slate-400 text-sm">{item.label}</span>
@@ -1324,39 +1054,12 @@ const handleStatusChange = (newStatus) => {
                 <h4 className="text-white font-semibold mb-4">Leaves & Benefits</h4>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Leaves Taken</p>
-                    <p className="text-white font-bold text-2xl">{selectedFaculty.leavesTaken}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Leaves Available</p>
-                    <p className="text-white font-bold text-2xl">{selectedFaculty.leavesAvailable}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
                     <p className="text-slate-400 text-sm mb-1">Medical Leaves</p>
-                    <p className="text-white font-bold text-2xl">3</p>
+                    <p className="text-white font-bold text-2xl">NA</p>
                   </div>
                   <div className="bg-slate-800/50 rounded-lg p-4">
                     <p className="text-slate-400 text-sm mb-1">Casual Leaves</p>
-                    <p className="text-white font-bold text-2xl">5</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h5 className="text-white font-medium mb-3">Benefits</h5>
-                  <div className="space-y-2">
-                    {[
-                      'Health Insurance Coverage',
-                      'Provident Fund (12% Contribution)',
-                      'Gratuity Eligible',
-                      'Professional Development Allowance',
-                      'Travel Allowance',
-                      'Research Grant'
-                    ].map((benefit, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <CheckCircle size={16} className="text-emerald-400" />
-                        <span className="text-slate-300 text-sm">{benefit}</span>
-                      </div>
-                    ))}
+                    <p className="text-white font-bold text-2xl">NA</p>
                   </div>
                 </div>
               </div>
@@ -1366,51 +1069,6 @@ const handleStatusChange = (newStatus) => {
 
           {activeTab === 'permissions' && (
             <div className="space-y-6">
-              <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                <h4 className="text-white font-semibold mb-4">System Permissions</h4>
-                <div className="space-y-4">
-                  {Object.entries(selectedFaculty.permissions || {}).map(([permission, enabled]) => (
-                    <div key={permission} className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-medium capitalize">{permission.replace(/([A-Z])/g, ' $1')}</p>
-                        <p className="text-slate-400 text-xs">
-                          {permission === 'attendanceAccess' && 'Mark student attendance and view reports'}
-                          {permission === 'studentManagement' && 'Add/edit student information'}
-                          {permission === 'marksEntry' && 'Enter and modify student marks'}
-                          {permission === 'courseCreation' && 'Create and manage courses'}
-                          {permission === 'adminAccess' && 'Full administrative privileges'}
-                        </p>
-                      </div>
-                      {isEditing ? (
-                        <button
-                          onClick={() => handlePermissionToggle(permission)}
-                          className={`w-12 h-6 rounded-full transition-colors ${
-                            editedFaculty.permissions[permission]
-                              ? 'bg-emerald-500'
-                              : 'bg-slate-600'
-                          }`}
-                        >
-                          <div
-                            className={`w-4 h-4 rounded-full bg-white transform transition-transform ${
-                              editedFaculty.permissions[permission]
-                                ? 'translate-x-7'
-                                : 'translate-x-1'
-                            }`}
-                          ></div>
-                        </button>
-                      ) : (
-                        <span className={`px-3 py-1 rounded-full text-xs ${
-                          enabled
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-slate-700/50 text-slate-400'
-                        }`}>
-                          {enabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
                 <div className="flex items-center justify-between mb-4">
@@ -1457,7 +1115,6 @@ const handleStatusChange = (newStatus) => {
                 })}
               </div>
 
-       
                 <p className="text-slate-400 text-sm mt-4">
                     {selectedFaculty.status === 'ACTIVE' && 'Faculty is active and can perform all assigned duties.'}
                     {selectedFaculty.status === 'ON_LEAVE' && 'Faculty is currently on approved leave.'}
@@ -1470,161 +1127,8 @@ const handleStatusChange = (newStatus) => {
             </div>
           )}
 
-
-
-{/* need to fix this */}
-
-          {activeTab === 'attendance' && (
-            <div className="space-y-6">
-              <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                <h4 className="text-white font-semibold mb-4">Attendance Overview</h4>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Total Days</p>
-                    <p className="text-white font-bold text-2xl">142</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Present</p>
-                    <p className="text-white font-bold text-2xl">134</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Absent</p>
-                    <p className="text-white font-bold text-2xl">8</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-400 text-sm mb-1">Attendance %</p>
-                    <p className="text-white font-bold text-2xl">{selectedFaculty.attendance}%</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                <h4 className="text-white font-semibold mb-4">Monthly Calendar</h4>
-                <div className="grid grid-cols-7 gap-2">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                    <div key={day} className="text-center py-2">
-                      <span className="text-slate-400 text-sm">{day}</span>
-                    </div>
-                  ))}
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                    <div key={day} className={`aspect-square rounded-lg flex items-center justify-center ${
-                      day <= 20 ? 'bg-emerald-500/20' : 'bg-slate-800/50'
-                    }`}>
-                      <span className={`text-sm ${
-                        day <= 20 ? 'text-emerald-400' : 'text-slate-400'
-                      }`}>{day}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-700/50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-emerald-500/20 rounded"></div>
-                    <span className="text-slate-400 text-sm">Present</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-slate-800/50 rounded"></div>
-                    <span className="text-slate-400 text-sm">Future</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'documents' && (
-            <div className="space-y-6">
-              <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                <h4 className="text-white font-semibold mb-4">Upload Documents</h4>
-                <div className="border-2 border-dashed border-slate-700/50 rounded-xl p-8 text-center">
-                  <Upload className="mx-auto text-slate-400" size={48} />
-                  <p className="text-slate-400 mt-2">
-                    Document upload requires backend integration
-                  </p>
-                  <p className="text-slate-500 text-sm mt-2">
-                    Contact admin to implement file upload
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700/50">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-white font-semibold">Uploaded Documents</h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-sm">
-                      {documents.length} document{documents.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                </div>
-                
-                {documents.length > 0 ? (
-                  <div className="space-y-3">
-                    {documents.map((doc) => (
-                      <div key={doc.id || doc.docId} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-colors">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className={`p-3 rounded-lg ${
-                            doc.documentType === 'pdf' ? 'bg-red-500/10' :
-                            doc.documentType?.includes('image') ? 'bg-blue-500/10' :
-                            'bg-purple-500/10'
-                          }`}>
-                            <FileText className={
-                              doc.documentType === 'pdf' ? "text-red-400" :
-                              doc.documentType?.includes('image') ? "text-blue-400" :
-                              "text-purple-400"
-                            } size={20} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="text-white font-medium truncate max-w-xs">
-                                {doc.documentName || doc.name}
-                              </p>
-                              <span className="px-2 py-0.5 bg-slate-700/50 text-slate-400 text-xs rounded">
-                                {doc.category || 'Document'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4 mt-1">
-                              <p className="text-slate-400 text-xs">
-                                {doc.fileSize ? `${(doc.fileSize / (1024 * 1024)).toFixed(2)} MB` : 'N/A'}
-                              </p>
-                              <span className="text-slate-600">•</span>
-                              <p className="text-slate-400 text-xs">Type: {doc.documentType || 'Unknown'}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {doc.filePath && (
-                            <a 
-                              href={`${API_BASE}${doc.filePath}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
-                              title="View"
-                            >
-                              <Eye size={18} className="text-slate-400 hover:text-blue-400" />
-                            </a>
-                          )}
-                          <button 
-                            className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                            title="Delete"
-                            onClick={() => handleDeleteDocument(doc.id || doc.docId, doc.documentName || doc.name)}
-                          >
-                            <Trash2 size={18} className="text-slate-400 hover:text-red-400" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="mx-auto text-slate-500" size={48} />
-                    <p className="text-slate-400 mt-2">No documents uploaded yet</p>
-                    <p className="text-slate-500 text-sm mt-1">
-                      Documents will appear here when uploaded via backend
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
+
       </div>
 
       <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6">

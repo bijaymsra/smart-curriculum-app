@@ -136,7 +136,8 @@ export default function ReviewsTab() {
 
             <tbody className="divide-y divide-slate-700/50">
               {submissions.length === 0 && (
-                <tr>
+                
+                  <tr className="bg-transparent hover:bg-transparent">
                   <td
                     colSpan="6"
                     className="text-center py-8 text-slate-400"

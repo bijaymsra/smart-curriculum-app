@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useLocation, NavLink } from "react-router-dom";
 import {Users, GraduationCap, Settings as SettingsIcon, BookOpen, Calendar, TrendingUp, Menu, X, BarChart3, Clock} from "lucide-react";
-
-import SystemStatus from "./SystemStatus";
 import { useAdmin } from "../../context/AdminContext";
 
 // =======================
@@ -14,14 +12,14 @@ const Admin = () => {
   const location = useLocation();
 
   const navItems = [
-    { label: "Admin Dashboard", icon: BarChart3, path: "/admin" },
+    { label: "Dashboard Overview", icon: BarChart3, path: "/admin" },
     { label: "Student Management", icon: Users, path: "/admin/students" },
     { label: "Faculty Management", icon: GraduationCap, path: "/admin/faculty" },
     { label: "Course Management", icon: BookOpen, path: "/admin/courses" },
-    { label: "Attendance Management", icon: Calendar, path: "/admin/attendance" },
+    { label: "Attendance Analytics", icon: Calendar, path: "/admin/attendance" },
     { label: "Timetable Management", icon: Clock, path: "/admin/timetable" },
-    { label: "Analytics Management", icon: TrendingUp, path: "/admin/analytics" },
-    { label: "Settings", icon: SettingsIcon, path: "/admin/settings" },
+    { label: "Analytics Overview", icon: TrendingUp, path: "/admin/analytics" },
+    { label: "Admin Profile", icon: SettingsIcon, path: "/admin/settings" },
   ];
 
   // -----------------------
@@ -34,12 +32,12 @@ const Admin = () => {
     if (path.startsWith("/admin/students")) return "Student Management";
     if (path.startsWith("/admin/faculty")) return "Faculty Management";
     if (path.startsWith("/admin/courses")) return "Courses Management";
-    if (path.startsWith("/admin/attendance")) return "Attendance Management";
+    if (path.startsWith("/admin/attendance")) return "Attendance Analytics";
     if (path.startsWith("/admin/timetable")) return "Timetable Management";
-    if (path.startsWith("/admin/analytics")) return "Analytics Management";
-    if (path.startsWith("/admin/settings")) return "Settings";
+    if (path.startsWith("/admin/analytics")) return "Analytics Overview";
+    if (path.startsWith("/admin/settings")) return "Admin Profile";
 
-    return "Admin Dashboard";
+    return "Dashboard Overview";
   };
 
   const activeLabel = getActiveLabel();
@@ -125,14 +123,13 @@ const Admin = () => {
                 {activeLabel}
               </h2>
               <p className="text-slate-400 mt-1">
-                {activeLabel === "Dashboard"
-                  ? "Here’s a summary of your platform’s activity."
+                {activeLabel === "Dashboard Overview"
+                  ? "Welcome, Here’s a summary of your platform’s activity."
                   : `Centralized controls and metrics for ${activeLabel.toLowerCase()}.`}
               </p>
             </div>
 
             <div className="flex items-center gap-4">
-              <SystemStatus />
             </div>
           </div>
         </header>

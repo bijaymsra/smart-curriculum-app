@@ -70,8 +70,6 @@ public class DepartmentService {
             throw new BadRequestException("Department not found in your institution");
         }
         
-        // Check if department has faculty assigned
-        // You might want to add a check here
         
         departmentRepository.delete(department);
     }

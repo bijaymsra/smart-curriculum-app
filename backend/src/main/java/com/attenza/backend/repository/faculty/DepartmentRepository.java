@@ -19,13 +19,11 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
         Long institutionId
     );
 
-    // ✅ Used by FacultyService (DO NOT REMOVE)
     Optional<Department> findByInstitutionIdAndDepartmentCode(
         Long institutionId,
         String departmentCode
     );
 
-    // ✅ Used by StudentGroupService / StudentService
     Optional<Department> findByDepartmentCodeAndInstitution_Id(
         String departmentCode,
         Long institutionId

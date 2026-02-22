@@ -634,48 +634,6 @@ export default function StudentManagement() {
       </div>
     </div>
 
-    {/* Monthly Breakdown */}
-    <div>
-      <h4 className="text-white font-semibold mb-3">
-        Monthly Breakdown
-      </h4>
-
-      <div className="space-y-3">
-        {(student.monthlyAttendance ?? [
-          { month: "January", year: 2026, percentage: 95 },
-          { month: "December", year: 2025, percentage: 91 },
-          { month: "November", year: 2025, percentage: 89 },
-        ]).map((item, idx) => (
-          <div
-            key={idx}
-            className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-slate-300 font-medium">
-                {item.month} {item.year}
-              </p>
-              <p className="text-white font-semibold">
-                {item.percentage}%
-              </p>
-            </div>
-
-            <div className="w-full bg-slate-700/30 rounded-full h-2">
-              <div
-                className={`h-full rounded-full ${
-                  item.percentage >= 90
-                    ? "bg-green-500"
-                    : item.percentage >= 75
-                    ? "bg-blue-500"
-                    : "bg-orange-500"
-                }`}
-                style={{ width: `${item.percentage}%` }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-
   </div>
 )}
 
