@@ -1,7 +1,6 @@
 package com.attenza.backend.attendance.controller;
 
 import com.attenza.backend.attendance.dto.AttendanceReviewRequest;
-import com.attenza.backend.attendance.entity.AttendanceSubmissionStatus;
 import com.attenza.backend.attendance.service.AttendanceReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

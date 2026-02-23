@@ -5,9 +5,9 @@ metadata:
   namespace: attenza
 spec:
   rules:
-    - host: attenza.bijaymsra.site
-      http:
+    - http:
         paths:
+          # Backend APIs
           - path: /api
             pathType: Prefix
             backend:
@@ -15,6 +15,17 @@ spec:
                 name: backend
                 port:
                   number: 8080
+
+          # AI Endpoints (IMPORTANT FIX)
+          - path: /ai
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+
+          # Frontend
           - path: /
             pathType: Prefix
             backend:

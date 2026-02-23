@@ -9,7 +9,6 @@ import { authFetch } from "../../utils/authFetch";
 const dashboardApi = {
   // Get student stats
   getStudentStats: async (institutionId) => {
-    const token = localStorage.getItem('token');
     const response = await authFetch(
       `${API_BASE}/api/admin/students/dashboard-stats?institutionId=${institutionId}`,
       {
@@ -59,14 +58,14 @@ const dashboardApi = {
 
     // AI - Institution Insight
     getAIInsight: async () => {
-      const response = await authFetch(`${API_BASE}/ai/test/admin/insight`);
+      const response = await authFetch(`${API_BASE}/api/ai/admin/insight`);
       return response.json();
     },
 
     // AI - Department Insights
     getAIDepartments: async (institutionId) => {
       const response = await authFetch(
-        `${API_BASE}/ai/test/admin/departments/${institutionId}`
+        `${API_BASE}/api/ai/admin/departments/${institutionId}`
       );
       return response.json();
     },
@@ -74,7 +73,7 @@ const dashboardApi = {
     // AI - Timetable Efficiency
     getAIEfficiency: async () => {
       const response = await authFetch(
-        `${API_BASE}/ai/test/admin/efficiency`
+        `${API_BASE}/api/ai/admin/efficiency`
       );
       return response.json();
     },
@@ -82,7 +81,7 @@ const dashboardApi = {
     // AI - Student Risk
     getAIStudentRisk: async () => {
       const response = await authFetch(
-        `${API_BASE}/ai/test/admin/student-risk`
+        `${API_BASE}/api/ai/admin/student-risk`
       );
       return response.json();
     }

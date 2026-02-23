@@ -1,6 +1,5 @@
 package com.attenza.backend.ai.controller;
 
-import com.attenza.backend.ai.analyzer.GapAnalyzer;
 import com.attenza.backend.ai.dto.RecommendationResponse;
 import com.attenza.backend.ai.insight.DepartmentInsightEngine;
 import com.attenza.backend.ai.insight.StudentRiskEngine;
@@ -9,7 +8,6 @@ import com.attenza.backend.ai.optimizer.TimetableOptimizer;
 import com.attenza.backend.ai.recommendation.AdminRecommendationEngine;
 import com.attenza.backend.ai.recommendation.FacultyRecommendationEngine;
 import com.attenza.backend.ai.recommendation.StudentRecommendationEngine;
-import com.attenza.backend.ai.scorer.TimetableScorer;
 import com.attenza.backend.ai.service.AITimetableLoaderService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,13 +17,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/ai/test")
+@RequestMapping("/api/ai/admin")
 @RequiredArgsConstructor
 public class AITestController {
 
     private final AITimetableLoaderService loaderService;
-    private final GapAnalyzer gapAnalyzer;
-    private final TimetableScorer scorer;
     private final TimetableOptimizer optimizer;
     private final StudentRecommendationEngine studentRecommendationEngine;
     private final FacultyRecommendationEngine facultyRecommendationEngine;
