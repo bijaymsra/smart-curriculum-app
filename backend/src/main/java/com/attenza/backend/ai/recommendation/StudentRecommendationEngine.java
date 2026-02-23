@@ -8,8 +8,6 @@ import com.attenza.backend.student.tasks.entity.StudentTask;
 import com.attenza.backend.student.tasks.repository.StudentTaskRepository;
 import com.attenza.backend.attendance.repository.AttendanceSubmissionRepository;
 import com.attenza.backend.attendance.entity.AttendanceSubmissionStatus;
-import com.attenza.backend.repository.admin.StudentRepository;
-// import com.attenza.backend.repository.faculty.FacultyRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,7 +26,6 @@ public class StudentRecommendationEngine {
     private final AttendanceSubmissionRepository attendanceRepository;
     private final AITimetableLoaderService timetableLoaderService;
     private final GapAnalyzer gapAnalyzer;
-    private final StudentRepository studentRepository;
 
     private static final double ATTENDANCE_THRESHOLD = 75.0;
 

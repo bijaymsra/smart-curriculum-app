@@ -67,24 +67,24 @@ public class AITestController {
     }
 
 
-    @GetMapping("/admin/insight")
+    @GetMapping("/insight")
     public Object adminInsight() {
         return adminRecommendationEngine.generateInstitutionInsight();
     }
 
 
-    @GetMapping("/admin/departments/{institutionId}")
+    @GetMapping("/departments/{institutionId}")
     public Object departmentInsights(@PathVariable Long institutionId) {
         return departmentInsightEngine
                 .generateInstitutionDepartmentInsights(institutionId);
     }
 
-    @GetMapping("/admin/efficiency")
+    @GetMapping("/efficiency")
     public Object timetableEfficiency() {
         return timetableEfficiencyEngine.generateInstitutionEfficiency();
     }
 
-    @GetMapping("/admin/student-risk")
+    @GetMapping("/student-risk")
     public Object studentRiskSummary() {
         return studentRiskEngine.generateInstitutionRiskSummary();
     }
