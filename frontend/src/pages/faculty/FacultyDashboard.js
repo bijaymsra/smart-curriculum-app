@@ -83,7 +83,7 @@ useEffect(() => {
       if (!facultyId) return;
 
       const res = await authFetch(
-        `${API_BASE}/ai/test/faculty/${facultyId}/recommend`
+        `${API_BASE}/api/ai/admin/faculty/${facultyId}/recommend`
       );
 
       if (!res.ok) throw new Error("Failed to fetch AI recommendations");

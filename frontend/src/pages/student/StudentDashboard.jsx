@@ -45,7 +45,7 @@ const StudentDashboard = () => {
       if (!studentId) return;
 
       const res = await authFetch(
-        `${API_BASE}/ai/test/student/${studentId}/recommend`
+        `${API_BASE}/api/ai/admin/student/${studentId}/recommend`
       );
 
       if (!res.ok) throw new Error("AI fetch failed");
@@ -90,7 +90,7 @@ const StudentDashboard = () => {
   return (
     <div className="space-y-8">
 
-      {/* 🔥 HEADER */}
+      {/* HEADER */}
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 rounded-2xl border border-slate-700">
         <div className="flex justify-between items-center">
 

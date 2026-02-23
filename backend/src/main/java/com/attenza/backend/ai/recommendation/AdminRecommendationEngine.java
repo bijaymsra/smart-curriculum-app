@@ -44,7 +44,8 @@ public class AdminRecommendationEngine {
         int atRiskStudents = 0;
 
         double attendanceAvg =
-                attendanceAnalyzer.calculateFacultyAttendance(1L); // placeholder global logic
+                attendanceAnalyzer.calculateFacultyAttendance(1L); 
+                
 
         List<String> alerts = new ArrayList<>();
 

@@ -13,7 +13,6 @@ public class AttendanceAnalyzer {
 
     public double calculateFacultyAttendance(Long facultyId) {
 
-        // count approved attendance submissions
         long approved = repository.countByStatus(
                 AttendanceSubmissionStatus.APPROVED
         );
