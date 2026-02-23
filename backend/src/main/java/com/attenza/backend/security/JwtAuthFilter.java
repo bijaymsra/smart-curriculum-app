@@ -6,9 +6,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,7 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String subject = jwtTokenService.extractSubject(token);
                 String role = jwtTokenService.extractRole(token);
 
-                // Create authentication object
                 var authorities = List.of(
                         new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role)
                 );
@@ -55,12 +51,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         .setAuthentication(authentication);
 
             } catch (Exception ex) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired token");
-                return;
+                org.springframework.security.core.context.SecurityContextHolder.clearContext();
             }
         }
-
         filterChain.doFilter(request, response);
     }
 

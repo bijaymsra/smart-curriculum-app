@@ -35,12 +35,9 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                         // Allow actuator for all end points
                         .requestMatchers("/actuator/**").permitAll()
-                        // Existing public endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/ai/**").permitAll() 
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -59,8 +56,7 @@ public class SecurityConfig {
 
         config.setAllowedOriginPatterns(List.of(
         "http://localhost:*",
-        "https://localhost:*",
-        "https://attenza.bijaymsra.site"
+        "https://localhost:*"
         ));
 
         config.setAllowedMethods(List.of(
