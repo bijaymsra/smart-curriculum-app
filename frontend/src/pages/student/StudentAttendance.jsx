@@ -364,7 +364,7 @@ useEffect(() => {
             
             {/* Footer Action */}
             <button 
-              onClick={() => navigate('/student/planner')}
+              onClick={() => navigate('/student/tasks')}
               className="group/btn w-full py-4 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600 hover:to-indigo-600 text-blue-400 hover:text-white border border-blue-500/20 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-500 shadow-lg flex items-center justify-center gap-2"
             >
               Full Analytics Report

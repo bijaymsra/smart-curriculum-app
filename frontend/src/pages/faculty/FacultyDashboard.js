@@ -397,36 +397,6 @@ const stats = dashboardData
               </div>
             </div>
           )}
-
-          {/* Quick Actions */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-            <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <FileText size={16} className="text-blue-400" />
-                  </div>
-                  <span className="text-sm text-white">Generate Report</span>
-                </div>
-                <ExternalLink size={16} className="text-slate-400 group-hover:text-blue-400" />
-              </button>
-              
-              <button 
-                onClick={() => navigate('/faculty/analytics')}
-                className="w-full flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                    <TrendingUp size={16} className="text-purple-400" />
-                  </div>
-                  <span className="text-sm text-white">View Analytics</span>
-                </div>
-                <ExternalLink size={16} className="text-slate-400 group-hover:text-purple-400" />
-              </button>
-              
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

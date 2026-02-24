@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { LayoutGrid, Radio, Star, BarChart3, Calendar } from "lucide-react";
-import OverviewTab from "./components/OverviewTab";
+import {  Radio, Star, BarChart3, Calendar } from "lucide-react";
 import SessionsTab from "./components/SessionsTab";
 import ReviewsTab from "./components/ReviewsTab";
 
 export default function Attendance() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("sessions");
 
   const tabs = [
-    { key: "overview", label: "Overview", icon: LayoutGrid },
     { key: "sessions", label: "Live Monitoring", icon: Radio },
     { key: "reviews", label: "Reviews & Flagged", icon: Star },
   ];
@@ -79,14 +77,12 @@ export default function Attendance() {
   
   function renderTab() {
     switch (activeTab) {
-      case "overview":
-        return <OverviewTab />;
       case "sessions":
         return <SessionsTab />;
       case "reviews":
         return <ReviewsTab />;
       default:
-        return <OverviewTab />;
+        return <SessionsTab />;
     }
   }
 }

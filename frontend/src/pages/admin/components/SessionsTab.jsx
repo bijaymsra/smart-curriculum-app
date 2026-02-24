@@ -58,11 +58,6 @@ export default function SessionsTab() {
         icon: CheckCircle,
         label: "Finalized"
       },
-      CANCELLED: { 
-        color: "bg-red-500/20 text-red-400 border-red-500/30", 
-        icon: XCircle,
-        label: "Cancelled"
-      },
       EXPIRED: { 
         color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", 
         icon: AlertCircle,
@@ -111,7 +106,6 @@ export default function SessionsTab() {
     active: sessions.filter(s => s.status === 'ACTIVE').length,
     finalized: sessions.filter(s => s.status === 'FINALIZED').length,
     expired: sessions.filter(s => s.status === 'EXPIRED').length,
-    cancelled: sessions.filter(s => s.status === 'CANCELLED').length,
   };
 
   const handleRefresh = () => {
@@ -203,13 +197,6 @@ export default function SessionsTab() {
           </p>
           <p className="text-2xl font-bold text-yellow-400 mt-1">{stats.expired}</p>
         </div>
-        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-4">
-          <p className="text-slate-400 text-xs flex items-center gap-1">
-            <XCircle size={12} className="text-red-400" />
-            Cancelled
-          </p>
-          <p className="text-2xl font-bold text-red-400 mt-1">{stats.cancelled}</p>
-        </div>
       </div>
 
       {/* Controls Bar */}
@@ -236,7 +223,6 @@ export default function SessionsTab() {
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
               <option value="FINALIZED">Finalized</option>
-              <option value="CANCELLED">Cancelled</option>
               <option value="EXPIRED">Expired</option>
             </select>
           </div>
