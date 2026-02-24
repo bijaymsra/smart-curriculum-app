@@ -15,7 +15,6 @@ export default function Signup() {
 
   const formRef = useRef(null);
 
-  // Form data state
   const [formData, setFormData] = useState({
     institutionName: "",
     institutionType: "",

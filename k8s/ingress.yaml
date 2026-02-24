@@ -4,10 +4,10 @@ metadata:
   name: attenza-ingress
   namespace: attenza
 spec:
+  ingressClassName: traefik
   rules:
     - http:
         paths:
-          # Backend APIs
           - path: /api
             pathType: Prefix
             backend:
@@ -16,7 +16,6 @@ spec:
                 port:
                   number: 8080
 
-          # AI Endpoints (IMPORTANT FIX)
           - path: /ai
             pathType: Prefix
             backend:
@@ -25,7 +24,6 @@ spec:
                 port:
                   number: 8080
 
-          # Frontend
           - path: /
             pathType: Prefix
             backend:
