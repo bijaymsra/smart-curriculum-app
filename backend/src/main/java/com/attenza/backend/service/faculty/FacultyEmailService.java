@@ -13,12 +13,8 @@ import java.time.Year;
 @RequiredArgsConstructor
 public class FacultyEmailService {
 
-    private final EmailService emailService; // reuse admin email infra
+    private final EmailService emailService; 
 
-    /**
-     * 🔐 Sent ONLY ONCE when faculty becomes ACTIVE for the first time
-     * Includes Institution ID + Faculty ID + Temporary Password
-     */
     public void sendFacultyActivationEmail(Faculty faculty, String temporaryPassword) {
 
         Institution institution = faculty.getInstitution();
@@ -94,7 +90,6 @@ public class FacultyEmailService {
                             <div class="cred-row"><b>Institution ID:</b> %s</div>
                             <div class="cred-row"><b>Faculty ID:</b> %s</div>
                             <div class="cred-row"><b>Temporary Password:</b> %s</div>
-                            <div class="cred-row"><b>Login URL:</b> http://localhost:3000/login</div>
                         </div>
 
                         <p>
@@ -122,9 +117,6 @@ public class FacultyEmailService {
         emailService.sendEmail(faculty.getEmail(), subject, body);
     }
 
-    /**
-     * ℹ️ Sent for ALL status changes except first activation
-     */
     public void sendFacultyStatusChangeEmail(Faculty faculty,
                                              FacultyStatus oldStatus,
                                              FacultyStatus newStatus) {

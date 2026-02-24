@@ -20,7 +20,6 @@ public class DepartmentService {
     }
     
     public Department createDepartment(String code, String name, String description, Long institutionId) {
-        // Check if department code already exists in this institution
         if (departmentRepository.existsByDepartmentCodeAndInstitutionId(code, institutionId)) {
             throw new BadRequestException("Department code already exists in this institution");
         }
@@ -42,13 +41,11 @@ public class DepartmentService {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new BadRequestException("Department not found"));
         
-        // Check if department belongs to the institution
         if (!department.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Department not found in your institution");
         }
         
         if (code != null && !code.equals(department.getDepartmentCode())) {
-            // Check if new code already exists
             if (departmentRepository.existsByDepartmentCodeAndInstitutionId(code, institutionId)) {
                 throw new BadRequestException("Department code already exists in this institution");
             }
@@ -65,7 +62,6 @@ public class DepartmentService {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new BadRequestException("Department not found"));
         
-        // Check if department belongs to the institution
         if (!department.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Department not found in your institution");
         }

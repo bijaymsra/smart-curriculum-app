@@ -12,11 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.attenza.backend.dto.faculty.FacultyResponse;
-import com.attenza.backend.service.faculty.FacultyEmailService;
 import com.attenza.backend.util.IdGenerator;
-import lombok.extern.slf4j.Slf4j;
 import com.attenza.backend.repository.faculty.FacultyDocumentRepository;
-import java.util.Optional;
 import com.attenza.backend.dto.faculty.DocumentResponse;
 import com.attenza.backend.entity.FacultyPermissions;
 
@@ -33,17 +30,12 @@ public class FacultyService {
     private final FacultyPermissionsRepository permissionsRepository;
     private final FacultyDocumentRepository facultyDocumentRepository;
     private final DepartmentRepository departmentRepository;
-    private final SubjectRepository subjectRepository;
     private final PasswordEncoder passwordEncoder;
     private final FacultyEmailService facultyEmailService;
-
-    
-    // ========== CRUD Operations ==========
 
     @Transactional
     public FacultyDetailResponse createFaculty(FacultyCreateRequest request, Long institutionId) {
 
-        // Check if email already exists in this institution
         if (facultyRepository.existsByEmailAndInstitutionId(request.getEmail(), institutionId)) {
             throw new BadRequestException("Email already exists in this institution");
         }
@@ -54,7 +46,6 @@ public class FacultyService {
 
         Faculty faculty = new Faculty();
 
-        // 🔹 AUTO-GENERATED VALUES
         faculty.setFacultyId(IdGenerator.generateFacultyId());
 
         String rawPassword = IdGenerator.generateRandomPassword();
@@ -64,7 +55,6 @@ public class FacultyService {
         faculty.setAccountLocked(true);
         faculty.setCredentialsSent(false);
 
-        // 🔹 BASIC DATA
         faculty.setFullName(request.getFullName());
         faculty.setEmail(request.getEmail());
         faculty.setPhone(request.getPhone());
@@ -113,7 +103,6 @@ public class FacultyService {
         Faculty faculty = facultyRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new BadRequestException("Faculty not found"));
         
-        // Check if faculty belongs to the institution
         if (!faculty.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Faculty not found in your institution");
         }
@@ -138,15 +127,12 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
     Faculty faculty = facultyRepository.findByPublicId(publicId)
             .orElseThrow(() -> new BadRequestException("Faculty not found"));
     
-    // Check if faculty belongs to the institution
     if (!faculty.getInstitution().getId().equals(institutionId)) {
         throw new BadRequestException("Faculty not found in your institution");
     }
     
-    // Update basic info
     if (request.getFullName() != null) faculty.setFullName(request.getFullName());
     if (request.getEmail() != null) {
-        // Check if new email is unique in institution
         if (!request.getEmail().equals(faculty.getEmail()) &&
             facultyRepository.existsByEmailAndInstitutionId(request.getEmail(), institutionId)) {
             throw new BadRequestException("Email already exists in this institution");
@@ -166,7 +152,6 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
     if (request.getPincode() != null) faculty.setPincode(request.getPincode());
     if (request.getEmergencyContact() != null) faculty.setEmergencyContact(request.getEmergencyContact());
     
-    // Update academic details
     if (request.getDepartmentCode() != null) {
         Department department = departmentRepository
                 .findByInstitutionIdAndDepartmentCode(institutionId, request.getDepartmentCode())
@@ -178,23 +163,19 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
     if (request.getSpecialization() != null) faculty.setSpecialization(request.getSpecialization());
     if (request.getExperienceYears() != null) faculty.setExperienceYears(request.getExperienceYears());
     if (request.getResearchArea() != null) faculty.setResearchArea(request.getResearchArea());
-    if (request.getYearOfPassing() != null) faculty.setYearOfPassing(request.getYearOfPassing()); // ADD THIS
-    if (request.getInstitutionName() != null) faculty.setInstitutionName(request.getInstitutionName()); // ADD THIS
+    if (request.getYearOfPassing() != null) faculty.setYearOfPassing(request.getYearOfPassing()); 
+    if (request.getInstitutionName() != null) faculty.setInstitutionName(request.getInstitutionName()); 
     
-    // Update employment
     if (request.getJoinDate() != null) faculty.setJoinDate(request.getJoinDate());
     if (request.getEmploymentType() != null) faculty.setEmploymentType(request.getEmploymentType());
     if (request.getSalaryGrade() != null) faculty.setSalaryGrade(request.getSalaryGrade());
-    // if (request.getStatus() != null) faculty.setStatus(request.getStatus());
     
-    // Update financial
     if (request.getAccountNumber() != null) faculty.setAccountNumber(request.getAccountNumber());
     if (request.getBankName() != null) faculty.setBankName(request.getBankName());
     if (request.getIfscCode() != null) faculty.setIfscCode(request.getIfscCode());
     if (request.getPanNumber() != null) faculty.setPanNumber(request.getPanNumber());
     if (request.getUanNumber() != null) faculty.setUanNumber(request.getUanNumber());
     
-    // Update research
     if (request.getResearchPapersCount() != null) faculty.setResearchPapersCount(request.getResearchPapersCount());
     if (request.getConferencesAttended() != null) faculty.setConferencesAttended(request.getConferencesAttended());
     if (request.getProjectsCompleted() != null) faculty.setProjectsCompleted(request.getProjectsCompleted());
@@ -215,52 +196,38 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         Faculty faculty = facultyRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new BadRequestException("Faculty not found"));
 
-        // Institution ownership check
         if (!faculty.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Faculty not found in your institution");
         }
 
         FacultyStatus oldStatus = faculty.getStatus();
 
-        // No-op protection
         if (oldStatus == newStatus) {
             throw new BadRequestException("Faculty already in status: " + newStatus);
         }
 
-        // =========================
-        // 🔥 FIRST-TIME ACTIVATION
-        // =========================
         if (newStatus == FacultyStatus.ACTIVE && !faculty.getCredentialsSent()) {
 
-            // Generate temporary password (DO NOT STORE IT)
             String tempPassword = IdGenerator.generateTempPassword();
 
-            // Store only HASH
             faculty.setPasswordHash(passwordEncoder.encode(tempPassword));
 
-            // Unlock account
             faculty.setAccountLocked(false);
             faculty.setFailedLoginAttempts(0);
 
-            // Update status & flags
             faculty.setStatus(FacultyStatus.ACTIVE);
             faculty.setCredentialsSent(true);
 
-            // Persist first
             facultyRepository.save(faculty);
 
-            // Send activation email AFTER save
             facultyEmailService.sendFacultyActivationEmail(
                     faculty,
                     tempPassword
             );
 
-            return; // IMPORTANT: stop here
+            return; 
         }
 
-        // =========================
-        // 🔁 ALL OTHER STATUS CHANGES
-        // =========================
         faculty.setStatus(newStatus);
 
         facultyRepository.save(faculty);
@@ -273,43 +240,33 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
     }
 
 
-    
-
     @Transactional
     public void deleteFaculty(String publicId, Long institutionId) {
-        // Find faculty
         Faculty faculty = facultyRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new BadRequestException("Faculty not found with ID: " + publicId));
         
-        // Check institution
         if (!faculty.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Faculty belongs to different institution");
         }
         
         Long facultyId = faculty.getId();
         
-        // 1. Clear subjects (faculty_subjects table)
         if (faculty.getSubjects() != null && !faculty.getSubjects().isEmpty()) {
             faculty.getSubjects().clear();
-            facultyRepository.save(faculty); // Updates join table
+            facultyRepository.save(faculty); 
         }
-        
-        // 2. Delete permissions (faculty_permissions table)
+
         permissionsRepository.findByFacultyId(facultyId)
             .ifPresent(permissionsRepository::delete);
         
-        // 3. Delete documents (faculty_documents table) 
         List<FacultyDocument> documents = facultyDocumentRepository.findByFacultyId(facultyId);
         if (!documents.isEmpty()) {
             facultyDocumentRepository.deleteAll(documents);
         }
         
-        // 4. Delete faculty
         facultyRepository.delete(faculty);
     }
 
-    
-    // ========== Permissions Management ==========
     
     @Transactional
     public Map<String, Boolean> updatePermissions(String facultyPublicId, 
@@ -318,7 +275,6 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         Faculty faculty = facultyRepository.findByPublicId(facultyPublicId)
                 .orElseThrow(() -> new BadRequestException("Faculty not found"));
         
-        // Check if faculty belongs to the institution
         if (!faculty.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Faculty not found in your institution");
         }
@@ -345,7 +301,6 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         Faculty faculty = facultyRepository.findByPublicId(facultyPublicId)
                 .orElseThrow(() -> new BadRequestException("Faculty not found"));
         
-        // Check if faculty belongs to the institution
         if (!faculty.getInstitution().getId().equals(institutionId)) {
             throw new BadRequestException("Faculty not found in your institution");
         }
@@ -354,44 +309,32 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
                 .orElseGet(() -> createDefaultPermissions(faculty));
         
         return convertPermissionsToMap(permissions);
-    }
-    
-    // ========== Stats & Dashboard ==========
-    
+    }    
         
     public FacultyStatsResponse getFacultyStats(Long institutionId) {
         FacultyStatsResponse stats = new FacultyStatsResponse();
         
-        // Total faculty
         Long totalFaculty = facultyRepository.countByInstitutionId(institutionId);
         stats.setTotalFaculty(totalFaculty != null ? totalFaculty : 0L);
         
-        // Active faculty
         Long activeFaculty = facultyRepository.countActiveByInstitutionId(institutionId);
         stats.setActiveFaculty(activeFaculty != null ? activeFaculty : 0L);
         
-        // Average utilization
         Double avgUtilization = facultyRepository.findAverageUtilizationByInstitutionId(institutionId);
         stats.setAvgUtilization(avgUtilization != null ? avgUtilization : 0.0);
         
-        // Average punctuality
         Double avgPunctuality = facultyRepository.findAveragePunctualityByInstitutionId(institutionId);
         stats.setAvgPunctuality(avgPunctuality != null ? avgPunctuality : 0.0);
         
-        // Warning faculty (using efficient count method)
         Long warningCount = facultyRepository.countByInstitutionIdAndStatus(institutionId, FacultyStatus.WARNING);
         stats.setWarningFaculty(warningCount != null ? warningCount : 0L);
         
-        // On leave faculty (using efficient count method)
         Long onLeaveCount = facultyRepository.countByInstitutionIdAndStatus(institutionId, FacultyStatus.ON_LEAVE);
         stats.setOnLeaveFaculty(onLeaveCount != null ? onLeaveCount : 0L);
         
         return stats;
     }
 
-
-    
-    // ========== Helper Methods ==========
     
     private FacultyPermissions createDefaultPermissions(Faculty faculty) {
         FacultyPermissions permissions = new FacultyPermissions();
@@ -420,7 +363,6 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         response.setIdleHours(faculty.getIdleHours());
         response.setRating(faculty.getRating());
         
-        // Convert subjects
         if (faculty.getSubjects() != null) {
             response.setSubjects(faculty.getSubjects().stream()
                     .map(Subject::getSubjectName)
@@ -433,12 +375,10 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
     private FacultyDetailResponse convertToDetailResponse(Faculty faculty) {
         FacultyDetailResponse response = new FacultyDetailResponse();
         
-        // Core Identity
         response.setPublicId(faculty.getPublicId());
         response.setFacultyId(faculty.getFacultyId());
         response.setEmail(faculty.getEmail());
         
-        // Basic Profile
         response.setFullName(faculty.getFullName());
         response.setPhone(faculty.getPhone());
         response.setGender(faculty.getGender() != null ? faculty.getGender().name() : null);
@@ -453,7 +393,6 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         response.setMaritalStatus(faculty.getMaritalStatus());
         response.setNationality(faculty.getNationality());
         
-        // Academic Details
         if (faculty.getDepartment() != null) {
             response.setDepartmentName(faculty.getDepartment().getDepartmentName());
         }
@@ -465,67 +404,56 @@ public FacultyDetailResponse updateFaculty(String publicId, FacultyUpdateRequest
         response.setYearOfPassing(faculty.getYearOfPassing());
         response.setInstitutionName(faculty.getInstitutionName());
         
-        // Employment
         response.setJoinDate(faculty.getJoinDate());
         response.setEmploymentType(faculty.getEmploymentType() != null ? 
                 faculty.getEmploymentType().name() : null);
         response.setSalaryGrade(faculty.getSalaryGrade());
         
-        // Status
         response.setStatus(faculty.getStatus().name());
         response.setAccountLocked(faculty.getAccountLocked());
         
-        // Performance Metrics
         response.setUtilizationPercentage(faculty.getUtilizationPercentage());
         response.setPunctualityPercentage(faculty.getPunctualityPercentage());
         response.setPerformanceScore(faculty.getPerformanceScore());
         response.setAttendancePercentage(faculty.getAttendancePercentage());
         response.setRating(faculty.getRating());
         
-        // Workload
         response.setWeeklyWorkloadHours(faculty.getWeeklyWorkloadHours());
         response.setIdleHours(faculty.getIdleHours());
         response.setMaxWorkloadHours(faculty.getMaxWorkloadHours());
         
-        // Leave Management
         response.setLeavesTaken(faculty.getLeavesTaken());
         response.setLeavesAvailable(faculty.getLeavesAvailable());
         response.setMedicalLeavesAvailable(faculty.getMedicalLeavesAvailable());
         response.setCasualLeavesAvailable(faculty.getCasualLeavesAvailable());
         
-        // Financial
         response.setAccountNumber(faculty.getAccountNumber());
         response.setBankName(faculty.getBankName());
         response.setIfscCode(faculty.getIfscCode());
         response.setPanNumber(faculty.getPanNumber());
         response.setUanNumber(faculty.getUanNumber());
         
-        // Research
         response.setResearchPapersCount(faculty.getResearchPapersCount());
         response.setConferencesAttended(faculty.getConferencesAttended());
         response.setProjectsCompleted(faculty.getProjectsCompleted());
         response.setPublicationsCount(faculty.getPublicationsCount());
         
-        // Related Data
         if (faculty.getSubjects() != null) {
             response.setSubjects(faculty.getSubjects().stream()
                     .map(Subject::getSubjectName)
                     .collect(Collectors.toList()));
         }
         
-        // Permissions
         FacultyPermissions permissions = permissionsRepository.findByFacultyId(faculty.getId())
                 .orElseGet(() -> createDefaultPermissions(faculty));
         response.setPermissions(convertPermissionsToMap(permissions));
         
-        // Documents
         List<DocumentResponse> documents = facultyDocumentRepository.findByFacultyId(faculty.getId())
                 .stream()
                 .map(this::convertToDocumentResponse)
                 .collect(Collectors.toList());
         response.setDocuments(documents);
         
-        // Activity
         response.setLastActive(faculty.getLastActive());
         response.setCreatedAt(faculty.getCreatedAt());
         response.setUpdatedAt(faculty.getUpdatedAt());
@@ -592,7 +520,6 @@ public List<FacultyResponse> filterFaculty(Long institutionId,
                                           String utilizationRange,
                                           String searchQuery) {
     
-    // Parse utilization range
     Integer minUtilization = null;
     Integer maxUtilization = null;
     
@@ -613,7 +540,6 @@ public List<FacultyResponse> filterFaculty(Long institutionId,
         }
     }
     
-    // Get department ID if department filter is active
     Long departmentId = null;
     if (departmentCode != null && !departmentCode.equals("all")) {
         try {
@@ -624,11 +550,9 @@ public List<FacultyResponse> filterFaculty(Long institutionId,
                 departmentId = department.getId();
             }
         } catch (Exception e) {
-            // Department not found, will handle in query
         }
     }
     
-    // Get filtered faculty from database
     List<Faculty> facultyList = facultyRepository.findByInstitutionIdAndFilters(
         institutionId,
         (status != null && !status.equals("all")) ? status : null,
@@ -637,7 +561,6 @@ public List<FacultyResponse> filterFaculty(Long institutionId,
         maxUtilization
     );
     
-    // Apply search filter if needed
     List<Faculty> filteredList = facultyList;
     if (searchQuery != null && !searchQuery.trim().isEmpty()) {
         String query = searchQuery.toLowerCase();

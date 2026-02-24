@@ -15,9 +15,6 @@ public class FacultySettingsService {
 
     private final FacultyRepository facultyRepository;
 
-    /* =========================
-       GET MY SETTINGS
-       ========================= */
     public FacultySettingsResponse getMySettings(String facultyId) {
 
         Faculty faculty = facultyRepository
@@ -76,9 +73,7 @@ public class FacultySettingsService {
                 .build();
     }
 
-    /* =========================
-       UPDATE MY PROFILE
-       ========================= */
+
     public void updateMyProfile(
             String facultyId,
             FacultyProfileUpdateRequest request
@@ -89,7 +84,6 @@ public class FacultySettingsService {
                 .orElseThrow(() ->
                         new RuntimeException("Faculty not found"));
 
-        // Only editable fields updated
         faculty.setPhone(request.getPhone());
         faculty.setAlternatePhone(request.getAlternatePhone());
         faculty.setAddress(request.getAddress());

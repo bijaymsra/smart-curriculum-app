@@ -28,10 +28,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Setter
 public class Faculty {
 
-    /* =========================
-       CORE IDENTITY (Matches your pattern)
-       ========================= */
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,10 +40,6 @@ public class Faculty {
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
-
-    /* =========================
-       BASIC PROFILE
-       ========================= */
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -83,10 +75,6 @@ public class Faculty {
    @Column(name = "nationality")
    private String nationality;
 
-    /* =========================
-       ACADEMIC & EMPLOYMENT DETAILS
-       ========================= */
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
@@ -103,8 +91,6 @@ public class Faculty {
 
    @Column(name = "year_of_passing")
    private Integer yearOfPassing;
-
-
 
     @Column(name = "specialization")
     private String specialization;
@@ -125,10 +111,6 @@ public class Faculty {
     @Column(name = "salary_grade")
     private String salaryGrade;
 
-    /* =========================
-       STATUS & ACCOUNT (Similar to AdminUser)
-       ========================= */
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FacultyStatus status = FacultyStatus.ACTIVE;
@@ -146,17 +128,10 @@ public class Faculty {
     @Column(name = "failed_login_attempts")
     private Integer failedLoginAttempts = 0;
 
-    /* =========================
-       INSTITUTION RELATION (Critical - matches your pattern)
-       ========================= */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id", nullable = false)
     private Institution institution;
-
-    /* =========================
-       PERFORMANCE METRICS (Can be calculated later)
-       ========================= */
 
     @Column(name = "utilization_percentage")
     private Integer utilizationPercentage = 0;
@@ -173,9 +148,6 @@ public class Faculty {
     @Column(name = "rating")
     private Double rating = 0.0;
 
-    /* =========================
-       WORKLOAD & LEAVES
-       ========================= */
 
     @Column(name = "weekly_workload_hours")
     private Integer weeklyWorkloadHours = 0;
@@ -200,10 +172,6 @@ public class Faculty {
    private Integer casualLeavesAvailable = 0;
 
 
-    /* =========================
-       FINANCIAL DETAILS
-       ========================= */
-
     @Column(name = "account_number")
     private String accountNumber;
 
@@ -219,10 +187,6 @@ public class Faculty {
     @Column(name = "uan_number")
     private String uanNumber; 
 
-    /* =========================
-       RESEARCH & PUBLICATIONS
-       ========================= */
-
     @Column(name = "research_papers_count")
     private Integer researchPapersCount = 0;
 
@@ -235,10 +199,6 @@ public class Faculty {
     @Column(name = "publications_count")
     private Integer publicationsCount = 0;
 
-    /* =========================
-       ACTIVITY & AUDIT (Matches your pattern)
-       ========================= */
-
     @Column(name = "last_active")
     private LocalDateTime lastActive;
 
@@ -248,11 +208,6 @@ public class Faculty {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /* =========================
-       RELATIONSHIPS
-       ========================= */
-
-    // Subjects taught by faculty
     @ManyToMany
     @JoinTable(
         name = "faculty_subjects",
@@ -260,10 +215,6 @@ public class Faculty {
         inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
     private Set<Subject> subjects = new HashSet<>();
-
-    /* =========================
-       LIFECYCLE HOOKS (Matches your pattern)
-       ========================= */
 
     @PrePersist
     protected void onCreate() {
@@ -281,10 +232,6 @@ public class Faculty {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    /* =========================
-       HELPER METHODS
-       ========================= */
 
     public String getInitials() {
         if (fullName == null || fullName.trim().isEmpty()) {

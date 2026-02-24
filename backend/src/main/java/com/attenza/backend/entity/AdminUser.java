@@ -21,7 +21,6 @@ public class AdminUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔐 Public-safe ID
     @Column(nullable = false, unique = true, updatable = false)
     private String publicId;
 

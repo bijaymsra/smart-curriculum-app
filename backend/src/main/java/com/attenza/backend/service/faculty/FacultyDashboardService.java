@@ -30,7 +30,6 @@ public class FacultyDashboardService {
 
     public FacultyDashboardResponse getDashboard(String facultyId) {
 
-        // 🔎 Clean & Debug Input
         String cleanedFacultyId = facultyId == null ? null : facultyId.trim();
         System.out.println("Dashboard request facultyId: [" + cleanedFacultyId + "]");
 
@@ -38,19 +37,15 @@ public class FacultyDashboardService {
             throw new RuntimeException("Invalid faculty ID");
         }
 
-        // ✅ Fetch faculty using official facultyId (FACB8553)
         Faculty faculty = facultyRepository
                 .findByFacultyId(cleanedFacultyId)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
 
-        // ✅ Get today's DayOfWeek ENUM
         DayOfWeek today = LocalDate.now().getDayOfWeek();
 
-        // ✅ Fetch timetable entries using numeric DB ID
         List<TimetableEntry> allEntries =
                 timetableRepository.findByFaculty_Id(faculty.getId());
 
-        // ✅ Filter today classes
         List<TodayClassDTO> todayClasses = allEntries.stream()
                 .filter(entry ->
                         entry.getTimeSlot() != null &&
@@ -71,14 +66,12 @@ public class FacultyDashboardService {
 
         int todayClassesCount = todayClasses.size();
 
-        // ✅ Count finalized sessions
         long totalSessionsConducted =
                 attendanceSessionRepository.countByFacultyIdAndStatus(
                         faculty.getFacultyId(),
                         AttendanceSessionStatus.FINALIZED
                 );
 
-        // ✅ Check active session
         boolean activeSession =
                 attendanceSessionRepository.existsByFacultyIdAndExpiryTimeAfter(
                         faculty.getFacultyId(),
@@ -116,7 +109,6 @@ public class FacultyDashboardService {
 
     List<FacultyInsightDTO> insights = new ArrayList<>();
 
-    // Example logic (temporary demo logic)
     long totalSessions =
             attendanceSessionRepository.countByFacultyIdAndStatus(
                     facultyId,

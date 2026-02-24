@@ -19,23 +19,12 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Optional<Student> findByRegistrationNoAndInstitution_Id(String registrationNo, Long institutionId);
     
-    // ADD THESE METHODS FOR DASHBOARD STATS:
-    
-    /**
-     * Get average attendance percentage for all students in an institution
-     */
     @Query("SELECT AVG(s.attendancePercentage) FROM Student s WHERE s.institution.id = :institutionId")
     Double findAverageAttendanceByInstitutionId(@Param("institutionId") Long institutionId);
     
-    /**
-     * Count students with attendance below a threshold (for warning stats)
-     */
     @Query("SELECT COUNT(s) FROM Student s WHERE s.institution.id = :institutionId AND s.attendancePercentage < :threshold")
     Long countLowAttendanceStudents(@Param("institutionId") Long institutionId, @Param("threshold") Integer threshold);
     
-    /**
-     * Search students by name or registration number
-     */
     @Query("SELECT s FROM Student s WHERE s.institution.id = :institutionId AND " +
            "(LOWER(s.fullName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(s.registrationNo) LIKE LOWER(CONCAT('%', :query, '%')))")
@@ -43,7 +32,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
                                                 @Param("query") String query);
 
 
-       // 🔹 REQUIRED FOR ATTENDANCE QR FLOW
        Optional<Student> findByPublicId(String publicId);
 
        long countByInstitution_IdAndCourseAndBatchAndSemesterAndSectionAndDepartmentAndStatusIn(

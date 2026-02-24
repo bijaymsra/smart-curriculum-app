@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, Moon, Sun, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key, BarChart3} from 'lucide-react';
+import { User, Lock, Globe, Briefcase, Mail, Phone, Shield, EyeOff, MapPin, Copy, Building2, Calendar, CheckCircle, Bell, Eye, LogOut, AlertCircle, Loader2, Key, BarChart3} from 'lucide-react';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 
@@ -14,6 +14,15 @@ export default function Settings() {
   const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+
+// useEffect(() => {
+//   if (darkMode) {
+//     document.documentElement.classList.add("dark");
+//   } else {
+//     document.documentElement.classList.remove("dark");
+//   }
+// }, [darkMode]);
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -145,7 +154,7 @@ export default function Settings() {
       setError(null);
 
       try {
-        // 1️⃣ Load admin profile
+        // Load admin profile
         const profileRes = await authFetch(
           `${API_BASE}/api/admin/me?adminId=${adminId}`
         );
@@ -155,7 +164,7 @@ export default function Settings() {
         const profileData = await profileRes.json();
         setAdminData(profileData);
 
-        // 2️⃣ Load notification settings
+        // Load notification settings
         const notifRes = await authFetch(
           `${API_BASE}/api/admin/notifications?adminId=${adminId}`
         );
@@ -170,7 +179,7 @@ export default function Settings() {
           });
         }
 
-        // 3️⃣ Load preference settings
+        // Load preference settings
         const prefRes = await authFetch(
           `${API_BASE}/api/admin/preferences?adminId=${adminId}`
         );
@@ -217,25 +226,25 @@ export default function Settings() {
       }
     } catch (err) {
       console.error(err);
-      setNotificationSettings(notificationSettings); // Rollback on failure
+      setNotificationSettings(notificationSettings); 
     }
   };
 
-  const toggleTheme = async () => {
-    const adminId = sessionStorage.getItem("adminId");
-    const newTheme = darkMode ? "light" : "dark";
+// const toggleTheme = async () => {
+//   const adminId = sessionStorage.getItem("adminId");
+//   const newTheme = darkMode ? "light" : "dark";
 
-    setDarkMode(!darkMode);
+//   setDarkMode(newTheme === "dark");
 
-    try {
-      await authFetch(
-        `${API_BASE}/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
-        { method: "PUT" }
-      );
-    } catch (e) {
-      console.error("Theme update error:", e);
-    }
-  };
+//   try {
+//     await authFetch(
+//       `${API_BASE}/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
+//       { method: "PUT" }
+//     );
+//   } catch (e) {
+//     console.error("Theme update error:", e);
+//   }
+// };
 
   // ========== INDUSTRY-LEVEL LOADING & ERROR STATES ==========
 
@@ -705,7 +714,7 @@ export default function Settings() {
       )}
 
       {/* Preferences Tab */}
-      {activeTab === 'preferences' && (
+      {/* {activeTab === 'preferences' && (
         <div className="space-y-6">
           <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -735,7 +744,7 @@ export default function Settings() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

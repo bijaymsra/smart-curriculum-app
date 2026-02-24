@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationDTO {
 
-    private String id;                 // unique id (can be UUID or generated)
-    private String type;               // INFO | WARNING | ALERT
-    private String title;              // Short heading
-    private String message;            // Detailed message
-    private LocalDateTime timestamp;   // When generated
-    private String actionUrl;          // Optional redirect link
-    private boolean unread;            // For badge count (future-ready)
+    private String id;                 
+    private String type;               
+    private String title;              
+    private String message;            
+    private LocalDateTime timestamp;   
+    private String actionUrl;          
+    private boolean unread;            
 }

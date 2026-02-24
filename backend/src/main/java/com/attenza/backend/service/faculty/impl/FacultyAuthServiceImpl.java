@@ -18,12 +18,11 @@ public class FacultyAuthServiceImpl implements FacultyAuthService {
 
     private final FacultyRepository facultyRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenService jwtTokenService;   // ✅ Inject JWT service
+    private final JwtTokenService jwtTokenService;   
 
     @Override
     public FacultyLoginResponse login(FacultyLoginRequest request) {
 
-        // 🔹 1️⃣ Find Faculty by FacultyId + Institution
         Faculty faculty = facultyRepository
                 .findByFacultyIdAndInstitution_PublicId(
                         request.getFacultyId(),
@@ -32,7 +31,6 @@ public class FacultyAuthServiceImpl implements FacultyAuthService {
                 .orElseThrow(() ->
                         new BadRequestException("Invalid Faculty ID or Institution ID"));
 
-        // 🔹 2️⃣ Validate Password
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 faculty.getPasswordHash()
@@ -40,18 +38,15 @@ public class FacultyAuthServiceImpl implements FacultyAuthService {
             throw new BadRequestException("Invalid password");
         }
 
-        // 🔹 3️⃣ Check Status
         if (!faculty.isActive()) {
             throw new BadRequestException("Faculty account is inactive");
         }
 
-        // 🔹 4️⃣ Generate JWT Token
         String token = jwtTokenService.generateToken(
-                faculty.getFacultyId(),   // Public ID
-                "FACULTY"                 // Role
+                faculty.getFacultyId(),   
+                "FACULTY"                 
         );
 
-        // 🔹 5️⃣ Return Response With Token
         return FacultyLoginResponse.builder()
                 .facultyId(faculty.getFacultyId())
                 .fullName(faculty.getFullName())
@@ -59,12 +54,11 @@ public class FacultyAuthServiceImpl implements FacultyAuthService {
                 .department(faculty.getDepartment().getDepartmentName())
                 .institutionId(faculty.getInstitution().getPublicId())
                 .institutionName(faculty.getInstitution().getName())
-                .token(token)   // ✅ Important
+                .token(token)   
                 .build();
     }
 
     @Override
     public void logout(Long facultyId) {
-        // Optional: token invalidation logic (if implemented later)
     }
 }

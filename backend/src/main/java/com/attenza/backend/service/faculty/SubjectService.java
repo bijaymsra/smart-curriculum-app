@@ -46,16 +46,16 @@ public class SubjectService {
             Long departmentId
     ) {
 
-        // 1️⃣ Subject code uniqueness check
+        // Subject code uniqueness check
         if (subjectRepository.findBySubjectCode(subjectCode).isPresent()) {
             throw new BadRequestException("Subject code already exists");
         }
 
-        // 2️⃣ Fetch REAL department (important!)
+        // Fetch REAL department (important!)
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new BadRequestException("Department not found"));
 
-        // 3️⃣ Create subject
+        // Create subject
         Subject subject = new Subject();
         subject.setSubjectCode(subjectCode);
         subject.setSubjectName(subjectName);

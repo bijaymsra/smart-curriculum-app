@@ -22,16 +22,9 @@ public class InstitutionSignupService {
     private final AdminUserRepository adminRepo;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    /**
-     * Registers a new institution and its admin.
-     * This operation is ATOMIC:
-     * - either both Institution & AdminUser are saved
-     * - or nothing is saved
-     */
     @Transactional
     public void registerInstitution(InstitutionSignupRequest request) {
 
-        // 🔒 Business validations
         if (institutionRepo.existsByEmail(request.getInstitutionEmail())) {
             throw new BadRequestException("Institution already registered with this email");
         }
@@ -40,7 +33,6 @@ public class InstitutionSignupService {
             throw new BadRequestException("Admin email already exists");
         }
 
-        // 🏫 Create Institution
         Institution institution = new Institution();
         institution.setPublicId(IdGenerator.generateInstitutionPublicId());
         institution.setName(request.getInstitutionName());
@@ -55,7 +47,6 @@ public class InstitutionSignupService {
 
         institutionRepo.save(institution);
 
-        // 👤 Create Admin (PENDING approval)
         AdminUser admin = new AdminUser();
         admin.setPublicId(IdGenerator.generateAdminPublicId());
         admin.setFullName(request.getAdminName());

@@ -87,12 +87,9 @@ public interface FacultyRepository extends JpaRepository<Faculty, Long> {
     
     boolean existsByEmailAndInstitutionId(String email, Long institutionId);
 
-    // Count faculty by institution and status
     @Query("SELECT COUNT(f) FROM Faculty f WHERE f.institution.id = :institutionId AND f.status = :status")
     Long countByInstitutionIdAndStatus(@Param("institutionId") Long institutionId, 
                                       @Param("status") FacultyStatus status);
-
-
 
     Optional<Faculty> findByFacultyIdAndInstitution_PublicId(String facultyId, String institutionPublicId);
 

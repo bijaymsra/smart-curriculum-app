@@ -13,25 +13,15 @@ import java.time.LocalDateTime;
 @Setter
 public class Student {
 
-    /* =========================
-       CORE IDENTITY
-       ========================= */
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Public, human-readable ID (used in UI, URLs)
     @Column(name = "public_id", unique = true, nullable = false)
     private String publicId;
 
-    // University / Institution registration number
     @Column(name = "registration_no", unique = true, nullable = false)
     private String registrationNo;
-
-    /* =========================
-       BASIC PROFILE
-       ========================= */
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -45,9 +35,6 @@ public class Student {
 
     private LocalDate dateOfBirth;
 
-    /* =========================
-       ACCOUNT STATUS
-       ========================= */
    
     @Column(name = "password_hash")
     private String passwordHash;
@@ -57,17 +44,9 @@ public class Student {
     @Column(nullable = false)
     private StudentStatus status;
 
-    /* =========================
-       INSTITUTION RELATION
-       ========================= */
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "institution_id", nullable = false)
     private Institution institution;
-
-    /* =========================
-       ACADEMIC DETAILS
-       ========================= */
 
     private String course;
 
@@ -83,15 +62,7 @@ public class Student {
 
     private String admissionType;
 
-    /* =========================
-       ATTENDANCE (SUMMARY)
-       ========================= */
-
     private Integer attendancePercentage = 0;
-
-    /* =========================
-       PERSONAL / GUARDIAN DETAILS
-       ========================= */
 
     @Column(length = 500)
     private String address;
@@ -104,23 +75,13 @@ public class Student {
 
     private String guardianPhone;
 
-    /* =========================
-       ACTIVITY & AUDIT
-       ========================= */
-
-    // When student officially joined the institution
     private LocalDate joinedDate;
 
-    // Last seen activity (login, attendance, etc.)
     private LocalDateTime lastActive;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    /* =========================
-       LIFECYCLE HOOKS
-       ========================= */
 
     @PrePersist
     protected void onCreate() {

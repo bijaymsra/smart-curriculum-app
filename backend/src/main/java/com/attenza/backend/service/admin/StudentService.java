@@ -28,10 +28,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StudentService {
 
-    /* ======================
-       DEPENDENCIES
-       ====================== */
-
     private final StudentRepository studentRepository;
     private final AdminUserRepository adminUserRepository;
     private final IdGenerator idGenerator;
@@ -40,30 +36,14 @@ public class StudentService {
     private final StudentGroupService studentGroupService;
     private final DepartmentRepository departmentRepository;
 
-
-    /* ======================
-       READ OPERATIONS
-       ====================== */
-
-
-       // Helper method to safely escape strings for format strings
-        private String safeFormat(String input) {
-            if (input == null) {
-                return "";
-            }
-            return input.replace("%", "%%");
-        }
-
-        // Helper method to escape ALL special format characters
         private String escapeForFormat(String input) {
             if (input == null) {
                 return "";
             }
-    // Escape % first, then other format-related characters
         return input
             .replace("%", "%%")
-            .replace("\\n", "\\\\n")  // Escape newlines if present
-            .replace("\\t", "\\\\t"); // Escape tabs if present
+            .replace("\\n", "\\\\n") 
+            .replace("\\t", "\\\\t"); 
         }
 
     public List<StudentResponse> getStudentsForAdmin(Long adminId) {
@@ -87,7 +67,6 @@ public class StudentService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // 🔐 Ensure same institution
         if (!student.getInstitution().getId()
                 .equals(admin.getInstitution().getId())) {
             throw new RuntimeException("Unauthorized access to student");
@@ -95,21 +74,6 @@ public class StudentService {
 
         return toResponse(student);
     }
-
-    // public StudentStatsResponse getStats(Long adminId) {
-
-    //     AdminUser admin = adminUserRepository.findById(adminId)
-    //             .orElseThrow(() -> new RuntimeException("Admin not found"));
-
-    //     Long instId = admin.getInstitution().getId();
-
-    //     return new StudentStatsResponse(
-    //             studentRepository.countByInstitution_Id(instId),
-    //             studentRepository.countByInstitution_IdAndStatus(instId, StudentStatus.ACTIVE),
-    //             studentRepository.countByInstitution_IdAndStatus(instId, StudentStatus.WARNING),
-    //             studentRepository.countByInstitution_IdAndStatus(instId, StudentStatus.SUSPENDED)
-    //     );
-    // }
 
     public StudentStatsResponse getStats(Long adminId) {
         AdminUser admin = adminUserRepository.findById(adminId)
@@ -120,33 +84,22 @@ public class StudentService {
     }
 
 public StudentStatsResponse getStudentStats(Long institutionId) {
-    // Total students
     long total = studentRepository.countByInstitution_Id(institutionId);
     
-    // Active students
     long active = studentRepository.countByInstitution_IdAndStatus(
         institutionId, StudentStatus.ACTIVE);
     
-    // Warning students (status-based - students marked as WARNING)
     long warning = studentRepository.countByInstitution_IdAndStatus(
         institutionId, StudentStatus.WARNING);
     
-    // Suspended students
     long suspended = studentRepository.countByInstitution_IdAndStatus(
         institutionId, StudentStatus.SUSPENDED);
     
-    // Average attendance
     Double avgAttendanceDb = studentRepository.findAverageAttendanceByInstitutionId(institutionId);
     double avgAttendance = avgAttendanceDb != null ? avgAttendanceDb : 0.0;
     
     return new StudentStatsResponse(total, active, warning, suspended, avgAttendance);
 }
-
-
-
-    /* ======================
-       CREATE STUDENT
-       ====================== */
 
         public StudentResponse createStudent(Student student, Long adminId) {
 
@@ -169,60 +122,6 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
             return toResponse(saved);
         }
 
-
-        // @Transactional
-        // public StudentResponse createStudent(Student student, Long adminId) {
-
-        //     AdminUser admin = adminUserRepository.findById(adminId)
-        //             .orElseThrow(() -> new RuntimeException("Admin not found"));
-
-        //     // Generate IDs
-        //     String regNo = idGenerator.generateStudentRegistrationNo(
-        //             admin.getInstitution().getId()
-        //     );
-
-        //     student.setRegistrationNo(regNo);
-        //     student.setPublicId(idGenerator.generatePublicStudentId(regNo));
-        //     student.setInstitution(admin.getInstitution());
-
-        //     // Initial state
-        //     student.setStatus(StudentStatus.PENDING);
-        //     student.setAttendancePercentage(0);
-
-        //     // 🔹 Resolve Department (CRITICAL)
-        //     Department department = departmentRepository
-        //             .findByDepartmentCodeAndInstitution_Id(
-        //                     student.getDepartment(),
-        //                     admin.getInstitution().getId()
-        //             )
-        //             .orElseThrow(() ->
-        //                     new RuntimeException("Department not found: " + student.getDepartment())
-        //             );
-
-        //     // 🔹 AUTO: find or create student group
-        //     studentGroupService.findOrCreateGroupFromStudent(
-        //             admin.getInstitution(),
-        //             department,
-        //             student.getCourse(),
-        //             student.getBatch(),
-        //             student.getSemester(),
-        //             student.getSection()
-        //     );
-
-        //     // Save student
-        //     Student saved = studentRepository.save(student);
-        //     return toResponse(saved);
-        // }
-
-
-
-
-
-
-    /* ======================
-       STATUS UPDATE (CORE)
-       ====================== */
-
     @Transactional
     public StudentResponse updateStudentStatus(
             Long studentId,
@@ -234,8 +133,6 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
 
         StudentStatus current = student.getStatus();
         StudentStatus target = request.status();
-
-        // 🛑 no-op protection
         if (current == target) {
             return toResponse(student);
         }
@@ -251,8 +148,6 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
             default -> throw new RuntimeException("Invalid status transition");
         }
 
-
-        // Create student group ONLY when student becomes ACTIVE
         if (current != StudentStatus.ACTIVE && target == StudentStatus.ACTIVE) {
 
             Department department = departmentRepository
@@ -272,8 +167,6 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
             );
         }
 
-
-
         student.setStatus(target);
         studentRepository.save(student);
 
@@ -281,15 +174,9 @@ public StudentStatsResponse getStudentStats(Long institutionId) {
     }
 
 
-    /* ======================
-       TRANSITION HANDLERS
-       ====================== */
-
-
 private void handlePendingTransition(Student student,
                                      StudentStatus target,
                                      String reason) {
-    // Prepare escaped values
     String fullName = escapeForFormat(student.getFullName());
     String regNo = escapeForFormat(student.getRegistrationNo());
     String instName = escapeForFormat(student.getInstitution().getName());
@@ -298,7 +185,6 @@ private void handlePendingTransition(Student student,
     
     switch (target) {
         case ACTIVE -> {
-            // 🔐 Only generate credentials ONCE
             if (student.getPasswordHash() == null) {
                 String rawPassword = generatePassword();
                 student.setPasswordHash(passwordEncoder.encode(rawPassword));
@@ -309,7 +195,6 @@ private void handlePendingTransition(Student student,
                     buildApprovalEmail(student, rawPassword)
                 );
             } else {
-                // Already onboarded → status-only email
                 String emailContent = String.format("""
                     <!DOCTYPE html>
                     <html>
@@ -383,7 +268,6 @@ private void handlePendingTransition(Student student,
         }
 
         case WARNING -> {
-            // PENDING → WARNING (rare case, but handle it)
             String emailContent = String.format("""
                 <!DOCTYPE html>
                 <html>
@@ -445,9 +329,6 @@ private void handlePendingTransition(Student student,
         }
 
         case PENDING -> {
-            // Already PENDING → PENDING (no-op, but handle gracefully)
-            // Could send a "still under review" email if needed
-            // For now, just do nothing or log it
             System.out.println("Student " + student.getId() + " already PENDING, no action needed.");
         }
 
@@ -455,25 +336,16 @@ private void handlePendingTransition(Student student,
     }
 }
 
-
-
-
-
-
-
-
-
 private void handleActiveTransition(
         Student student,
         StudentStatus target,
         String reason
 ) {
-    // Prepare escaped values
     String fullName = escapeForFormat(student.getFullName());
     String regNo = escapeForFormat(student.getRegistrationNo());
     String instName = escapeForFormat(student.getInstitution().getName());
     String emailDomain = escapeForFormat(student.getInstitution().getName().toLowerCase().replaceAll("\\s+", ""));
-    String safeReason = escapeForFormat(reason);
+    // String safeReason = escapeForFormat(reason);
     int currentYear = java.time.Year.now().getValue();
     
     switch (target) {
@@ -676,7 +548,6 @@ private void handleActiveTransition(
         }
 
         case ACTIVE -> {
-            // WARNING → ACTIVE (cleared)
             String emailContent = String.format("""
                 <!DOCTYPE html>
                 <html>
@@ -747,7 +618,6 @@ private void handleActiveTransition(
         );
 
         case PENDING -> {
-            // Admin manually puts student back to pending (review)
             String emailContent = String.format("""
                 <!DOCTYPE html>
                 <html>
@@ -821,17 +691,11 @@ private void handleActiveTransition(
 }
 
 
-
-
-
-
-
 private void handleSuspendedTransition(
         Student student,
         StudentStatus target,
         String reason
 ) {
-    // Prepare escaped values
     String fullName = escapeForFormat(student.getFullName());
     String regNo = escapeForFormat(student.getRegistrationNo());
     String instName = escapeForFormat(student.getInstitution().getName());
@@ -840,7 +704,6 @@ private void handleSuspendedTransition(
     
     switch (target) {
         case ACTIVE -> {
-            // ✅ NO password regeneration
             String emailContent = String.format("""
                 <!DOCTYPE html>
                 <html>
@@ -884,8 +747,6 @@ private void handleSuspendedTransition(
                                 <li>All your previous data and records are restored</li>
                                 <li>You can resume your academic activities immediately</li>
                             </ul>
-                            
-                            <p><strong>🌐 Login Portal:</strong> <a href="http://localhost:3000/login">http://localhost:3000/login</a></p>
                         </div>
                         <div class="footer">
                             <p><strong>Best regards,</strong><br>Attenza Administration Team</p>
@@ -952,8 +813,6 @@ private void handleSuspendedTransition(
                                 <li>Meet with your academic advisor if required</li>
                                 <li>Failure to maintain standards may lead to suspension</li>
                             </ul>
-                            
-                            <p><strong>🌐 Login Portal:</strong> <a href="http://localhost:3000/login">http://localhost:3000/login</a></p>
                         </div>
                         <div class="footer">
                             <p><strong>Regards,</strong><br>Academic Administration<br>%s</p>
@@ -979,7 +838,6 @@ private void handleSuspendedTransition(
 
 
 case PENDING -> {
-    // SUSPENDED → PENDING (put back under review)
     String emailContent = String.format("""
         <!DOCTYPE html>
         <html>
@@ -1051,11 +909,6 @@ case PENDING -> {
         );
     }
 }
-
-
-    /* ======================
-       HELPERS
-       ====================== */
 
     private String generatePassword() {
         return UUID.randomUUID().toString().substring(0, 10);
@@ -1241,8 +1094,7 @@ case PENDING -> {
                                         <span class="credential-value">%s</span>
                                     </div>
                                     <div class="credential-item">
-                                        <span class="credential-label">🌐 Login Portal:</span>
-                                        <span class="credential-value">http://localhost:3000/login</span>
+                                        <span class="credential-label">🌐 Login at Login Portal:</span>
                                     </div>
                                 </div>
                             </div>
@@ -1253,7 +1105,6 @@ case PENDING -> {
                                 </div>
                                 <div class="instructions">
                                     <ol>
-                                        <li><strong>Visit</strong> the login portal: <a href="http://localhost:3000/login">http://localhost:3000/login</a></li>
                                         <li><strong>Select</strong> "Student" as the login type</li>
                                         <li><strong>Enter</strong> the Institution Code shown above</li>
                                         <li><strong>Enter</strong> your Registration Number</li>
@@ -1294,206 +1145,7 @@ case PENDING -> {
             );
         }
 
-private String buildWarningEmail(Student s) {
-    // Use your escapeForFormat() helper method consistently
-    String fullName = escapeForFormat(s.getFullName());
-    String regNo = escapeForFormat(s.getRegistrationNo());
-    String instName = escapeForFormat(s.getInstitution().getName());
-    String emailDomain = escapeForFormat(s.getInstitution().getName().toLowerCase().replaceAll("\\s+", ""));
-    int currentYear = java.time.Year.now().getValue();
-    
-    return String.format("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { 
-                    font-family: 'Segoe UI', Arial, sans-serif; 
-                    line-height: 1.6; 
-                    color: #333;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f5f5f5;
-                }
-                .email-container {
-                    max-width: 600px;
-                    margin: 20px auto;
-                    background: white;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                }
-                .header {
-                    background: linear-gradient(135deg, #f59e0b 0%%, #fbbf24 100%%);
-                    color: white;
-                    padding: 30px 20px;
-                    text-align: center;
-                }
-                .header h1 {
-                    margin: 0;
-                    font-size: 24px;
-                }
-                .content {
-                    padding: 40px;
-                }
-                .greeting {
-                    font-size: 18px;
-                    margin-bottom: 25px;
-                }
-                .warning-box {
-                    background: #fffbeb;
-                    border: 2px solid #f59e0b;
-                    border-radius: 10px;
-                    padding: 25px;
-                    margin: 25px 0;
-                }
-                .warning-title {
-                    color: #d97706;
-                    font-size: 20px;
-                    margin-bottom: 15px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .student-info {
-                    background: #f8fafc;
-                    padding: 20px;
-                    border-radius: 8px;
-                    margin: 20px 0;
-                }
-                .info-item {
-                    margin: 10px 0;
-                    display: flex;
-                }
-                .info-label {
-                    font-weight: 600;
-                    color: #4b5563;
-                    min-width: 160px;
-                }
-                .actions-box {
-                    background: #f0f9ff;
-                    border-left: 4px solid #0ea5e9;
-                    padding: 20px;
-                    margin: 25px 0;
-                    border-radius: 0 8px 8px 0;
-                }
-                .actions-title {
-                    color: #0369a1;
-                    font-size: 18px;
-                    margin-bottom: 15px;
-                }
-                .actions-list {
-                    margin: 15px 0;
-                    padding-left: 25px;
-                }
-                .actions-list li {
-                    margin: 8px 0;
-                }
-                .deadline {
-                    background: #fef2f2;
-                    border: 2px solid #fca5a5;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin: 25px 0;
-                    text-align: center;
-                }
-                .deadline-title {
-                    color: #dc2626;
-                    font-weight: 600;
-                    margin-bottom: 10px;
-                }
-                .footer {
-                    background: #f8fafc;
-                    padding: 25px;
-                    text-align: center;
-                    border-top: 1px solid #eaeaea;
-                }
-                .contact-info {
-                    margin-top: 20px;
-                    font-size: 14px;
-                    color: #6b7280;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="email-container">
-                <div class="header">
-                    <h1>⚠️ Attendance Warning Notice</h1>
-                </div>
-                
-                <div class="content">
-                    <div class="greeting">
-                        Dear <strong>%s</strong>,
-                    </div>
-                    
-                    <div class="warning-box">
-                        <div class="warning-title">
-                            ⚠️ Important: Attendance Below Required Standards
-                        </div>
-                        <p>This email serves as an official warning regarding your attendance percentage which has fallen below the institution's required standards.</p>
-                    </div>
-                    
-                    <div class="student-info">
-                        <div class="info-item">
-                            <span class="info-label">Student Name:</span>
-                            <span>%s</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Registration No:</span>
-                            <span>%s</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Institution:</span>
-                            <span>%s</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Current Status:</span>
-                            <span style="color: #d97706; font-weight: 600;">WARNING</span>
-                        </div>
-                    </div>
-                    
-                    <div class="actions-box">
-                        <div class="actions-title">📋 Required Actions</div>
-                        <ul class="actions-list">
-                            <li><strong>Review</strong> your attendance records on the student portal</li>
-                            <li><strong>Contact</strong> your course coordinator to discuss improvement</li>
-                            <li><strong>Attend</strong> all scheduled classes regularly</li>
-                            <li><strong>Submit</strong> any pending assignments or requirements</li>
-                            <li><strong>Meet</strong> with your academic advisor if available</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="deadline">
-                        <div class="deadline-title">⏰ Immediate Attention Required</div>
-                        <p>Please take corrective action immediately to avoid further academic consequences, including possible suspension.</p>
-                    </div>
-                    
-                    <p><strong>Next Steps:</strong> Your attendance will be monitored over the next 2 weeks. If improvement is not observed, further disciplinary action may be taken.</p>
-                </div>
-                
-                <div class="footer">
-                    <p><strong>Regards,</strong><br>Academic Administration<br>%s</p>
-                    <div class="contact-info">
-                        <p>For queries, contact: admin@%s.edu</p>
-                        <p>© %d Attenza. All rights reserved.</p>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-        """,
-        fullName,
-        fullName,
-        regNo,
-        instName,
-        instName,
-        emailDomain,
-        currentYear
-    );
-}
 private String buildSuspensionEmail(Student s, String reason) {
-    // Use your escapeForFormat() helper method consistently
     String fullName = escapeForFormat(s.getFullName());
     String regNo = escapeForFormat(s.getRegistrationNo());
     String instName = escapeForFormat(s.getInstitution().getName());
@@ -1733,10 +1385,6 @@ private String buildSuspensionEmail(Student s, String reason) {
     );
 }
 
-
-    /* ======================
-       DTO MAPPER
-       ====================== */
 
     private StudentResponse toResponse(Student s) {
         return new StudentResponse(

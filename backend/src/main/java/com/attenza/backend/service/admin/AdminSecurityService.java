@@ -20,17 +20,17 @@ public class AdminSecurityService {
         AdminUser admin = adminRepo.findById(request.getAdminId())
                 .orElseThrow(() -> new BadRequestException("Admin not found"));
 
-        // 🔒 Verify current password
+        // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), admin.getPassword())) {
             throw new BadRequestException("Current password is incorrect");
         }
 
-        // 🔐 Validate new password
+        // Validate new password
         if (request.getNewPassword().length() < 8) {
             throw new BadRequestException("New password must be at least 8 characters");
         }
 
-        // 🔁 Update password
+        // Update password
         admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
         adminRepo.save(admin);
     }

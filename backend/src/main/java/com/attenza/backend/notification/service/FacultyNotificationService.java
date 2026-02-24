@@ -28,9 +28,6 @@ public class FacultyNotificationService {
 
         List<NotificationDTO> notifications = new ArrayList<>();
 
-        /* ======================================
-           1️⃣ Expired but not finalized sessions
-        ====================================== */
         List<AttendanceSession> sessions =
                 sessionRepository.findByFacultyIdAndStatus(
                         facultyId,
@@ -53,9 +50,6 @@ public class FacultyNotificationService {
             );
         }
 
-        /* ======================================
-           2️⃣ Flagged submissions pending review
-        ====================================== */
         long flaggedCount =
                 submissionRepository.countByStatus(
                         AttendanceSubmissionStatus.FLAGGED
@@ -76,9 +70,6 @@ public class FacultyNotificationService {
             );
         }
 
-        /* ======================================
-           3️⃣ Upcoming classes today
-        ====================================== */
         List<TimetableEntry> todayClasses =
                 timetableRepository.findByFaculty_FacultyId(facultyId);
 

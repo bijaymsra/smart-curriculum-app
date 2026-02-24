@@ -261,15 +261,13 @@ public class AdminApprovalService {
                                         <span class="credential-value">${INSTITUTION_NAME}</span>
                                     </div>
                                     <div class="credential-item">
-                                        <span class="credential-label">🌐 Login Portal:</span>
-                                        <span class="credential-value">http://localhost:3000/login</span>
+                                        <span class="credential-label">🌐 Login at Login Portal:</span>
                                     </div>
                                 </div>
                                 
                                 <div class="instructions">
                                     <div class="instructions-title">📝 Getting Started Guide</div>
                                     <ol>
-                                        <li><strong>Visit</strong> the login portal: <a href="http://localhost:3000/login">http://localhost:3000/login</a></li>
                                         <li><strong>Select</strong> "Admin / Faculty" as login type</li>
                                         <li><strong>Enter</strong> your registered email address</li>
                                         <li><strong>Enter</strong> your password (use "Forgot Password" if needed)</li>
