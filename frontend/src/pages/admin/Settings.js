@@ -30,20 +30,20 @@ export default function Settings() {
     confirmPassword: ''
   });
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    attendanceAlerts: true,
-    systemUpdates: false,
-    weeklyReports: true
-  });
+  // const [notificationSettings, setNotificationSettings] = useState({
+  //   emailNotifications: true,
+  //   pushNotifications: true,
+  //   attendanceAlerts: true,
+  //   systemUpdates: false,
+  //   weeklyReports: true
+  // });
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'institution', label: 'Institution', icon: Building2 },
     { id: 'security', label: 'Security', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Globe }
+    // { id: 'notifications', label: 'Notifications', icon: Bell },
+    // { id: 'preferences', label: 'Preferences', icon: Globe }
   ];
 
   const handleCopyEmail = () => {
@@ -140,95 +140,95 @@ export default function Settings() {
     return types[type] || type;
   };
 
-  useEffect(() => {
-    const adminId = sessionStorage.getItem("adminId");
+  // useEffect(() => {
+  //   const adminId = sessionStorage.getItem("adminId");
 
-    if (!adminId) {
-      setError("Admin not logged in. Please log in again.");
-      setLoading(false);
-      return;
-    }
+  //   if (!adminId) {
+  //     setError("Admin not logged in. Please log in again.");
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    const loadData = async () => {
-      setLoading(true);
-      setError(null);
+  //   const loadData = async () => {
+  //     setLoading(true);
+  //     setError(null);
 
-      try {
-        // Load admin profile
-        const profileRes = await authFetch(
-          `${API_BASE}/api/admin/me?adminId=${adminId}`
-        );
-        if (!profileRes.ok) {
-          throw new Error("Failed to load admin profile");
-        }
-        const profileData = await profileRes.json();
-        setAdminData(profileData);
+  //     try {
+  //       // Load admin profile
+  //       const profileRes = await authFetch(
+  //         `${API_BASE}/api/admin/me?adminId=${adminId}`
+  //       );
+  //       if (!profileRes.ok) {
+  //         throw new Error("Failed to load admin profile");
+  //       }
+  //       const profileData = await profileRes.json();
+  //       setAdminData(profileData);
 
-        // Load notification settings
-        const notifRes = await authFetch(
-          `${API_BASE}/api/admin/notifications?adminId=${adminId}`
-        );
-        if (notifRes.ok) {
-          const notifData = await notifRes.json();
-          setNotificationSettings({
-            emailNotifications: notifData.emailNotifications ?? true,
-            pushNotifications: notifData.pushNotifications ?? true,
-            attendanceAlerts: notifData.attendanceAlerts ?? true,
-            systemUpdates: notifData.systemUpdates ?? false,
-            weeklyReports: notifData.weeklyReports ?? true
-          });
-        }
+  //       // Load notification settings
+  //       const notifRes = await authFetch(
+  //         `${API_BASE}/api/admin/notifications?adminId=${adminId}`
+  //       );
+  //       if (notifRes.ok) {
+  //         const notifData = await notifRes.json();
+  //         setNotificationSettings({
+  //           emailNotifications: notifData.emailNotifications ?? true,
+  //           pushNotifications: notifData.pushNotifications ?? true,
+  //           attendanceAlerts: notifData.attendanceAlerts ?? true,
+  //           systemUpdates: notifData.systemUpdates ?? false,
+  //           weeklyReports: notifData.weeklyReports ?? true
+  //         });
+  //       }
 
-        // Load preference settings
-        const prefRes = await authFetch(
-          `${API_BASE}/api/admin/preferences?adminId=${adminId}`
-        );
-        if (prefRes.ok) {
-          const prefData = await prefRes.json();
-          setDarkMode(prefData.theme === "dark");
-        }
+  //       // Load preference settings
+  //       const prefRes = await authFetch(
+  //         `${API_BASE}/api/admin/preferences?adminId=${adminId}`
+  //       );
+  //       if (prefRes.ok) {
+  //         const prefData = await prefRes.json();
+  //         setDarkMode(prefData.theme === "dark");
+  //       }
 
-      } catch (err) {
-        console.error("Settings load error:", err);
-        setError(err.message || "Failed to load settings data");
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     } catch (err) {
+  //       console.error("Settings load error:", err);
+  //       setError(err.message || "Failed to load settings data");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    loadData();
-  }, []);
+  //   loadData();
+  // }, []);
 
-  const handleNotificationToggle = async (key) => {
-    const adminId = sessionStorage.getItem("adminId");
-    if (!adminId || !adminData) return;
+  // const handleNotificationToggle = async (key) => {
+  //   const adminId = sessionStorage.getItem("adminId");
+  //   if (!adminId || !adminData) return;
 
-    const updatedSettings = {
-      ...notificationSettings,
-      [key]: !notificationSettings[key]
-    };
+  //   const updatedSettings = {
+  //     ...notificationSettings,
+  //     [key]: !notificationSettings[key]
+  //   };
 
-    // Optimistic UI update
-    setNotificationSettings(updatedSettings);
+  //   // Optimistic UI update
+  //   setNotificationSettings(updatedSettings);
 
-    try {
-      const res = await authFetch(
-        `${API_BASE}/api/admin/notifications?adminId=${adminId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedSettings)
-        }
-      );
+  //   try {
+  //     const res = await authFetch(
+  //       `${API_BASE}/api/admin/notifications?adminId=${adminId}`,
+  //       {
+  //         method: "PUT",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify(updatedSettings)
+  //       }
+  //     );
 
-      if (!res.ok) {
-        throw new Error("Failed to update notification settings");
-      }
-    } catch (err) {
-      console.error(err);
-      setNotificationSettings(notificationSettings); 
-    }
-  };
+  //     if (!res.ok) {
+  //       throw new Error("Failed to update notification settings");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setNotificationSettings(notificationSettings); 
+  //   }
+  // };
 
 // const toggleTheme = async () => {
 //   const adminId = sessionStorage.getItem("adminId");
@@ -275,7 +275,7 @@ export default function Settings() {
               </span>
             </p>
             <p className="text-slate-500 text-sm max-w-md mx-auto">
-              Loading profile information, preferences, and security settings...
+              Loading profile information, and security settings...
             </p>
           </div>
           
@@ -676,7 +676,7 @@ export default function Settings() {
       )}
 
       {/* Notifications Tab */}
-      {activeTab === 'notifications' && (
+      {/* {activeTab === 'notifications' && (
         <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
           <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <Bell size={20} />
@@ -711,7 +711,7 @@ export default function Settings() {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Preferences Tab */}
       {/* {activeTab === 'preferences' && (
