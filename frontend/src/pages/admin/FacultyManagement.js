@@ -264,16 +264,7 @@ export default function FacultyManagement() {
       try {
         setLoading(true);
         setError(null);
-        
-        const institutionId = admin?.institutionId;
-
-        console.log('Fetching faculty with:', {
-          facultyId,
-          type: typeof facultyId,
-          isNumeric: !isNaN(facultyId),
-          institutionId
-        });
-        
+        const institutionId = admin?.institutionId;        
         const facultyResponse = await facultyManagementApi.getFacultyById(facultyId, institutionId);
         
         const mappedFaculty = {

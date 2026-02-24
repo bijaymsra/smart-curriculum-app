@@ -98,8 +98,6 @@ const stopCamera = async () => {
 
 
 const handleQrDetected = async (decodedText) => {
-  console.log("QR detected:", decodedText);
-
   // Expected format: attn:<secureToken>
   if (!decodedText.startsWith("attn:")) {
     setError("Invalid attendance QR code");
@@ -114,8 +112,6 @@ const handleQrDetected = async (decodedText) => {
     await stopCamera();
     return;
   }
-
-  console.log("Secure QR token extracted:", token);
 
   setAttendanceData({ qrToken: token });
 
@@ -175,7 +171,6 @@ useEffect(() => {
     <div className="space-y-8">
 
       {/* Main Content Grid */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8"> */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
         {/* QR Scanner Panel */}
@@ -221,9 +216,7 @@ useEffect(() => {
               ) : (
                 <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border-2 border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                   
-                  {/* THE HUD OVERLAY (The "Tech" Feel) */}
                   <div className="absolute inset-0 pointer-events-none z-10">
-                    {/* Corner Brackets */}
                     <div className="absolute top-8 left-8 w-12 h-12 border-t-4 border-l-4 border-emerald-500 rounded-tl-lg" />
                     <div className="absolute top-8 right-8 w-12 h-12 border-t-4 border-r-4 border-emerald-500 rounded-tr-lg" />
                     <div className="absolute bottom-8 left-8 w-12 h-12 border-b-4 border-l-4 border-emerald-500 rounded-bl-lg" />

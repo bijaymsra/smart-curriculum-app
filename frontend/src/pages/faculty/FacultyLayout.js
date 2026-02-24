@@ -41,8 +41,6 @@ const FacultyLayout = () => {
   }
 };
 
-
-
   // Get faculty data from session storage
   const facultyData = {
     id: sessionStorage.getItem("facultyId"),
@@ -92,10 +90,6 @@ const navItems = [
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      
-      {/* =======================
-          Sidebar
-      ======================= */}
       <aside
         className={`fixed left-0 top-0 h-full bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 ${
           sidebarOpen ? "w-64" : "w-20"
@@ -178,9 +172,6 @@ const navItems = [
         </nav>
       </aside>
 
-      {/* =======================
-          Main Content
-      ======================= */}
       <main
         className={`transition-all duration-300 ${
           sidebarOpen ? "ml-64" : "ml-20"

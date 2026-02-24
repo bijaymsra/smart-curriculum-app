@@ -55,7 +55,6 @@ export default function AddFaculty() {
     email: '',
     
     // Section 2: Employment Details (Required)
-    // department_id: '',
     departmentCode: '',
     designation: '',
     employment_type: 'PERMANENT',
@@ -223,7 +222,6 @@ const buildFacultyPayload = () => ({
         }
 
         const createdFaculty = await res.json();
-        console.log("Faculty created:", createdFaculty);
 
         localStorage.setItem("lastCreatedFaculty", createdFaculty.publicId);
         setCurrentStep(2);
@@ -235,7 +233,6 @@ const buildFacultyPayload = () => ({
     };
 
   
-  // Check if basic info is complete for step 1
   const isBasicInfoComplete = () => {
     const requiredFields = [
       'full_name', 'email',

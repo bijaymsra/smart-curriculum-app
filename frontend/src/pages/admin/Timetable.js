@@ -5,10 +5,6 @@ import API_BASE from "../../config/api";
 import TimetableCreateModal from "./TimetableCreateModal";
 import { authFetch } from "../../utils/authFetch";
 
-/* =========================================================
-   ENHANCED ADMIN TIMETABLE MANAGEMENT
-   ========================================================= */
-
 export default function Timetable() {
   const { token } = useAdmin();
 
@@ -36,9 +32,6 @@ export default function Timetable() {
     "SATURDAY",
   ];
 
-  /* =========================================================
-     FETCH TIMETABLE WITH ANIMATION
-     ========================================================= */
 
   useEffect(() => {
     let mounted = true;
@@ -99,9 +92,6 @@ export default function Timetable() {
     return colors[index % colors.length];
   };
 
-  /* =========================================================
-     DERIVED DATA WITH VISUAL CALCULATIONS
-     ========================================================= */
 
     const filteredTimetable = useMemo(() => {
     return timetable.filter((item) => {
@@ -139,9 +129,6 @@ export default function Timetable() {
   }, [timetable]);
 
 
-  /* =========================================================
-     ENHANCED ACTIONS WITH FEEDBACK
-     ========================================================= */
 
   const handleEdit = (item) => {
     setEditingEntry(item);
@@ -171,10 +158,6 @@ export default function Timetable() {
     }
   };
 
-
-  /* =========================================================
-     LOADING & EMPTY STATES
-     ========================================================= */
 
   if (loading) {
     return (
@@ -382,9 +365,6 @@ export default function Timetable() {
   );
 }
 
-/* =========================================================
-   ENHANCED REUSABLE COMPONENTS
-   ========================================================= */
 
 const StatCard = ({ label, value, icon, trend, color }) => (
   <div className="group bg-slate-900/50 backdrop-blur-sm border border-slate-800 hover:border-slate-700 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]">

@@ -5,9 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 
-// API Service functions
 const dashboardApi = {
-  // Get student stats
   getStudentStats: async (institutionId) => {
     const response = await authFetch(
       `${API_BASE}/api/admin/students/dashboard-stats?institutionId=${institutionId}`,
@@ -24,7 +22,6 @@ const dashboardApi = {
     return response.json();
   },
 
-  // Get faculty stats
   getFacultyStats: async (institutionId) => {
     const response = await authFetch(
       `${API_BASE}/api/admin/faculty/stats?institutionId=${institutionId}`,
@@ -41,7 +38,6 @@ const dashboardApi = {
     return response.json();
   },
 
-  // Get total courses count (you'll need to implement this backend endpoint)
   getCourseStats: async (institutionId) => {
     const token = localStorage.getItem('token');
     const response = await authFetch(
@@ -98,22 +94,17 @@ export default function Dashboard() {
   });
   const { admin, loading: adminLoading } = useAdmin();
 
-  /* ===== NEW AI STATE ===== */
 const [aiInsight, setAiInsight] = useState(null);
 const [departmentInsights, setDepartmentInsights] = useState([]);
 const [efficiency, setEfficiency] = useState(null);
-const [riskSummary, setRiskSummary] = useState(null);
-
 
   const navigate = useNavigate();
 
-  // Format numbers with commas
   const formatNumber = (num) => {
     if (typeof num !== 'number') return '0';
     return num.toLocaleString('en-IN');
   };
 
-  // Fetch dashboard data
   useEffect(() => {
     if (adminLoading || !admin?.institutionId) return;
 
@@ -122,7 +113,6 @@ const [riskSummary, setRiskSummary] = useState(null);
       try {
         const institutionId = admin.institutionId;
 
-        // Fetch data in parallel
         const [
           studentStats,
           facultyStats,
@@ -136,8 +126,7 @@ const [riskSummary, setRiskSummary] = useState(null);
         const [
           insight,
           departments,
-          efficiencyData,
-          riskData
+          efficiencyData
         ] = await Promise.all([
           dashboardApi.getAIInsight(),
           dashboardApi.getAIDepartments(institutionId),
@@ -148,12 +137,7 @@ const [riskSummary, setRiskSummary] = useState(null);
         setAiInsight(insight);
         setDepartmentInsights(departments);
         setEfficiency(efficiencyData);
-        setRiskSummary(riskData);
 
-
-        console.log('Dashboard data:', { studentStats, facultyStats, courseStats });
-
-        // Set stats based on API response structure
         setStats({
           totalStudents: studentStats.totalStudents || studentStats.total || 0,
           totalFaculty: facultyStats.totalFaculty || facultyStats.total || 0,
@@ -163,11 +147,10 @@ const [riskSummary, setRiskSummary] = useState(null);
         setAiInsight(insight);
         setDepartmentInsights(departments || []);
         setEfficiency(efficiencyData);
-        setRiskSummary(riskData);
+        // setRiskSummary(riskData);
 
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        // Set fallback data
         setStats({
           totalStudents: 0,
           totalFaculty: 0,

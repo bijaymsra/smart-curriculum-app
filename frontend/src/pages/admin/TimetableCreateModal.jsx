@@ -4,16 +4,8 @@ import { useAdmin } from "../../context/AdminContext";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 
-/* =========================================================
-   ENHANCED CREATE / EDIT TIMETABLE MODAL
-   ========================================================= */
-
 export default function TimetableCreateModal({ open, onClose, onSuccess, editData }) {
   const {admin} = useAdmin();
-
-
-
-  /* ---------------- STATE ---------------- */
   const [studentGroups, setStudentGroups] = useState([]);
   const [courseOfferings, setCourseOfferings] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -32,10 +24,6 @@ export default function TimetableCreateModal({ open, onClose, onSuccess, editDat
   const [previewData, setPreviewData] = useState(null);
 
 
-/* =========================================================
-   LOCK BACKGROUND SCROLL WHEN MODAL IS OPEN
-   ========================================================= */
-
 useEffect(() => {
   if (open) {
     // Lock background scroll
@@ -52,10 +40,6 @@ useEffect(() => {
 }, [open]);
 
 
-
-  /* =========================================================
-     MASTER DATA LOADING WITH VISUAL FEEDBACK
-     ========================================================= */
 
   useEffect(() => {
     if (!open) return;
@@ -98,9 +82,6 @@ useEffect(() => {
     loadMasterData();
   }, [open,admin?.institutionId]);
 
-  /* =========================================================
-     FORM INITIALIZATION
-     ========================================================= */
 
   useEffect(() => {
     if (!open) return;
@@ -130,10 +111,6 @@ useEffect(() => {
 
 
 
-  /* =========================================================
-     PREVIEW GENERATION
-     ========================================================= */
-
   const updatePreview = (formData) => {
     const studentGroup = studentGroups.find(g => g.id === Number(formData.studentGroupId));
     const course = courseOfferings.find(c => c.id === Number(formData.courseOfferingId));
@@ -158,11 +135,6 @@ useEffect(() => {
   }, [form, studentGroups, courseOfferings, timeSlots, rooms]);
 
 
-
-  /* =========================================================
-     VALIDATION
-     ========================================================= */
-
   const validateForm = () => {
     const errors = {};
     if (!form.studentGroupId) errors.studentGroupId = "Student group is required";
@@ -172,9 +144,6 @@ useEffect(() => {
     return errors;
   };
 
-  /* =========================================================
-     SUBMIT WITH ENHANCED FEEDBACK
-     ========================================================= */
 
   const handleSubmit = async () => {
     const errors = validateForm();
@@ -223,10 +192,6 @@ useEffect(() => {
   };
 
   if (!open) return null;
-
-  /* =========================================================
-     ENHANCED UI
-     ========================================================= */
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -406,9 +371,6 @@ useEffect(() => {
   );
 }
 
-/* =========================================================
-   ENHANCED FORM COMPONENTS
-   ========================================================= */
 
 const FormSelect = ({ label, icon, value, onChange, options, error, disabled, description }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -497,10 +459,6 @@ const PreviewItem = ({ label, value }) => (
     <p className="text-white font-medium">{value}</p>
   </div>
 );
-
-/* =========================================================
-   UTILITIES
-   ========================================================= */
 
 
 const extractArray = (res) => {

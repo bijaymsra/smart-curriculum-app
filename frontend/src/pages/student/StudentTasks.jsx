@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  FileText,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Award,
-  Zap,
-  Plus,
-  Calendar,
-  Trash2
-} from "lucide-react";
+import {FileText, CheckCircle, Clock, TrendingUp, Award, Zap, Plus, Calendar, Trash2} from "lucide-react";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 

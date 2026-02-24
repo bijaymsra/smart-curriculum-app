@@ -37,7 +37,7 @@ export default function SessionsTab() {
 
       const data = await response.json();
       setSessions(data);
-      setCurrentPage(1); // Reset to first page on filter change
+      setCurrentPage(1); 
     } catch (err) {
       console.error("Sessions fetch error:", err);
       setError("Unable to load sessions");

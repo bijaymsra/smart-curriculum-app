@@ -46,7 +46,7 @@ export default function ReviewsTab() {
           },
           body: JSON.stringify({
             submissionId: submissionId,
-            status: decision, // APPROVED or REJECTED
+            status: decision, 
           }),
         }
       );
@@ -55,7 +55,7 @@ export default function ReviewsTab() {
         throw new Error("Review failed");
       }
 
-      fetchSubmissions(); // refresh list
+      fetchSubmissions(); 
     } catch (err) {
       console.error("Review action error:", err);
     }

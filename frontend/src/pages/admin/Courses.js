@@ -133,7 +133,6 @@ export default function Courses() {
     fetchCourses();
     fetchDepartments();
     
-    // Refresh every 30 seconds for real-time updates
     const interval = setInterval(() => {
       fetchCourses();
       fetchDepartments();
@@ -142,9 +141,6 @@ export default function Courses() {
     return () => clearInterval(interval);
   }, [admin, fetchCourses, fetchDepartments]);
 
-  /* =========================
-     ENHANCED VALIDATION FUNCTIONS
-     ========================= */
   const validateCourseForm = () => {
     const errors = {};
     
@@ -654,17 +650,6 @@ export default function Courses() {
       </div>
     );
   };
-
-
-  useEffect(() => {
-    console.table(
-      courses.map(c => ({
-        code: c.code,
-        deptId: c.departmentId
-      }))
-    );
-  }, [courses]);
-
 
   return (
     <div className="courses-container space-y-6 p-4 md:p-6">

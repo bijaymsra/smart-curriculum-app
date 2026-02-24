@@ -53,9 +53,6 @@ const StudentLayout = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* =======================
-          Sidebar
-      ======================= */}
       <aside
         className={`fixed left-0 top-0 h-full bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 ${
           sidebarOpen ? "w-64" : "w-20"
@@ -104,38 +101,35 @@ const StudentLayout = () => {
                 </div>
               </div>
 
-    {/* Text Section */}
-    <div className="flex flex-col min-w-0 flex-1">
-      {/* Name - Takes the top row */}
-    <p className="text-white font-semibold text-sm truncate tracking-wide">
-        {studentData.fullName || "Student"}
-      </p>
-      
-      {/* Info Row - Optimized for space */}
-      <div className="flex flex-col gap-0.5 mt-1">
-        {/* Registration Number */}
-        <span className="text-[10px] text-slate-500 font-medium truncate leading-none">
-          {studentData.registrationNo}
-        </span>
-        
-        {/* Year Badge - Pushed to its own line or made very compact */}
-        <div className="mt-1">
-          <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold border uppercase tracking-wider ${
-            studentData.status === 'ACTIVE' 
-              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-          }`}>
-            {studentData.year}
-          </span>
-        </div>
-      </div>
-    </div>
+                {/* Text Section */}
+                <div className="flex flex-col min-w-0 flex-1">
+                  {/* Name - Takes the top row */}
+                <p className="text-white font-semibold text-sm truncate tracking-wide">
+                    {studentData.fullName || "Student"}
+                  </p>
+                  
+                  {/* Info Row - Optimized for space */}
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    {/* Registration Number */}
+                    <span className="text-[10px] text-slate-500 font-medium truncate leading-none">
+                      {studentData.registrationNo}
+                    </span>
+                    
+                    {/* Year Badge - Pushed to its own line or made very compact */}
+                    <div className="mt-1">
+                      <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold border uppercase tracking-wider ${
+                        studentData.status === 'ACTIVE' 
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                          : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                      }`}>
+                        {studentData.year}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-
-      </div>
-    )}
-
-
+                </div>
+              )}
 
         </div>
 
@@ -166,9 +160,6 @@ const StudentLayout = () => {
         </nav>
       </aside>
 
-      {/* =======================
-          Main Content
-      ======================= */}
       <main
         className={`transition-all duration-300 ${
           sidebarOpen ? "ml-64" : "ml-20"

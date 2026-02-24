@@ -33,15 +33,9 @@ const FacultyDashboard = () => {
 useEffect(() => {
   const fetchDashboard = async () => {
     try {
-
       const res = await authFetch(`${API_BASE}/api/faculty/dashboard`);
-
-
       if (!res.ok) throw new Error("Failed to fetch dashboard");
-
       const data = await res.json();
-      console.log("Dashboard API:", data);
-
       setDashboardData(data);
 
     } catch (err) {

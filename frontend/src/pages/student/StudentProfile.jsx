@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
-import {
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  GraduationCap,
-  Building,
-} from "lucide-react";
+import {User, Mail, Phone, Calendar, GraduationCap, Building} from "lucide-react";
 
 const InfoRow = ({ icon: Icon, label, value }) => (
   <div className="flex items-start gap-4 py-3 border-b border-slate-700/40">

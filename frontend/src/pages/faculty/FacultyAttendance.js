@@ -22,10 +22,6 @@ const FacultyAttendance = () => {
   const [todayClasses, setTodayClasses] = useState([]);
   const [classesLoading, setClassesLoading] = useState(true);
 
-
-
-
-
   
   // Refs for RQ Session Timer
   const countdownRef = useRef(null);
@@ -33,8 +29,6 @@ const FacultyAttendance = () => {
 
   // Check if session expired
   const isSessionExpired = attendanceSession?.status !== "ACTIVE" || countdown <= 0;
-
-
 
       // Get faculty data
       const faculty = {
@@ -87,8 +81,6 @@ useEffect(() => {
     };
 
 
-    
-
   // Check for class data passed from dashboard
   useEffect(() => {
     if (location.state?.class) {
@@ -96,9 +88,6 @@ useEffect(() => {
       setShowSessionModal(true);
       startAttendance(location.state.class);
     }
-
-
-
 
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
@@ -116,8 +105,6 @@ useEffect(() => {
 // Start attendance session
 const startAttendance = async (classData) => {
   setLoading(true);
-
-  // RESET STATE FIRST (VERY IMPORTANT)
   setCountdown(120);
   setQrRefreshTimer(30);
   setAttendanceList([]);
@@ -162,7 +149,7 @@ const startAttendance = async (classData) => {
 
     setAttendanceSession(newSession);
 
-    // 🔥 Generate first QR immediately
+    // Generate first QR immediately
     generateQRCode(sessionId);
 
     // Start countdown timer
@@ -198,8 +185,6 @@ const startAttendance = async (classData) => {
   }
 };
 
-
-
 const generateQRCode = async (sessionId) => {
   if (!sessionId) return;
 
@@ -221,8 +206,6 @@ const generateQRCode = async (sessionId) => {
     console.error("QR generation failed", err);
   }
 };
-
-
 
 
   // real-time listener
@@ -262,9 +245,6 @@ const generateQRCode = async (sessionId) => {
     });
   };
 
-
-
-
   return () => eventSource.close();
 }, [attendanceSession?.id]);
 
@@ -287,9 +267,6 @@ const generateQRCode = async (sessionId) => {
       alert("Failed to complete session automatically.");
     }
   };
-
-
-
 
 
   // End attendance session
@@ -344,8 +321,6 @@ const cancelAttendance = () => {
   alert('Attendance session cancelled.');
 };
 
-
-
   // Submit final attendance
 const submitAttendance = async () => {
   if (!attendanceSession?.id) return;
@@ -375,9 +350,6 @@ const submitAttendance = async () => {
     alert("Unable to finalize attendance.");
   }
 };
-
-
-
 
 const reviewSubmission = async (submissionId, action) => {
 
@@ -409,8 +381,6 @@ const reviewSubmission = async (submissionId, action) => {
   }
 };
 
-
-
 // background fix for review section
 useEffect(() => {
   if (showSummaryModal) {
@@ -438,8 +408,6 @@ useEffect(() => {
     document.body.style.overflow = "auto";
   };
 }, [showSessionModal, showSummaryModal]);
-
-
 
 
   return (
@@ -540,12 +508,6 @@ useEffect(() => {
 
       </div>
 
-
-
-
-      {/* ====================
-          MODALS
-      ==================== */}
 
       {/* Attendance Session Modal */}
       {showSessionModal && selectedClass && (
@@ -777,8 +739,6 @@ useEffect(() => {
       )}
 
 
-
-
       {/* Attendance Session Summary */}
       {showSummaryModal && sessionSummary && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
@@ -926,8 +886,6 @@ useEffect(() => {
           </div>
         </div>
       )}
-
-
 
     </div>
   );

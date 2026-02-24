@@ -9,7 +9,6 @@ const FacultyAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const facultyId = sessionStorage.getItem("facultyId");
 
   useEffect(() => {
     fetchAnalytics();
@@ -52,9 +51,6 @@ const FacultyAnalytics = () => {
   return (
     <div className="space-y-8">
 
-      {/* ============================= */}
-      {/* SECTION 1 — OVERVIEW */}
-      {/* ============================= */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <Card
@@ -83,9 +79,6 @@ const FacultyAnalytics = () => {
 
       </div>
 
-      {/* ============================= */}
-      {/* SECTION 2 — ATTENDANCE */}
-      {/* ============================= */}
       <SectionWrapper title="Attendance Performance">
 
         <StatRow
@@ -105,9 +98,6 @@ const FacultyAnalytics = () => {
 
       </SectionWrapper>
 
-      {/* ============================= */}
-      {/* SECTION 3 — PUNCTUALITY */}
-      {/* ============================= */}
       <SectionWrapper title="Punctuality Metrics">
 
         <StatRow
@@ -132,9 +122,6 @@ const FacultyAnalytics = () => {
 
       </SectionWrapper>
 
-      {/* ============================= */}
-      {/* SECTION 4 — SUBJECT ANALYTICS */}
-      {/* ============================= */}
       <SectionWrapper title="Subject Performance">
 
         {analytics.subjectStats.length === 0 ? (
@@ -167,10 +154,6 @@ const FacultyAnalytics = () => {
     </div>
   );
 };
-
-/* ============================= */
-/* REUSABLE COMPONENTS */
-/* ============================= */
 
 const Card = ({ title, value, icon }) => (
   <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">

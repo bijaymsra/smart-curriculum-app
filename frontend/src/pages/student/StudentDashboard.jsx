@@ -120,7 +120,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* 🔥 STATS GRID */}
+      {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Attendance Card */}
@@ -178,7 +178,7 @@ const StudentDashboard = () => {
 
       </div>
 
-      {/* 🔥 TODAY SCHEDULE */}
+      {/* TODAY SCHEDULE */}
       <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-white text-lg font-semibold">
@@ -227,7 +227,7 @@ const StudentDashboard = () => {
       </div>
 
 
-{/* 🧠 AI Study Intelligence */}
+{/* AI Study Intelligence */}
 {aiRecommendations.length > 0 && (
   <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
     <div className="flex items-center justify-between mb-6">

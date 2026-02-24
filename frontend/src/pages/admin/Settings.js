@@ -5,7 +5,6 @@ import { authFetch } from "../../utils/authFetch";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
-  const [darkMode, setDarkMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [passwordError, setPasswordError] = useState("");
@@ -15,35 +14,16 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-// useEffect(() => {
-//   if (darkMode) {
-//     document.documentElement.classList.add("dark");
-//   } else {
-//     document.documentElement.classList.remove("dark");
-//   }
-// }, [darkMode]);
-
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
-  // const [notificationSettings, setNotificationSettings] = useState({
-  //   emailNotifications: true,
-  //   pushNotifications: true,
-  //   attendanceAlerts: true,
-  //   systemUpdates: false,
-  //   weeklyReports: true
-  // });
-
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'institution', label: 'Institution', icon: Building2 },
-    { id: 'security', label: 'Security', icon: Lock },
-    // { id: 'notifications', label: 'Notifications', icon: Bell },
-    // { id: 'preferences', label: 'Preferences', icon: Globe }
+    { id: 'security', label: 'Security', icon: Lock }
   ];
 
   const handleCopyEmail = () => {
@@ -164,30 +144,6 @@ export default function Settings() {
         const profileData = await profileRes.json();
         setAdminData(profileData);
 
-        // Load notification settings
-        // const notifRes = await authFetch(
-        //   `${API_BASE}/api/admin/notifications?adminId=${adminId}`
-        // );
-        // if (notifRes.ok) {
-        //   const notifData = await notifRes.json();
-        //   setNotificationSettings({
-        //     emailNotifications: notifData.emailNotifications ?? true,
-        //     pushNotifications: notifData.pushNotifications ?? true,
-        //     attendanceAlerts: notifData.attendanceAlerts ?? true,
-        //     systemUpdates: notifData.systemUpdates ?? false,
-        //     weeklyReports: notifData.weeklyReports ?? true
-        //   });
-        // }
-
-        // Load preference settings
-        // const prefRes = await authFetch(
-        //   `${API_BASE}/api/admin/preferences?adminId=${adminId}`
-        // );
-        // if (prefRes.ok) {
-        //   const prefData = await prefRes.json();
-        //   setDarkMode(prefData.theme === "dark");
-        // }
-
       } catch (err) {
         console.error("Settings load error:", err);
         setError(err.message || "Failed to load settings data");
@@ -198,55 +154,6 @@ export default function Settings() {
 
     loadData();
   }, []);
-
-  // const handleNotificationToggle = async (key) => {
-  //   const adminId = sessionStorage.getItem("adminId");
-  //   if (!adminId || !adminData) return;
-
-  //   const updatedSettings = {
-  //     ...notificationSettings,
-  //     [key]: !notificationSettings[key]
-  //   };
-
-  //   // Optimistic UI update
-  //   setNotificationSettings(updatedSettings);
-
-  //   try {
-  //     const res = await authFetch(
-  //       `${API_BASE}/api/admin/notifications?adminId=${adminId}`,
-  //       {
-  //         method: "PUT",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(updatedSettings)
-  //       }
-  //     );
-
-  //     if (!res.ok) {
-  //       throw new Error("Failed to update notification settings");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setNotificationSettings(notificationSettings); 
-  //   }
-  // };
-
-// const toggleTheme = async () => {
-//   const adminId = sessionStorage.getItem("adminId");
-//   const newTheme = darkMode ? "light" : "dark";
-
-//   setDarkMode(newTheme === "dark");
-
-//   try {
-//     await authFetch(
-//       `${API_BASE}/api/admin/preferences/theme?adminId=${adminId}&theme=${newTheme}`,
-//       { method: "PUT" }
-//     );
-//   } catch (e) {
-//     console.error("Theme update error:", e);
-//   }
-// };
-
-  // ========== INDUSTRY-LEVEL LOADING & ERROR STATES ==========
 
   if (loading) {
     return (
@@ -674,77 +581,6 @@ export default function Settings() {
           </div>
         </div>
       )}
-
-      {/* Notifications Tab */}
-      {/* {activeTab === 'notifications' && (
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Bell size={20} />
-            Notification Preferences
-          </h3>
-          <div className="space-y-4 max-w-2xl">
-            {Object.entries(notificationSettings).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/40 transition-all">
-                <div>
-                  <p className="text-white font-medium">
-                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                  </p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    {key === 'emailNotifications' && 'Receive notifications via email'}
-                    {key === 'pushNotifications' && 'Get push notifications in browser'}
-                    {key === 'attendanceAlerts' && 'Alert when attendance is below threshold'}
-                    {key === 'systemUpdates' && 'System maintenance and updates'}
-                    {key === 'weeklyReports' && 'Weekly summary reports'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleNotificationToggle(key)}
-                  className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${
-                    value ? 'bg-blue-500' : 'bg-slate-600'
-                  }`}
-                >
-                  <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
-                    value ? 'translate-x-7' : 'translate-x-0'
-                  }`}></div>
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
-
-      {/* Preferences Tab */}
-      {/* {activeTab === 'preferences' && (
-        <div className="space-y-6">
-          <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <Globe size={20} />
-              Appearance
-            </h3>
-            <div className="space-y-4 max-w-2xl">
-              <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/40 transition-all">
-                <div className="flex items-center gap-3">
-                  {darkMode ? (
-                    <Moon size={20} className="text-blue-400" />
-                  ) : (
-                    <Sun size={20} className="text-yellow-400" />
-                  )}
-                  <div>
-                    <p className="text-white font-medium">Theme Mode</p>
-                    <p className="text-sm text-slate-400 mt-1">Switch between light and dark mode</p>
-                  </div>
-                </div>
-                <button
-                  onClick={toggleTheme}
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg transition-all hover:scale-105 active:scale-95"
-                >
-                  {darkMode ? 'Switch to Light' : 'Switch to Dark'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 }

@@ -47,22 +47,18 @@ export default function Student() {
     }
   };
 
-  // ✅ Redirect effect
   useEffect(() => {
     if (!adminLoading && !admin) {
       navigate('/login');
     }
   }, [adminLoading, admin, navigate]);
 
-  // ✅ Fetch students effect
   useEffect(() => {
     if (adminLoading || !admin || !admin.adminId) return;
     
     setLoading(true);
     setError(null);
     
-    console.log("Fetching students for admin:", admin.adminId);
-
     Promise.all([
       authFetch(`${API_BASE}/api/admin/students?adminId=${admin.adminId}`),
       authFetch(`${API_BASE}/api/admin/students/stats?adminId=${admin.adminId}`)
@@ -95,7 +91,7 @@ export default function Student() {
     
   }, [admin, adminLoading]);
 
-  // ✅ Reset to page 1 when filters change
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterStatus, filterCourse, filterSemester]);
@@ -193,7 +189,6 @@ export default function Student() {
 
   const departments = ['CSE', 'ECE', 'ME', 'IT', 'EEE', 'Civil'];
 
-  // ========== INDUSTRY-LEVEL LOADING & ERROR STATES ==========
 
   if (error) {
     return (
@@ -268,7 +263,7 @@ export default function Student() {
   }
 
   if (!admin) {
-    return null; // Will redirect via useEffect
+    return null; 
   }
 
   // ========== MAIN COMPONENT RENDER ==========

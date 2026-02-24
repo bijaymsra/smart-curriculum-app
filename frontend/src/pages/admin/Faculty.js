@@ -113,15 +113,11 @@ const departments = [
   { code: 'MANAGEMENT', name: 'Management Studies' }
 ];
 
-
-  // Redirect effect
   useEffect(() => {
     if (!adminLoading && !admin) {
       navigate('/login');
     }
   }, [adminLoading, admin, navigate]);
-
-// Main fetch faculty data effect - SIMPLIFIED VERSION
 
 useEffect(() => {
   if (adminLoading || !admin) return;
@@ -141,8 +137,6 @@ useEffect(() => {
         'createdAt',
         'desc'
       );
-      
-      console.log('API Response:', facultyResponse);
       
       // Map API response to UI data structure
       const formattedFaculty = facultyResponse.content ? facultyResponse.content.map(faculty => ({
