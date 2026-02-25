@@ -627,7 +627,7 @@ export default function Courses() {
                   )}
                   {deptCourses.length > 0 && (
                     <div className="mt-4">
-                      <p className="text-sm text-slate-400 mb-2">Sample courses:</p>
+                      <p className="text-sm text-slate-400 mb-2">Courses:</p>
                       <div className="flex flex-wrap gap-2">
                         {deptCourses.slice(0, 3).map(c => (
                           <span key={c.id} className="text-xs bg-slate-800/70 text-slate-300 px-2 py-1 rounded">

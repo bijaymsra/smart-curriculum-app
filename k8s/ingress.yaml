@@ -3,20 +3,19 @@ kind: Ingress
 metadata:
   name: attenza-ingress
   namespace: attenza
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - bijaymsra.site
+      secretName: attenza-tls
   rules:
-    - http:
+    - host: bijaymsra.site
+      http:
         paths:
           - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 8080
-
-          - path: /ai
             pathType: Prefix
             backend:
               service:
