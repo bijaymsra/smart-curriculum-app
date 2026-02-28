@@ -1,7 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/common/Dashboard";
-import About from "./pages/common/About";
-import Docs from "./pages/common/Docs";
 import Login from "./pages/login/Login";
 import Signup from "./pages/login/Signup";
 import ProtectedRoute from "./protect/ProtectedRoute";
@@ -44,8 +42,6 @@ export default function App() {
     <Routes>
       {/* ===== GENERAL PUBLIC LAYOUT ===== */}
       <Route path="/" element={<Dashboard />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/docs" element={<Docs />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
