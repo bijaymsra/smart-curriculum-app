@@ -83,7 +83,7 @@ const StudentDashboard = () => {
     setChatLoading(true);
 
     try {
-      const response = await fetch("http://15.206.184.188:8000/chat", {
+      const response = await fetch("/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
