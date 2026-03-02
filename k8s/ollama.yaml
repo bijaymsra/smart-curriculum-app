@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: attenza
+  labels:
+    app: ollama
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+
+  template:
+    metadata:
+      labels:
+        app: ollama
+
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          ports:
+            - containerPort: 11434
+
+          volumeMounts:
+            - name: ollama-storage
+              mountPath: /root/.ollama
+
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "5Gi"
+              cpu: "2000m"
+
+      volumes:
+        - name: ollama-storage
+          hostPath:
+            path: /var/lib/ollama
+            type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: attenza
+
+spec:
+  type: ClusterIP
+  selector:
+    app: ollama
+
+  ports:
+    - port: 11434
+      targetPort: 11434

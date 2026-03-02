@@ -1,0 +1,77 @@
+1: Update System
+sudo apt update && sudo apt upgrade -y
+
+2: Install Docker:
+curl -fsSL https://get.docker.com | sh
+
+@Add ubuntu user to docker group:
+sudo usermod -aG docker $USER
+
+@Apply group without logout:
+newgrp docker
+
+3: Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+4: Install k3d
+curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+5: Create k3d Cluster  
+k3d cluster create attenza \
+  --agents 1 \
+  -p "80:80@loadbalancer" \
+  -p "443:443@loadbalancer"
+  
+@Install cert-manager ( for https )
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.crds.yaml
+
+
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.14.4
+  
+  
+6: Copy Folder to EC2
+sudo scp -i ~/all.pem -r k8s ubuntu@<public_ip>:/home/ubuntu/
+
+7: To Enter to MQSQL DB
+kubectl exec -it mysql-0 -n attenza -- mysql -u root -p
+
+pass -> rootpass
+
+8: Restart & Pull Latest image -> Frontend
+kubectl rollout restart deployment frontend -n attenza
+
+
+For Monitoring Tool setup 
+9: Now Add Prometheus Repo
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+@Install Prometheus Stack
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+  
+@Verify Installation
+kubectl get pods -n monitoring
+
+
+@Access endpoint  
+https://grafana.bijaymsra.site
+https://prometheus.bijaymsra.site
+
+@Generate Grafana Password
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+@Usename
+admin
+
+
+

@@ -5,16 +5,22 @@ metadata:
   namespace: attenza
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: attenza-strip-ai@kubernetescrd
+
 spec:
   ingressClassName: traefik
+
   tls:
     - hosts:
         - bijaymsra.site
       secretName: attenza-tls
+
   rules:
     - host: bijaymsra.site
       http:
         paths:
+
+          # SPRING BOOT
           - path: /api
             pathType: Prefix
             backend:
@@ -23,6 +29,16 @@ spec:
                 port:
                   number: 8080
 
+          # AI BACKEND (NEW)
+          - path: /ai
+            pathType: Prefix
+            backend:
+              service:
+                name: ai-backend
+                port:
+                  number: 8000
+
+          # FRONTEND
           - path: /
             pathType: Prefix
             backend:

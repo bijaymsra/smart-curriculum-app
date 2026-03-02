@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-backend
+  namespace: attenza
+  labels:
+    app: ai-backend
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-backend
+
+  template:
+    metadata:
+      labels:
+        app: ai-backend
+
+    spec:
+      containers:
+        - name: ai-backend
+          image: techbabu/ai-backend:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8000
+
+          env:
+            - name: OLLAMA_URL
+              value: "http://ollama:11434/api/chat"
+            - name: MODEL_NAME
+              value: "phi3"
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "300Mi"
+            limits:
+              cpu: "800m"
+              memory: "700Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-backend
+  namespace: attenza
+
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-backend
+
+  ports:
+    - port: 8000
+      targetPort: 8000
