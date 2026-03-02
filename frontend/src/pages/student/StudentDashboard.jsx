@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import API_BASE from "../../config/api";
 import { authFetch } from "../../utils/authFetch";
 import {
   TrendingUp,
   Users,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Bot,
+  X
 } from "lucide-react";
 
 const StudentDashboard = () => {
@@ -14,6 +16,14 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null);
   const [aiRecommendations, setAiRecommendations] = useState([]);
 
+  /* ---------------- AI CHAT STATES ---------------- */
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  /* ---------------- EXISTING LOGIC ---------------- */
 
   useEffect(() => {
     loadDashboard();
@@ -36,31 +46,66 @@ const StudentDashboard = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchAI = async () => {
+      try {
+        const studentId = sessionStorage.getItem("studentId");
+        if (!studentId) return;
+
+        const res = await authFetch(
+          `${API_BASE}/api/ai/admin/student/${studentId}/recommend`
+        );
+
+        if (!res.ok) throw new Error("AI fetch failed");
+
+        const data = await res.json();
+        setAiRecommendations(data);
+      } catch (err) {
+        console.error("Student AI error:", err);
+      }
+    };
+
+    fetchAI();
+  }, []);
+
+  /* ---------------- CHAT LOGIC ---------------- */
 
   useEffect(() => {
-  const fetchAI = async () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, chatLoading]);
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const newMessages = [...messages, { role: "user", content: input }];
+    setMessages(newMessages);
+    setInput("");
+    setChatLoading(true);
+
     try {
-      const studentId = sessionStorage.getItem("studentId");
+      const response = await fetch("http://15.206.184.188:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
 
-      if (!studentId) return;
+      const data = await response.json();
 
-      const res = await authFetch(
-        `${API_BASE}/api/ai/admin/student/${studentId}/recommend`
-      );
-
-      if (!res.ok) throw new Error("AI fetch failed");
-
-      const data = await res.json();
-      setAiRecommendations(data);
-
-    } catch (err) {
-      console.error("Student AI error:", err);
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: data.response },
+      ]);
+    } catch (error) {
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: "⚠️ Error connecting to AI server." },
+      ]);
     }
+
+    setChatLoading(false);
   };
 
-  fetchAI();
-}, []);
-
+  /* ---------------- LOADING / ERROR ---------------- */
 
   if (loading) {
     return (
@@ -88,7 +133,7 @@ const StudentDashboard = () => {
       : 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
 
       {/* HEADER */}
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 rounded-2xl border border-slate-700">
@@ -281,17 +326,103 @@ const StudentDashboard = () => {
 
 
 
+      {/* ================= FLOATING AI ASSISTANT BUTTON ================= */}
+      <div className="fixed bottom-6 right-6 z-50">
 
+        {!isChatOpen && (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="relative bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-xl transition animate-pulse"
+          >
+            <Bot size={24} />
+            <span className="absolute -top-10 right-0 bg-slate-900 text-xs text-white px-3 py-1 rounded-lg shadow-md">
+              Need help?
+            </span>
+          </button>
+        )}
 
+        {/* ================= CHAT PANEL ================= */}
+        {isChatOpen && (
+          <div className="w-96 h-[520px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
 
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
+              <div className="flex items-center gap-2 text-white font-semibold">
+                <Bot size={18} className="text-indigo-400" />
+                Smart Curriculum AI
+              </div>
 
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {messages.length === 0 && (
+                <div className="text-slate-400 text-sm">
+                  👋 Hi {dashboard.fullName.split(" ")[0]},  
+                  Ask me about attendance, rank improvement, or study plan.
+                </div>
+              )}
 
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    msg.role === "user"
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-xs px-4 py-2 rounded-xl text-sm ${
+                      msg.role === "user"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-slate-800 text-slate-200"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
 
+              {chatLoading && (
+                <div className="text-slate-400 text-sm">
+                  Thinking...
+                </div>
+              )}
 
+              <div ref={messagesEndRef} />
+            </div>
 
+            {/* Input */}
+            <div className="p-3 border-t border-slate-700 flex gap-2">
+              <input
+                type="text"
+                className="flex-1 bg-slate-800 text-white px-3 py-2 rounded-lg focus:outline-none"
+                placeholder="Ask something..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && sendMessage()
+                }
+              />
+              <button
+                onClick={sendMessage}
+                disabled={chatLoading}
+                className="bg-indigo-600 px-4 py-2 rounded-lg text-white hover:bg-indigo-700"
+              >
+                Send
+              </button>
+            </div>
 
-
+          </div>
+        )}
+      </div>
 
     </div>
   );
