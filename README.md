@@ -132,7 +132,13 @@ smart-curriculum-app/
 │
 ├── docs/              
 │   ├── Smart_Curriculum_AI_Report.pdf
+|   ├── Smart Curriculum AI (Attenza).pptx
 │
+├── diagrams/              
+│   ├── architecture.png
+│   ├── er-diagram.png
+|   ├── hpa.png
+|
 └── README.md
 ```
 
