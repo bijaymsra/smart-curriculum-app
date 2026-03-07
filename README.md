@@ -130,6 +130,9 @@ smart-curriculum-app/
 │   ├── ai-middleware.yaml
 │   ├── deploy.sh
 │
+├── docs/              
+│   ├── Smart_Curriculum_AI_Report.pdf
+│
 └── README.md
 ```
 
