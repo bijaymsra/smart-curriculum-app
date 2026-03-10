@@ -40,13 +40,32 @@ helm install cert-manager jetstack/cert-manager \
 6: Copy Folder to EC2
 sudo scp -i ~/all.pem -r k8s ubuntu@<public_ip>:/home/ubuntu/
 
-7: To Enter to MQSQL DB
+7: To Enter to MQSQL DataBases
 kubectl exec -it mysql-0 -n attenza -- mysql -u root -p
 
 pass -> rootpass
 
-8: Restart & Pull Latest image -> Frontend
-kubectl rollout restart deployment frontend -n attenza
+@At Admin portal ( data Feed )
+======= ROOMS Table =======
+INSERT INTO rooms 
+(capacity, created_at, room_code, room_name, room_type, updated_at, department_id, institution_id)
+VALUES
+(60, NOW(), 'CS101', 'Computer Lab 1', 'LAB', NOW(), 1, 1),
+(120, NOW(), 'LH201', 'Lecture Hall A', 'LECTURE_HALL', NOW(), 1, 1),
+(40, NOW(), 'SR305', 'Seminar Room 3', 'SEMINAR', NOW(), 1, 1);
+
+======= For Allocating Faculty to students =======
+INSERT INTO course_offerings
+(created_at, updated_at, faculty_id, student_group_id, subject_id)
+VALUES
+(NOW(), NOW(), 1, 1, 1);
+
+
+8: Restart & Pull Latest image -> 
+kubectl rollout restart deployment <pod_name> -n attenza
+
+@Delete Namespace
+kubectl delete namespace attenza
 
 
 For Monitoring Tool setup 
