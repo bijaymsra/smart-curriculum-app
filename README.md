@@ -138,6 +138,11 @@ smart-curriculum-app/
 │   ├── architecture.png
 │   ├── er-diagram.png
 |   ├── hpa.png
+|   ├── deployment_architecture.png
+|   ├── workflow.png
+│
+├── research/              
+│   ├── paper.pdf
 |
 └── README.md
 ```
