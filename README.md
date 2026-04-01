@@ -1,4 +1,4 @@
-# 🚀 Smart Curriculum AI (Attenza)
+# 🚀 Attenza — Cloud-Native AI-Powered Curriculum & Attendance Intelligence Platform
 
 A Production-Ready, Cloud-Native Smart Attendance & Curriculum Management Platform  
 with Integrated AI Assistant powered by Local LLM (Ollama)
@@ -7,7 +7,7 @@ with Integrated AI Assistant powered by Local LLM (Ollama)
 
 # 🌍 Live Architecture Overview
 
-Smart Curriculum AI is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
+Smart Curriculum AI - Attenza is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
 
 It includes:
 
