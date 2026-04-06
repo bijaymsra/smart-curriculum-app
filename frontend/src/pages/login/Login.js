@@ -226,9 +226,9 @@ export default function Login() {
             </div>
             <div>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Attenza
+                ATLAS
               </h1>
-              <p className="text-slate-400 text-sm mt-1">Smart Campus Management</p>
+              <p className="text-slate-400 text-sm mt-1">Automated Tracking & Learning Assistant System</p>
             </div>
           </div>
 
@@ -277,7 +277,7 @@ export default function Login() {
         </div>
 
         <p className="text-xs text-slate-500 relative z-10">
-          © {new Date().getFullYear()} Attenza. All rights reserved.
+          © {new Date().getFullYear()} ATLAS. All rights reserved.
         </p>
       </div>
 
@@ -287,7 +287,7 @@ export default function Login() {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">
-              Welcome to <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Attenza</span>
+              Welcome to <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">ATLAS</span>
             </h2>
             <p className="text-slate-400">
               Sign in to your institutional account

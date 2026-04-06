@@ -89,7 +89,7 @@ export default function LandingPage() {
                       ? 'bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'
                   }`}>
-                    Attenza
+                    ATLAS
                   </span>
                 </div>
               </div>
@@ -235,9 +235,9 @@ export default function LandingPage() {
                 </div>
 
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
-                  Smart Curriculum &
+                  Automated Tracking &
                   <span className={`block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent`}>
-                    Attendance System
+                  Learning Assistant System
                   </span>
                 </h1>
 
@@ -565,7 +565,7 @@ export default function LandingPage() {
                 {
                   name: "Dr. Sarah Johnson",
                   role: "Dean, Stanford University",
-                  content: "Attenza has transformed how we manage attendance. The AI insights are invaluable for student success.",
+                  content: "ATLAS has transformed how we manage attendance. The AI insights are invaluable for student success.",
                   rating: 5
                 },
                 {
@@ -728,7 +728,7 @@ export default function LandingPage() {
             <p className={`mt-6 text-lg max-w-2xl mx-auto ${
               darkMode ? 'text-slate-400' : 'text-slate-600'
             }`}>
-              Join 1000+ institutions already using Attenza to automate attendance, gain insights, and improve student success rates.
+              Join 1000+ institutions already using ATLAS to automate attendance, gain insights, and improve student success rates.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
@@ -757,13 +757,13 @@ export default function LandingPage() {
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <span className={`text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent`}>
-                    Attenza
+                    ATLAS
                   </span>
                 </div>
                 <p className={`text-sm leading-relaxed max-w-md ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
-                  Intelligent curriculum and attendance management platform built for modern educational ecosystems.
+                Automated Tracking & Learning Assistant System built for modern educational ecosystems.
                 </p>
                      
               <div className="mt-6 flex">
@@ -822,7 +822,7 @@ export default function LandingPage() {
               darkMode ? 'border-slate-800' : 'border-slate-200'
             }`}>
               <p className={`text-sm ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                © {new Date().getFullYear()} Attenza. All rights reserved.
+                © {new Date().getFullYear()} ATLAS. All rights reserved.
               </p>
               <div className="flex gap-6 text-sm">
                 <a href="#" className={darkMode ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-900'}>

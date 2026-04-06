@@ -265,7 +265,7 @@ useEffect(() => {
                     </div>
                     <div>
                       <h4 className="text-2xl font-bold text-white mb-1">Attendance Verified</h4>
-                      <p className="text-emerald-400/80 font-medium">Verified by ATTENZA Secure Link</p>
+                      <p className="text-emerald-400/80 font-medium">Verified by ATLAS Secure Link</p>
                       <div className="mt-4 py-2 px-4 bg-emerald-500/10 rounded-lg inline-block border border-emerald-500/20">
                         <span className="text-xs text-slate-400 uppercase mr-2">Timestamp:</span>
                         <span className="text-white font-mono text-sm">{new Date().toLocaleTimeString()}</span>

@@ -275,18 +275,18 @@ export default function Signup() {
           <div className="mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <img src={logo} alt="Attenza Logo" className="w-8 h-8" />
+                <img src={logo} alt="ATLAS Logo" className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">Attenza</h1>
+              <h1 className="text-3xl font-bold tracking-tight">ATLAS</h1>
             </div>
             <p className="text-blue-100 text-lg max-w-md">
-              Join the future of Smart Curriculum & Personalized System Management
+              Join the future of Automated Tracking & Learning Assistant System
             </p>
           </div>
 
           {/* Benefits List */}
           <div className="mt-auto space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Why choose Attenza?</h3>
+            <h3 className="text-xl font-semibold mb-4">Why choose ATLAS?</h3>
             
             <div className="space-y-4">
               <div className="flex items-start space-x-4">
@@ -309,7 +309,7 @@ export default function Signup() {
                 </div>
                 <div>
                   <h4 className="font-medium mb-1">Smart Planner</h4>
-                  <p className="text-blue-200 text-sm">Smart Curriculum & Personalized System Management</p>
+                  <p className="text-blue-200 text-sm">Automated Tracking & Learning Assistant System</p>
                 </div>
               </div>
 
@@ -335,7 +335,7 @@ export default function Signup() {
             {!showInstitutionForm && !showSuccessScreen && (
               <div className="animate-fade-in">
                 <div className="text-center mb-10">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-3">Get Started with Attenza</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-3">Get Started with ATLAS</h2>
                   <p className="text-gray-600">Click below to begin the journey!</p>
                 </div>
 

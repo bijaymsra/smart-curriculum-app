@@ -101,7 +101,7 @@ const navItems = [
             {sidebarOpen && (
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                  ATTENZA
+                  ATLAS
                 </h1>
                 <p className="text-xs text-slate-400 mt-1">Faculty Portal</p>
               </div>

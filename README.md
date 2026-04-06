@@ -1,13 +1,13 @@
-# 🚀 Attenza — Cloud-Native AI-Powered Curriculum & Attendance Intelligence Platform
+# ATLAS: Cloud-Native Automated Tracking & Learning Assistant System
 
-A Production-Ready, Cloud-Native Smart Attendance & Curriculum Management Platform  
+A Production-Ready, Cloud-Native Automated Tracking & Learning Assistant System  
 with Integrated AI Assistant powered by Local LLM (Ollama)
 
 ---
 
-# 🌍 Live Architecture Overview
+# Live Architecture Overview
 
-Smart Curriculum AI - Attenza is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
+Automated Tracking & Learning Assistant System - ATLAS is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
 
 It includes:
 
@@ -25,7 +25,7 @@ It includes:
 
 ---
 
-# 🏗 System Architecture
+# System Architecture
 
 ```
 User
@@ -46,36 +46,36 @@ User
 
 ---
 
-# 🎯 Core Functional Modules
+# Core Functional Modules
 
-## 1️⃣ Landing Page
+## 1️ Landing Page
 - Public entry page
 - Login & Signup
 
-## 2️⃣ Authentication System
+## 2️ Authentication System
 Roles:
 - 👑 Admin
 - 👨‍🏫 Faculty
 - 🎓 Student
 
-## 3️⃣ Institution Signup
+## 3️ Institution Signup
 - Institution registers
 - Admin account created
 
-## 4️⃣ Admin Dashboard
+## 4️ Admin Dashboard
 - Manage Students
 - Manage Faculty
 - Create Classes
 - Control Attendance
 - View Full Analytics
 
-## 5️⃣ Faculty Dashboard
+## 5️ Faculty Dashboard
 - Start Attendance Sessions
 - Live Student Monitoring
 - View Analytics
 - Attendance Insights
 
-## 6️⃣ Student Dashboard
+## 6️ Student Dashboard
 - Join Classes
 - Scan Dynamic QR Code
 - View Attendance Records
@@ -84,7 +84,7 @@ Roles:
 
 ---
 
-# 🤖 AI Architecture
+# AI Architecture
 
 AI backend is isolated as a microservice.
 
@@ -101,7 +101,7 @@ Model is auto-pulled during deployment if not present.
 
 ---
 
-# 📂 Project Structure
+# Project Structure
 
 ```
 smart-curriculum-app/
@@ -130,10 +130,6 @@ smart-curriculum-app/
 │   ├── ai-middleware.yaml
 │   ├── deploy.sh
 │
-├── docs/              
-│   ├── Smart_Curriculum_AI_Report.pdf
-|   ├── Smart Curriculum AI (Attenza).pptx
-│
 ├── diagrams/              
 │   ├── architecture.png
 │   ├── er-diagram.png
@@ -146,7 +142,7 @@ smart-curriculum-app/
 
 ---
 
-# 🐳 Docker Architecture
+# Docker Architecture
 
 ## Backend (Spring Boot)
 - Multi-stage build (Maven → Temurin 17)
@@ -164,7 +160,7 @@ smart-curriculum-app/
 
 ---
 
-# ☸ Kubernetes Features
+# Kubernetes Features
 
 - Namespace Isolation
 - Rolling Updates
@@ -178,7 +174,7 @@ smart-curriculum-app/
 
 ---
 
-# 📈 Horizontal Scaling
+# Horizontal Scaling
 
 Backend HPA Configuration:
 
@@ -191,7 +187,7 @@ Automatic scaling based on load.
 
 ---
 
-# 🔐 Security Practices
+# Security Practices
 
 - Secrets excluded from Git
 - `mysql-secret.example.yaml` provided
@@ -201,7 +197,7 @@ Automatic scaling based on load.
 
 ---
 
-# ☁ AWS EC2 Infrastructure
+# AWS EC2 Infrastructure
 
 Minimum Recommended Instance:
 
@@ -219,7 +215,7 @@ Minimum Recommended Instance:
 
 ---
 
-# 🌍 Domain Setup
+# Domain Setup
 
 1. Allocate Elastic IP
 2. Associate with EC2 instance
@@ -229,23 +225,23 @@ Minimum Recommended Instance:
 
 ---
 
-# 🚀 Full Deployment Guide
+# Full Deployment Guide
 
-## 1️⃣ Install Dependencies on EC2
+## 1️ Install Dependencies on EC2
 
 - Docker
 - kubectl
 - K3s or Kubernetes
 - Helm (optional)
 
-## 2️⃣ Clone Repository
+## 2️ Clone Repository
 
 ```
 git clone <your-repo-url>
 cd smart-curriculum-app/k8s
 ```
 
-## 3️⃣ Create Secret File
+## 3️ Create Secret File
 
 ```
 cp mysql-secret.example.yaml mysql-secret.yaml
@@ -253,7 +249,7 @@ cp mysql-secret.example.yaml mysql-secret.yaml
 
 Update credentials manually.
 
-## 4️⃣ Run Automated Deployment
+## 4️ Run Automated Deployment
 
 ```
 chmod +x deploy.sh
@@ -277,7 +273,7 @@ Deployment Steps:
 
 ---
 
-# 🔄 CI/CD Ready
+# CI/CD Ready
 
 This architecture supports:
 
@@ -288,7 +284,7 @@ This architecture supports:
 
 ---
 
-# 📊 Monitoring Ready
+# Monitoring Ready
 
 Includes:
 
@@ -298,7 +294,7 @@ Includes:
 
 ---
 
-# 🧠 Why This Project Is Production-Grade
+# Why This Project Is Production-Grade
 
 - Microservice Architecture
 - Infrastructure as Code
@@ -312,7 +308,7 @@ Includes:
 
 ---
 
-# 🎯 Future Improvements
+# Future Improvements
 
 - Redis Caching
 - CI/CD Pipelines
@@ -323,7 +319,7 @@ Includes:
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 Built & Architected by Bijay Mishra
 
@@ -331,13 +327,13 @@ Cloud | DevOps | AI Systems | Kubernetes | Full-Stack Engineering
 
 ---
 
-# 📜 License
+# License
 
 MIT License
 
 ---
 
-# ⭐ Final Note
+# Final Note
 
 This project demonstrates:
 
