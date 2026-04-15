@@ -148,18 +148,27 @@ smart-curriculum-app/
 # Docker Architecture
 
 ## Backend (Spring Boot)
-- Multi-stage build (Maven → Temurin 17)
-- Exposes port 8080
+- Multi-stage build (Maven → Eclipse Temurin 17)
+- Exposes port `8080`
 - Uses readiness & liveness probes
+- Docker image:
+  ```bash
+  docker pull techbabu/attenza-backend:latest
 
 ## Frontend (React)
 - Node build stage
 - Served via Nginx
 - Production static build
+- Docker image:
+  ```bash
+  docker pull techbabu/attenza-frontend:latest
 
 ## AI Backend
 - Python container
 - Connects internally to Ollama
+- Docker image:
+  ```bash
+  docker pull techbabu/ai-backend:latest
 
 ---
 
