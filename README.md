@@ -137,6 +137,9 @@ smart-curriculum-app/
 |   ├── deployment_architecture.png
 |   ├── workflow.png
 |
+├── doc/              
+│   ├── smart-curriculum-app.pptx
+|
 └── README.md
 ```
 
