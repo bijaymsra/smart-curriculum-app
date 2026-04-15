@@ -1,4 +1,4 @@
-# ATLAS: Cloud-Native Automated Tracking & Learning Assistant System
+# Cloud-Native Smart Curriculum Application with Ai Integration
 
 A Production-Ready, Cloud-Native Automated Tracking & Learning Assistant System  
 with Integrated AI Assistant powered by Local LLM (Ollama)
@@ -7,7 +7,7 @@ with Integrated AI Assistant powered by Local LLM (Ollama)
 
 # Live Architecture Overview
 
-Automated Tracking & Learning Assistant System - ATLAS is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
+Automated Tracking & Learning Assistant System is a fully containerized, Kubernetes-orchestrated full-stack platform designed for educational institutions.
 
 It includes:
 
