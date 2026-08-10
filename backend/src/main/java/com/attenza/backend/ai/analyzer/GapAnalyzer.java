@@ -64,7 +64,6 @@ public class GapAnalyzer {
                         maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
                     } else {
 
-                        // Reset consecutive
                         currentConsecutive = 1;
 
                         if (gapMinutes > 0) {

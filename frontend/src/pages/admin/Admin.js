@@ -4,7 +4,7 @@ import {Users, GraduationCap, Settings as SettingsIcon, BookOpen, Calendar, Tren
 import { useAdmin } from "../../context/AdminContext";
 
 // =======================
-// Admin Layout Component
+// Admin Layout Components
 // =======================
 const Admin = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
